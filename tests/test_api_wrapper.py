@@ -21,16 +21,13 @@ def test_add_and_delete_task(api):
 		task['list']['taskseries'][0]['id'],
 		task['list']['taskseries'][0]['task'][0]['id'])
 
-def test_delete_non_existing_task(api):
-	timeline = api.TimelinesCreate()
+def test_delete_non_existing_task(api, timeline):
 	with raises(RTMError):
 		_ = api.TasksDelete(
 			timeline, '42',
 			'43', '')
 
-def test_tags(api):
-	timeline = api.TimelinesCreate()
-	task = api.TasksAdd(timeline, 'test_add_remove_tags')
+def test_tags(api, timeline, task):
 	listId = task['list']['id']
 	taskSeriesId = task['list']['taskseries'][0]['id']
 	taskId = task['list']['taskseries'][0]['task'][0]['id']
@@ -57,11 +54,6 @@ def test_tags(api):
 	allTaskSeries = api.TasksGetList(list_id=listId)['list'][0]['taskseries']
 	assert len(allTaskSeries) == 1, allTaskSeries
 	assert {'tag2'} == set(allTaskSeries[0]['tags']['tag']), allTaskSeries
-
-	api.TasksDelete(
-		timeline, task['list']['id'],
-		task['list']['taskseries'][0]['id'],
-		task['list']['taskseries'][0]['task'][0]['id'])
 
 def test_dates(api, timeline, task):
 	listId = task['list']['id']
