@@ -50,10 +50,10 @@ def test_tags(api, timeline, task):
 	assert len(allTaskSeries) == 1, allTaskSeries
 	assert {'tag2'} == set(allTaskSeries[0]['tags']['tag']), allTaskSeries
 
-	api.TasksSetTags(timeline, listId, taskSeriesId, taskId, tags='tag2')
+	api.TasksSetTags(timeline, listId, taskSeriesId, taskId, tags='tag3')
 	allTaskSeries = api.TasksGetList(list_id=listId)['list'][0]['taskseries']
 	assert len(allTaskSeries) == 1, allTaskSeries
-	assert {'tag2'} == set(allTaskSeries[0]['tags']['tag']), allTaskSeries
+	assert {'tag3'} == set(allTaskSeries[0]['tags']['tag']), allTaskSeries
 
 def test_dates(api, timeline, task):
 	listId = task['list']['id']
@@ -66,11 +66,11 @@ def test_dates(api, timeline, task):
 	dueDate = datetime(2021, 6, 1, 0, 0, 0, tzinfo=userTimezone)
 
 	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate.isoformat())
-	assert updatedTask['list']['taskseries'][0]['task'][0]['due'][:19] == dueDate.astimezone(timezone.utc).isoformat()[:19]
+	assert updatedTask['list']['taskseries'][0]['task'][0]['due'] == dueDate.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
 	startDate = datetime(2021, 5, 1, 0, 0, 0, tzinfo=userTimezone)
 	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate.isoformat())
-	assert updatedTask['list']['taskseries'][0]['task'][0]['start'][:19] == startDate.astimezone(timezone.utc).isoformat()[:19]
+	assert updatedTask['list']['taskseries'][0]['task'][0]['start'] == startDate.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
 def test_get_list(api):
 	response = api.TasksGetList()
