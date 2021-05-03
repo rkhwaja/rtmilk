@@ -9,29 +9,13 @@
 # When you set a task property, it looks like you get the full task response back
 
 from datetime import datetime
-from typing import Generic, List, Literal, Optional, TypeVar, Union
-# from typing_extensions import Literal
+from typing import Literal, Union
 
 from pydantic import BaseModel
-from pydantic.fields import ModelField
 
-PydanticField = TypeVar("PydanticField")
-
-# copied from https://github.com/samuelcolvin/pydantic/issues/181
-class EmptyStrToNone(Generic[PydanticField]):
-	@classmethod
-	def __get_validators__(cls):
-		yield cls.validate
-
-	@classmethod
-	def validate(cls, v: PydanticField, field: ModelField) -> Optional[PydanticField]:
-		if v == '':
-			return None
-		return v
+from .utils import EmptyStrToNone
 
 class Task(BaseModel):
-	# id: str
-	# participants: List[str]
 	added: datetime
 	completed: Union[EmptyStrToNone[datetime]]
 	deleted: Union[EmptyStrToNone[datetime]]
