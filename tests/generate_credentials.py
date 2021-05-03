@@ -5,6 +5,13 @@ from os import environ
 
 from rtm import API, AuthorizationSession, FileStorage
 
+try:
+	from dotenv import load_dotenv
+	load_dotenv()
+	print('.env imported')
+except ImportError:
+	pass
+
 def Authorize():
 	rtm = API(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], FileStorage('rtm-token.json'))
 	authenticationSession = AuthorizationSession(rtm, 'delete')

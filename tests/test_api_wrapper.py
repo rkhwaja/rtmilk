@@ -16,6 +16,8 @@ def test_check_token(api):
 def test_add_and_delete_task(api):
 	timeline = api.TimelinesCreate()
 	task = api.TasksAdd(timeline, 'test_add_and_delete_task')
+	from pprint import pformat
+	info(pformat(task))
 	api.TasksDelete(
 		timeline, task['list']['id'],
 		task['list']['taskseries'][0]['id'],

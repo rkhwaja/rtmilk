@@ -4,6 +4,13 @@ from pytest import fixture
 
 from rtm import API, FileStorage
 
+try:
+	from dotenv import load_dotenv
+	load_dotenv()
+	print('.env imported')
+except ImportError:
+	pass
+
 class _EnvironmentVariableStorage:
 	def __init__(self, token):
 		self.token = token
