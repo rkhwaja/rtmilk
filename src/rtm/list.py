@@ -1,13 +1,38 @@
-from typing import Optional
+from logging import getLogger
+from typing import Any, List as typeList, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
+
+_log = getLogger('rtm')
 
 class List(BaseModel):
+	_client = PrivateAttr(None)
 	id: str
-	name: str
+	_name: str = PrivateAttr()
 	deleted: bool
 	locked: bool
 	archived: bool
 	position: int
 	smart: bool
 	filter: Optional[str]
+
+	def __init__(self, **data: Any):
+		super().__init__(**data)
+		self._name: str = data['name']
+		self._client = data['client']
+
+	@property
+	def name(self) -> str:
+		return self._name
+	
+	def _SetName(self, value):
+		_log.info(f'Setting name to {value}')
+		assert isinstance(value, str)
+		self._name = value
+		self._client.api.ListsSetName(self._client.timeline, self.id, self._name)
+		return
+	
+	def __setattr__(self, key, value):
+		if key == "name":
+			return self._SetName(value)
+		super().__setattr__(key, value)
