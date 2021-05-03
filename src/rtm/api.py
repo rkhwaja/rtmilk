@@ -99,6 +99,28 @@ class API:
 	def AuthCheckToken(self):
 		return self._CallAuthorized('rtm.auth.checkToken')
 
+	def ListsAdd(self, timeline, name, **kwargs):
+		_CheckKwargs(kwargs, ['filter'])
+		return self._CallAuthorized('rtm.lists.add', timeline=timeline, name=name, **kwargs)
+
+	def ListsArchive(self, timeline, list_id):
+		return self._CallAuthorized('rtm.lists.archive', timeline=timeline, list_id=list_id)
+
+	def ListsDelete(self, timeline, list_id):
+		return self._CallAuthorized('rtm.lists.delete', timeline=timeline, list_id=list_id)
+
+	def ListsGetList(self):
+		return self._CallAuthorized('rtm.lists.getList')
+
+	def ListsSetDefaultList(self, timeline, list_id):
+		return self._CallAuthorized('rtm.lists.setDefaultList', timeline=timeline, list_id=list_id)
+
+	def ListsSetName(self, timeline, list_id, name):
+		return self._CallAuthorized('rtm.lists.setName', timeline=timeline, list_id=list_id, name=name)
+
+	def ListsUnarchive(self, timeline, list_id):
+		return self._CallAuthorized('rtm.lists.unarchive', timeline=timeline, list_id=list_id)
+
 	def PushGetSubscriptions(self):
 		return self._CallAuthorized('rtm.push.getSubscriptions')['subscriptions']
 
