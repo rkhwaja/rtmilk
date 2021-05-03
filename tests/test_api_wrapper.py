@@ -8,8 +8,14 @@ from pytest import raises
 from rtm import RTMError
 
 def test_echo(api):
-	response = api.TestEcho(a='1', b='2')
-	assert response == {'a': '1', 'b': '2'}
+	rsp = api.TestEcho(a='1', b='2')
+	assert rsp.method == 'rtm.test.echo', rsp
+	assert 'api_key' in rsp.params
+	assert rsp.params['format'] == 'json', rsp
+	assert rsp.params['v'] == '2', rsp
+	assert 'api_sig' in rsp.params, rsp
+	assert rsp.params['a'] == '1', rsp
+	assert rsp.params['b'] == '2', rsp
 
 def test_check_token(api):
 	api.AuthCheckToken()

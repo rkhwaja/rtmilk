@@ -3,6 +3,8 @@ from logging import getLogger
 
 from requests import get
 
+from .models import EchoResponse
+
 _restUrl = 'https://api.rememberthemilk.com/services/rest/'
 _log = getLogger('rtm')
 
@@ -77,16 +79,7 @@ class API:
 	def TestEcho(self, **params):
 		_log.info(f'Echo: {params}')
 		rsp = self._CallUnauthorized('rtm.test.echo', **params)
-		assert rsp['method'] == 'rtm.test.echo', rsp
-		del rsp['method']
-		assert rsp['api_key'] == self.apiKey, rsp
-		del rsp['api_key']
-		assert rsp['format'] == 'json', rsp
-		del rsp['format']
-		assert rsp['v'] == '2', rsp
-		del rsp['v']
-		del rsp['api_sig']
-		return rsp
+		return EchoResponse(**rsp)
 
 	def AuthGetFrob(self):
 		rsp = self._CallUnauthorized('rtm.auth.getFrob')
