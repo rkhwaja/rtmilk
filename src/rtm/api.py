@@ -162,6 +162,10 @@ class API:
 		rsp = self._CallAuthorized('rtm.tasks.setName', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, name=name)
 		return rsp
 
+	def TasksSetPriority(self, timeline, list_id, taskseries_id, task_id, **kwargs):
+		_CheckKwargs(kwargs, ['priority'])
+		return self._CallAuthorized('rtm.tasks.setPriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)['list']
+
 	def TasksSetStartDate(self, timeline, list_id, taskseries_id, task_id, **kwargs):
 		_CheckKwargs(kwargs, ['start', 'has_start_time', 'parse'])
 		rsp = self._CallAuthorized('rtm.tasks.setStartDate', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
