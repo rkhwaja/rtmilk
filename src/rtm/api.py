@@ -3,6 +3,8 @@ from logging import getLogger
 
 from requests import get
 
+from .models import Response
+
 _restUrl = 'https://api.rememberthemilk.com/services/rest/'
 _log = getLogger('rtm')
 
@@ -54,14 +56,7 @@ class API:
 
 	def _Call(self, params):
 		params['api_sig'] = self._ApiSig(params)
-		rsp = get(_restUrl, params=params).json()['rsp']
-		stat = rsp['stat']
-		if stat == 'ok':
-			del rsp['stat']
-			return rsp
-		assert stat == 'fail', rsp
-		err = rsp['err']
-		raise RTMError(int(err['code']), err['msg'])
+		return get(_restUrl, params=params).json()
 
 	def _CallUnauthorized(self, method, **params):
 		_log.debug(f'_CallUnauthorized: {method}, {params}')
@@ -76,7 +71,8 @@ class API:
 
 	def TestEcho(self, **params):
 		_log.info(f'Echo: {params}')
-		return self._CallUnauthorized('rtm.test.echo', **params)
+		rsp = self._CallUnauthorized('rtm.test.echo', **params)
+		return Response(**rsp)
 
 	def AuthGetFrob(self):
 		rsp = self._CallUnauthorized('rtm.auth.getFrob')
@@ -86,8 +82,9 @@ class API:
 		rsp = self._CallUnauthorized('rtm.auth.getToken', frob=frob)
 		return rsp['auth']['token']
 
-	def AuthCheckToken(self):
-		return self._CallAuthorized('rtm.auth.checkToken')
+	def AuthCheckToken(self, auth_token):
+		rsp = self._CallUnauthorized('rtm.auth.checkToken', auth_token=auth_token)
+		return Response(**rsp)
 
 	def ListsAdd(self, timeline, name, **kwargs):
 		_CheckKwargs(kwargs, ['filter'])
@@ -100,7 +97,8 @@ class API:
 		return self._CallAuthorized('rtm.lists.delete', timeline=timeline, list_id=list_id)
 
 	def ListsGetList(self):
-		return self._CallAuthorized('rtm.lists.getList')
+		rsp = self._CallAuthorized('rtm.lists.getList')
+		return Response(**rsp)
 
 	def ListsSetDefaultList(self, timeline, list_id):
 		return self._CallAuthorized('rtm.lists.setDefaultList', timeline=timeline, list_id=list_id)

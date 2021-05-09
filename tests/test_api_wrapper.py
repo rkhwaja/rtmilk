@@ -5,20 +5,17 @@ from pprint import pformat
 from dateutil.tz import gettz
 from pytest import raises
 
-from rtm import RTMError
+from rtm import AuthCheckTokenResponse, ListsGetListResponse, Response, RTMError, TestEchoResponse
 
-# def test_echo(api):
-# 	rsp = api.TestEcho(a='1', b='2')
-# 	assert rsp.method == 'rtm.test.echo', rsp
-# 	assert 'api_key' in rsp.params
-# 	assert rsp.params['format'] == 'json', rsp
-# 	assert rsp.params['v'] == '2', rsp
-# 	assert 'api_sig' in rsp.params, rsp
-# 	assert rsp.params['a'] == '1', rsp
-# 	assert rsp.params['b'] == '2', rsp
+def test_echo(api):
+	response = api.TestEcho(a='1', b='2')
+	assert isinstance(response, Response), response
+	assert isinstance(response.rsp, TestEchoResponse), response
 
 def test_check_token(api):
-	api.AuthCheckToken()
+	response = api.AuthCheckToken(api.storage.Load())
+	assert isinstance(response, Response), response
+	assert isinstance(response.rsp, AuthCheckTokenResponse)
 
 def test_add_and_delete_task(api):
 	timeline = api.TimelinesCreate()
@@ -93,3 +90,5 @@ def test_get_list(api):
 def test_lists_get_list(api):
 	response = api.ListsGetList()
 	info(response)
+	assert isinstance(response, Response), response
+	assert isinstance(response.rsp, ListsGetListResponse), response
