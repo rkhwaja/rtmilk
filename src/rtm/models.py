@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Literal, Union
+from typing import Literal, Optional, Union
 
 from pydantic import AnyHttpUrl, BaseModel, constr, validator
 
@@ -20,8 +20,10 @@ class FailStat(BaseModel):
 class TestEchoResponse(OkStat):
 	method: constr(regex='rtm.test.echo')
 
-class RTMGenericList(BaseModel):
+class RTMGenericListId(BaseModel):
 	id: int
+
+class RTMGenericList(RTMGenericListId):
 	name: str
 	deleted: bool
 	locked: bool
@@ -87,7 +89,7 @@ class Task(BaseModel):
 	priority: Literal['N', '1', '2', '3']
 	start: Union[EmptyStrToNone[datetime]]
 
-class TaskSeries(BaseModel):
+class TaskSeriesBase(BaseModel):
 	id: str
 	created: datetime
 	modified: datetime
@@ -95,14 +97,26 @@ class TaskSeries(BaseModel):
 	source: str
 	url: EmptyStrToNone[AnyHttpUrl]
 	location_id: str
-	tags: list[str]
 	participants: list[str]
 	notes: list[str]
 	task: list[Task]
 
+class TaskSeries(TaskSeriesBase):
+	tags: list[str]
+
+class Tag(BaseModel):
+	tag: list[str]
+
+class TaskSeriesForTags(TaskSeriesBase):
+	tags: Tag
+
 class TasksResponsePayload(BaseModel):
 	id: str
 	taskseries: list[TaskSeries]
+
+class TasksTagsResponsePayload(BaseModel):
+	id: str
+	taskseries: list[TaskSeriesForTags]
 
 class Transaction(BaseModel):
 	id: str
@@ -110,7 +124,30 @@ class Transaction(BaseModel):
 
 class TasksResponse(OkStat):
 	transaction: Transaction
-	list:  TasksResponsePayload
+	list: TasksResponsePayload
+
+class TaskTagsResponse(OkStat):
+	transaction: Transaction
+	list: TasksTagsResponsePayload
+
+class TaskId(BaseModel):
+	id: str
+
+class TasksGetListPayload(BaseModel):
+	rev: str
+	list: list[RTMGenericListId]
+
+class TasksGetListResponse(OkStat):
+	tasks: TasksGetListPayload
+
+class TagObject(BaseModel):
+	name: str
+
+class TagForList(BaseModel):
+	tag: list[TagObject]
+
+class TagsGetListResponse(OkStat):
+	tags: TagForList
 
 class SettingsGetListPayload(BaseModel):
 	timezone: str

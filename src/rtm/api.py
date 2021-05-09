@@ -1,10 +1,11 @@
 from hashlib import md5
 from logging import getLogger
+from pprint import pformat
 
 from pydantic import ValidationError
 from requests import get
 
-from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, SettingsGetListResponse, TasksResponse, TestEchoResponse, TimelinesCreateResponse
+from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, SettingsGetListResponse, TagsGetListResponse, TasksGetListResponse, TasksResponse, TaskTagsResponse, TestEchoResponse, TimelinesCreateResponse
 
 _restUrl = 'https://api.rememberthemilk.com/services/rest/'
 _log = getLogger('rtm')
@@ -58,7 +59,7 @@ class API:
 	def _Call(self, params):
 		params['api_sig'] = self._ApiSig(params)
 		json = get(_restUrl, params=params).json()
-		_log.debug(f'JSON response:\n{json}')
+		_log.debug(f'JSON response:\n{pformat(json)}')
 		return json['rsp']
 
 	def _CallUnauthorized(self, method, **params):
@@ -134,7 +135,12 @@ class API:
 		return SettingsGetListResponse(**rsp)
 
 	def TagsGetList(self):
-		return self._CallAuthorized('rtm.tags.getList')['tags']['tag']
+		rsp = self._CallAuthorized('rtm.tags.getList')
+		try:
+			return TagsGetListResponse(**rsp)
+		except ValidationError:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg)
 
 	def TasksAdd(self, timeline, name, **kwargs):
 		_CheckKwargs(kwargs, ['list_id', 'parse', 'parent_task_id', 'external_id'])
@@ -147,7 +153,11 @@ class API:
 
 	def TasksAddTags(self, timeline, list_id, taskseries_id, task_id, tags):
 		rsp = self._CallAuthorized('rtm.tasks.addTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg)
 
 	def TasksComplete(self, timeline, list_id, taskseries_id, task_id):
 		rsp = self._CallAuthorized('rtm.tasks.complete', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)
@@ -164,7 +174,11 @@ class API:
 	def TasksGetList(self, **kwargs):
 		_CheckKwargs(kwargs, ['list_id', 'filter', 'last_sync'])
 		rsp = self._CallAuthorized('rtm.tasks.getList', **kwargs)
-		return rsp['tasks']
+		try:
+			return TasksGetListResponse(**rsp)
+		except ValidationError:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg)
 
 	def TasksMovePriority(self, timeline, list_id, taskseries_id, task_id, direction):
 		rsp = self._CallAuthorized('rtm.tasks.movePriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, direction=direction)
