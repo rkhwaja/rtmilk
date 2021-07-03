@@ -27,7 +27,7 @@ jobs:
         poetry install
     - name: Lint
       run: |
-        pylint src/rtm tests
+        pylint src/rtm tests --disable=fixme
     - name: Tests
       env:
         RTM_API_KEY: ${{ secrets.RTM_API_KEY }}

@@ -4,6 +4,13 @@ from pytest import fixture
 
 from rtm import API, FileStorage
 
+try:
+	from dotenv import load_dotenv
+	load_dotenv()
+	print('.env imported')
+except ImportError:
+	pass
+
 class _EnvironmentVariableStorage:
 	def __init__(self, token):
 		self.token = token
@@ -22,13 +29,13 @@ def api():
 
 @fixture
 def timeline(api): # pylint: disable=redefined-outer-name
-	return api.TimelinesCreate()
+	return api.TimelinesCreate().timeline
 
 @fixture
 def task(api, timeline): # pylint: disable=redefined-outer-name
 	task = api.TasksAdd(timeline, 'new task') # pylint: disable=redefined-outer-name
 	yield task
 	api.TasksDelete(
-		timeline, task['list']['id'],
-		task['list']['taskseries'][0]['id'],
-		task['list']['taskseries'][0]['task'][0]['id'])
+		timeline, task.list.id,
+		task.list.taskseries[0].id,
+		task.list.taskseries[0].task[0].id)

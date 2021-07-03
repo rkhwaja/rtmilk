@@ -1,20 +1,22 @@
 [tool.poetry]
 name = "rtm"
 version = "0.1.0"
-description = ""
+description = "RTM API wrapper"
 authors = ["Rehan Khwaja <rehan@khwaja.name>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-requests = "^2.23.0"
+requests = ">=2.23.0"
+pydantic = ">=1.8.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
-attrs = "^19.3.0"
-pylint = "^2.6.0"
-pylint-quotes = "^0.2.1"
-pyperclip = "^1.8.0"
-python-dateutil = "^2.8.1"
+pytest = ">=5.2"
+# https://github.com/PyCQA/pylint/issues/4420
+pylint = ">=2.6.0, !=2.8.0, !=2.8.1, !=2.8.2"
+pylint-quotes = ">=0.2.1"
+pyperclip = ">=1.8.0"
+python-dateutil = ">=2.8.1"
+python-dotenv = ">=0.17.1"
 
 [tool.pylint.master]
 load-plugins = "pylint_quotes"
@@ -25,16 +27,11 @@ string-quote = "single-avoid-escape"
 
 [tool.pylint.messages_control]
 disable = [
-	# "bad-continuation",
-	# "f-string-without-interpolation",
-	# "fixme",
+	"duplicate-code",
 	"invalid-name",
-	# "len-as-condition",
 	"line-too-long",
 	"logging-fstring-interpolation",
 	"missing-docstring",
-	# "no-member",
-	# "star-args",
 	"too-few-public-methods",
 	"too-many-arguments",
 	"too-many-public-methods"
