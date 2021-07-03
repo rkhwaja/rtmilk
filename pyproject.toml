@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rtm"
-version = "0.1.0"
+version = "0.0.1"
 description = "RTM API wrapper"
 authors = ["Rehan Khwaja <rehan@khwaja.name>"]
 

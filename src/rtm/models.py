@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import Optional, Union
 
-from pydantic import AnyHttpUrl, BaseModel, constr, validator # pylint: disable=no-name-in-module
+from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator # pylint: disable=no-name-in-module
 
 from .utils import EmptyStrToNone
 
@@ -98,6 +98,25 @@ class Task(BaseModel):
 	priority: PriorityEnum
 	start: Union[EmptyStrToNone[datetime]]
 
+# <note id="169624" created="2015-05-07T11:26:49Z" modified="2015-05-07T11:26:49Z" title="Note Title">Note Body</note>
+class NotesResponsePayload(BaseModel):
+	id: str
+	created: datetime
+	modified: datetime
+	title: str
+	body: str = Field(None, alias='$t')
+
+class Transaction(BaseModel):
+	id: str
+	undoable: bool
+
+class NotesResponse(OkStat):
+	transaction: Transaction
+	note: NotesResponsePayload
+
+class NotesResponse2(BaseModel):
+	note: list[NotesResponsePayload]
+
 class TaskSeriesBase(BaseModel):
 	id: str
 	created: datetime
@@ -107,7 +126,7 @@ class TaskSeriesBase(BaseModel):
 	url: EmptyStrToNone[AnyHttpUrl]
 	location_id: str
 	participants: list[str]
-	notes: list[str]
+	notes: Union[list[str], NotesResponse2]
 	task: list[Task]
 
 class TaskSeries(TaskSeriesBase):
@@ -126,10 +145,6 @@ class TasksResponsePayload(BaseModel):
 class TasksTagsResponsePayload(BaseModel):
 	id: str
 	taskseries: list[TaskSeriesForTags]
-
-class Transaction(BaseModel):
-	id: str
-	undoable: bool
 
 class TasksResponse(OkStat):
 	transaction: Transaction
@@ -185,11 +200,3 @@ class SettingsGetListResponse(OkStat):
 
 class Response(BaseModel):
 	rsp: Union[AuthCheckTokenResponse, ListsGetListResponse, TestEchoResponse, FailStat]
-
-# <note id="169624" created="2015-05-07T11:26:49Z" modified="2015-05-07T11:26:49Z" title="Note Title">Note Body</note>
-class NotesResponse(BaseModel):
-	id: str
-	created: datetime
-	modified: datetime
-	title: str
-	body: str

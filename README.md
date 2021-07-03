@@ -26,16 +26,3 @@ Somehow you have to make it look reasonable from the outside and hide the API de
 
 # Future?
 Make it sansio, so that we can use other than requests
-
-# Features needed for autotodo
-- [x] rtm.timelines.create
-- [x] rtm.tasks.getList
-- [x] rtm.tasks.add
-- [x] rtm.tasks.addTags
-- [x] rtm.tasks.setDueDate
-- [x] rtm.tasks.setStartDate
-- [ ] rtm.tasks.notes.add
-- [ ] rtm.tasks.setTags
-- [x] rtm.tasks.delete
-- [ ] rtm.authenticate_desktop
-- [ ] rtm.retrieve_token

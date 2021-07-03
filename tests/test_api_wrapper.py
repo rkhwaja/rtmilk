@@ -26,8 +26,15 @@ def test_add_and_delete_task_with_tags(api):
 	timeline = api.TimelinesCreate()
 	task = api.TasksAdd(timeline.timeline, 'test_add_and_delete_task_with_tags')
 
-	api.TasksAddTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag1'])
-	# assert 'tag1' in {x.name for x in api.TagsGetList().tags.tag}
+	task = api.TasksAddTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag1'])
+	info(task)
+	assert {'tag1'} == set(task.list.taskseries[0].tags.tag)
+
+	task = api.TasksSetTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, tags=['tag2'])
+	assert {'tag2'} == set(task.list.taskseries[0].tags.tag)
+
+	noteResponse = api.TasksNotesAdd(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, 'title', 'body')
+	assert noteResponse.note.body == 'title\nbody'
 
 	api.TasksDelete(
 		timeline.timeline, task.list.id,

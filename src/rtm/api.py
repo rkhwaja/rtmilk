@@ -232,6 +232,8 @@ class API:
 
 	def TasksSetTags(self, timeline, list_id, taskseries_id, task_id, **kwargs):
 		_CheckKwargs(kwargs, ['tags']) # TODO validate parameter
+		if 'tags' in kwargs:
+			kwargs['tags'] = ','.join(kwargs['tags'])
 		rsp = self._CallAuthorized('rtm.tasks.setTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
 		try:
 			return TaskTagsResponse(**rsp)
