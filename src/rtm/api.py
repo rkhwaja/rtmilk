@@ -3,7 +3,7 @@ from logging import getLogger
 from pprint import pformat
 from typing import List
 
-from pydantic import validate_arguments, ValidationError
+from pydantic import AnyHttpUrl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
 from requests import get
 
 from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, NotesResponse, PriorityDirectionEnum, SettingsGetListResponse, TagsGetListResponse, TasksGetListResponse, TasksResponse, TaskTagsResponse, TasksTagsResponsePayload, TestEchoResponse, TimelinesCreateResponse
@@ -22,7 +22,6 @@ class RTMError(Exception):
 
 def _ApiSig(sharedSecret, params):
 	sortedItems = sorted(params.items(), key=lambda x: x[0])
-	# _log.info(f'sortedItems={sortedItems}')
 	concatenatedParams = ''.join((key + value for key, value in sortedItems))
 	return md5((sharedSecret + concatenatedParams).encode()).hexdigest()
 
@@ -51,7 +50,8 @@ class API:
 		self.sharedSecret = sharedSecret
 		self.storage = storage
 
-	def SetToken(self, token):
+	@validate_arguments
+	def SetToken(self, token: str):
 		self.storage.Save(token)
 
 	def _ApiSig(self, params):
@@ -86,36 +86,50 @@ class API:
 		rsp = self._CallUnauthorized('rtm.auth.getFrob')
 		return rsp['frob']
 
-	def AuthGetToken(self, frob):
+	@validate_arguments
+	def AuthGetToken(self, frob: str):
 		rsp = self._CallUnauthorized('rtm.auth.getToken', frob=frob)
 		return rsp['auth']['token']
 
-	def AuthCheckToken(self, auth_token):
+	@validate_arguments
+	def AuthCheckToken(self, auth_token: str):
 		rsp = self._CallUnauthorized('rtm.auth.checkToken', auth_token=auth_token)
 		return AuthCheckTokenResponse(**rsp)
 
-	def ListsAdd(self, timeline, name, **kwargs):
+	@validate_arguments
+	def ListsAdd(self, timeline: str, name: str, **kwargs):
 		_CheckKwargs(kwargs, ['filter']) # TODO validate parameter
-		return self._CallAuthorized('rtm.lists.add', timeline=timeline, name=name, **kwargs)
+		rsp = self._CallAuthorized('rtm.lists.add', timeline=timeline, name=name, **kwargs)
+		return ListsGetListResponse(**rsp)
 
-	def ListsArchive(self, timeline, list_id):
-		return self._CallAuthorized('rtm.lists.archive', timeline=timeline, list_id=list_id)
+	@validate_arguments
+	def ListsArchive(self, timeline: str, list_id: str):
+		rsp = self._CallAuthorized('rtm.lists.archive', timeline=timeline, list_id=list_id)
+		return ListsGetListResponse(**rsp)
 
-	def ListsDelete(self, timeline, list_id):
-		return self._CallAuthorized('rtm.lists.delete', timeline=timeline, list_id=list_id)
+	@validate_arguments
+	def ListsDelete(self, timeline: str, list_id: str):
+		rsp = self._CallAuthorized('rtm.lists.delete', timeline=timeline, list_id=list_id)
+		return ListsGetListResponse(**rsp)
 
 	def ListsGetList(self):
 		rsp = self._CallAuthorized('rtm.lists.getList')
 		return ListsGetListResponse(**rsp)
 
-	def ListsSetDefaultList(self, timeline, list_id):
-		return self._CallAuthorized('rtm.lists.setDefaultList', timeline=timeline, list_id=list_id)
+	@validate_arguments
+	def ListsSetDefaultList(self, timeline: str, list_id: str):
+		rsp = self._CallAuthorized('rtm.lists.setDefaultList', timeline=timeline, list_id=list_id)
+		return ListsGetListResponse(**rsp)
 
-	def ListsSetName(self, timeline, list_id, name):
-		return self._CallAuthorized('rtm.lists.setName', timeline=timeline, list_id=list_id, name=name)
+	@validate_arguments
+	def ListsSetName(self, timeline: str, list_id: str, name: str):
+		rsp = self._CallAuthorized('rtm.lists.setName', timeline=timeline, list_id=list_id, name=name)
+		return ListsGetListResponse(**rsp)
 
-	def ListsUnarchive(self, timeline, list_id):
-		return self._CallAuthorized('rtm.lists.unarchive', timeline=timeline, list_id=list_id)
+	@validate_arguments
+	def ListsUnarchive(self, timeline: str, list_id: str):
+		rsp = self._CallAuthorized('rtm.lists.unarchive', timeline=timeline, list_id=list_id)
+		return ListsGetListResponse(**rsp)
 
 	def PushGetSubscriptions(self):
 		return self._CallAuthorized('rtm.push.getSubscriptions')['subscriptions']
@@ -123,11 +137,13 @@ class API:
 	def PushGetTopics(self):
 		return self._CallAuthorized('rtm.push.getTopics')['topics']
 
-	def PushSubscribe(self, url, topics, push_format, timeline, **kwargs):
+	@validate_arguments
+	def PushSubscribe(self, url: AnyHttpUrl, topics: list[str], push_format, timeline: str, **kwargs):
 		_CheckKwargs(kwargs, ['lease_seconds', 'filter']) # TODO validate parameters
 		return self._CallAuthorized('rtm.push.subscribe', url=url, topics=topics, push_format=push_format, timeline=timeline, **kwargs)
 
-	def PushUnsubscribe(self, timeline, subscription_id):
+	@validate_arguments
+	def PushUnsubscribe(self, timeline: str, subscription_id: str):
 		self._CallAuthorized('rtm.push.unsubscribe', timeline=timeline, subscription_id=subscription_id)
 
 	def TimelinesCreate(self):

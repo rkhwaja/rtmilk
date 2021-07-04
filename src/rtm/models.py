@@ -196,11 +196,3 @@ class SettingsGetListPayload(BaseModel):
 
 class SettingsGetListResponse(OkStat):
 	settings: SettingsGetListPayload
-
-# class TaskListResponse(OkStat):
-
-# class TaskListResponseOrFail(BaseModel):
-# 	rsp: Union[TaskListResponse, FailStat]
-
-class Response(BaseModel):
-	rsp: Union[AuthCheckTokenResponse, ListsGetListResponse, TestEchoResponse, FailStat]
