@@ -1,8 +1,18 @@
 [tool.poetry]
 name = "rtmilk"
-version = "0.0.1"
+version = "0.0.2"
 description = "RTM API wrapper"
 authors = ["Rehan Khwaja <rehan@khwaja.name>"]
+license = "MIT"
+homepage = "https://github.com/rkhwaja/rtmilk"
+keywords = ["RememberTheMilk"]
+readme = "README.md"
+classifiers = [
+	"License :: OSI Approved :: MIT License",
+	"Development Status :: 3 - Alpha",
+	"Intended Audience :: Developers",
+	"Programming Language :: Python :: 3.9"
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -38,5 +48,5 @@ disable = [
 ]
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
