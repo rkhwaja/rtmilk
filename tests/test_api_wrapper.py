@@ -34,6 +34,9 @@ def test_add_and_delete_complex_task(api):
 	task = api.TasksSetTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, tags=['tag2'])
 	assert {'tag2'} == set(task.list.taskseries[0].tags.tag)
 
+	task = api.TasksRemoveTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag2'])
+	assert set() == set(task.list.taskseries[0].tags)
+
 	noteResponse = api.TasksNotesAdd(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, 'title', 'body')
 	# assert noteResponse.note.title == 'title' # fails, but it's the service itself
 	assert noteResponse.note.body == 'title\nbody'

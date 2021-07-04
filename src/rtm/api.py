@@ -199,9 +199,15 @@ class API:
 			failStat = FailStat(**rsp)
 			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
-	def TasksRemoveTags(self, timeline, list_id, taskseries_id, task_id, tags: List[str]):
+	@validate_arguments
+	def TasksRemoveTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]):
+		tags = ','.join(tags)
 		rsp = self._CallAuthorized('rtm.tasks.removeTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	@validate_arguments
 	def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
