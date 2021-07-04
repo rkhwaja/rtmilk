@@ -85,6 +85,10 @@ class PriorityEnum(Enum):
 	Priority2 = '2'
 	Priority3 = '3'
 
+class PriorityDirectionEnum(Enum):
+	Up = 'up'
+	Down = 'down'
+
 class Task(BaseModel):
 	id: str
 	added: datetime

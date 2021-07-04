@@ -6,7 +6,7 @@ from typing import List
 from pydantic import validate_arguments, ValidationError
 from requests import get
 
-from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, NotesResponse, SettingsGetListResponse, TagsGetListResponse, TasksGetListResponse, TasksResponse, TaskTagsResponse, TestEchoResponse, TimelinesCreateResponse
+from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, NotesResponse, PriorityDirectionEnum, SettingsGetListResponse, TagsGetListResponse, TasksGetListResponse, TasksResponse, TaskTagsResponse, TasksTagsResponsePayload, TestEchoResponse, TimelinesCreateResponse
 
 _restUrl = 'https://api.rememberthemilk.com/services/rest/'
 _log = getLogger('rtm')
@@ -165,9 +165,14 @@ class API:
 			failStat = FailStat(**rsp)
 			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
-	def TasksComplete(self, timeline, list_id, taskseries_id, task_id):
+	@validate_arguments
+	def TasksComplete(self, timeline: str, list_id: str, taskseries_id: str, task_id: str):
 		rsp = self._CallAuthorized('rtm.tasks.complete', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	def TasksDelete(self, timeline, list_id, taskseries_id, task_id):
 		rsp = self._CallAuthorized('rtm.tasks.delete', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)
@@ -186,9 +191,15 @@ class API:
 			failStat = FailStat(**rsp)
 			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
-	def TasksMovePriority(self, timeline, list_id, taskseries_id, task_id, direction): # TODO validate parameter
+	@validate_arguments
+	def TasksMovePriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, direction: PriorityDirectionEnum):
+		direction = direction.value
 		rsp = self._CallAuthorized('rtm.tasks.movePriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, direction=direction)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	@validate_arguments
 	def TasksNotesAdd(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, note_title: str, note_text: str):
@@ -199,9 +210,15 @@ class API:
 			failStat = FailStat(**rsp)
 			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
-	def TasksRemoveTags(self, timeline, list_id, taskseries_id, task_id, tags: List[str]):
+	@validate_arguments
+	def TasksRemoveTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]):
+		tags = ','.join(tags)
 		rsp = self._CallAuthorized('rtm.tasks.removeTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	@validate_arguments
 	def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
@@ -215,11 +232,22 @@ class API:
 
 	def TasksSetName(self, timeline, list_id, taskseries_id, task_id, name: str):
 		rsp = self._CallAuthorized('rtm.tasks.setName', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, name=name)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	def TasksSetPriority(self, timeline, list_id, taskseries_id, task_id, **kwargs):
 		_CheckKwargs(kwargs, ['priority']) # TODO validate parameter
-		return self._CallAuthorized('rtm.tasks.setPriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)['list']
+		if 'priority' in kwargs:
+			kwargs['priority'] = kwargs['priority'].value
+		rsp = self._CallAuthorized('rtm.tasks.setPriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)['list']
+		try:
+			return TasksTagsResponsePayload(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
 		_CheckKwargs(kwargs, ['start', 'has_start_time', 'parse']) # TODO validate parameter
