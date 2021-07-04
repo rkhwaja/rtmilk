@@ -6,7 +6,7 @@ from typing import List
 from pydantic import validate_arguments, ValidationError
 from requests import get
 
-from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, NotesResponse, SettingsGetListResponse, TagsGetListResponse, TasksGetListResponse, TasksResponse, TaskTagsResponse, TestEchoResponse, TimelinesCreateResponse
+from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, NotesResponse, SettingsGetListResponse, TagsGetListResponse, TasksGetListResponse, TasksResponse, TaskTagsResponse, TasksTagsResponsePayload, TestEchoResponse, TimelinesCreateResponse
 
 _restUrl = 'https://api.rememberthemilk.com/services/rest/'
 _log = getLogger('rtm')
@@ -215,11 +215,22 @@ class API:
 
 	def TasksSetName(self, timeline, list_id, taskseries_id, task_id, name: str):
 		rsp = self._CallAuthorized('rtm.tasks.setName', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, name=name)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	def TasksSetPriority(self, timeline, list_id, taskseries_id, task_id, **kwargs):
 		_CheckKwargs(kwargs, ['priority']) # TODO validate parameter
-		return self._CallAuthorized('rtm.tasks.setPriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)['list']
+		if 'priority' in kwargs:
+			kwargs['priority'] = kwargs['priority'].value
+		rsp = self._CallAuthorized('rtm.tasks.setPriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)['list']
+		try:
+			return TasksTagsResponsePayload(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
 		_CheckKwargs(kwargs, ['start', 'has_start_time', 'parse']) # TODO validate parameter

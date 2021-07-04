@@ -5,6 +5,7 @@ from dateutil.tz import gettz
 from pytest import raises
 
 from rtm import AuthCheckTokenResponse, RTMError, TestEchoResponse
+from rtm.models import PriorityEnum
 
 def test_echo(api):
 	response = api.TestEcho(a='1', b='2')
@@ -22,9 +23,9 @@ def test_add_and_delete_basic_task(api):
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
 
-def test_add_and_delete_task_with_tags(api):
+def test_add_and_delete_complex_task(api):
 	timeline = api.TimelinesCreate()
-	task = api.TasksAdd(timeline.timeline, 'test_add_and_delete_task_with_tags')
+	task = api.TasksAdd(timeline.timeline, 'test_add_and_delete_complex_task')
 
 	task = api.TasksAddTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag1'])
 	info(task)
@@ -34,7 +35,14 @@ def test_add_and_delete_task_with_tags(api):
 	assert {'tag2'} == set(task.list.taskseries[0].tags.tag)
 
 	noteResponse = api.TasksNotesAdd(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, 'title', 'body')
+	# assert noteResponse.note.title == 'title' # fails, but it's the service itself
 	assert noteResponse.note.body == 'title\nbody'
+
+	response = api.TasksSetPriority(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, priority=PriorityEnum.Priority3)
+	# assert response.taskseries[0].task[0].priority == PriorityEnum.Priority3 # fails, but it's the service itself
+
+	response = api.TasksSetName(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, name='test_add_and_delete_complex_task - renamed')
+	assert response.list.taskseries[0].name == 'test_add_and_delete_complex_task - renamed'
 
 	api.TasksDelete(
 		timeline.timeline, task.list.id,
