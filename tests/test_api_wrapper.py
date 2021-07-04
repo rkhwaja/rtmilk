@@ -5,7 +5,7 @@ from dateutil.tz import gettz
 from pytest import raises
 
 from rtm import AuthCheckTokenResponse, RTMError, TestEchoResponse
-from rtm.models import PriorityEnum
+from rtm.models import PriorityDirectionEnum, PriorityEnum
 
 def test_echo(api):
 	response = api.TestEcho(a='1', b='2')
@@ -43,6 +43,9 @@ def test_add_and_delete_complex_task(api):
 
 	response = api.TasksSetPriority(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, priority=PriorityEnum.Priority3)
 	# assert response.taskseries[0].task[0].priority == PriorityEnum.Priority3 # fails, but it's the service itself
+
+	response = api.TasksMovePriority(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, PriorityDirectionEnum.Up)
+	# assert response.list.taskseries[0].task[0].priority == PriorityEnum.Priority2 # fails, but it's the service itself
 
 	response = api.TasksSetName(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, name='test_add_and_delete_complex_task - renamed')
 	assert response.list.taskseries[0].name == 'test_add_and_delete_complex_task - renamed'

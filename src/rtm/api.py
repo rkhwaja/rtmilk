@@ -6,7 +6,7 @@ from typing import List
 from pydantic import validate_arguments, ValidationError
 from requests import get
 
-from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, NotesResponse, SettingsGetListResponse, TagsGetListResponse, TasksGetListResponse, TasksResponse, TaskTagsResponse, TasksTagsResponsePayload, TestEchoResponse, TimelinesCreateResponse
+from .models import AuthCheckTokenResponse, FailStat, ListsGetListResponse, NotesResponse, PriorityDirectionEnum, SettingsGetListResponse, TagsGetListResponse, TasksGetListResponse, TasksResponse, TaskTagsResponse, TasksTagsResponsePayload, TestEchoResponse, TimelinesCreateResponse
 
 _restUrl = 'https://api.rememberthemilk.com/services/rest/'
 _log = getLogger('rtm')
@@ -186,9 +186,15 @@ class API:
 			failStat = FailStat(**rsp)
 			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
-	def TasksMovePriority(self, timeline, list_id, taskseries_id, task_id, direction): # TODO validate parameter
+	@validate_arguments
+	def TasksMovePriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, direction: PriorityDirectionEnum):
+		direction = direction.value
 		rsp = self._CallAuthorized('rtm.tasks.movePriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, direction=direction)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	@validate_arguments
 	def TasksNotesAdd(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, note_title: str, note_text: str):
