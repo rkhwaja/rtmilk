@@ -165,9 +165,14 @@ class API:
 			failStat = FailStat(**rsp)
 			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
-	def TasksComplete(self, timeline, list_id, taskseries_id, task_id):
+	@validate_arguments
+	def TasksComplete(self, timeline: str, list_id: str, taskseries_id: str, task_id: str):
 		rsp = self._CallAuthorized('rtm.tasks.complete', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)
-		return rsp
+		try:
+			return TaskTagsResponse(**rsp)
+		except ValidationError as e:
+			failStat = FailStat(**rsp)
+			raise RTMError(failStat.err.code, failStat.err.msg) from e
 
 	def TasksDelete(self, timeline, list_id, taskseries_id, task_id):
 		rsp = self._CallAuthorized('rtm.tasks.delete', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)

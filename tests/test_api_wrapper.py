@@ -28,7 +28,6 @@ def test_add_and_delete_complex_task(api):
 	task = api.TasksAdd(timeline.timeline, 'test_add_and_delete_complex_task')
 
 	task = api.TasksAddTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag1'])
-	info(task)
 	assert {'tag1'} == set(task.list.taskseries[0].tags.tag)
 
 	task = api.TasksSetTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, tags=['tag2'])
@@ -50,10 +49,10 @@ def test_add_and_delete_complex_task(api):
 	response = api.TasksSetName(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, name='test_add_and_delete_complex_task - renamed')
 	assert response.list.taskseries[0].name == 'test_add_and_delete_complex_task - renamed'
 
-	api.TasksDelete(
-		timeline.timeline, task.list.id,
-		task.list.taskseries[0].id,
-		task.list.taskseries[0].task[0].id)
+	response = api.TasksComplete(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id)
+	assert response.list.taskseries[0].task[0].completed is not None
+
+	api.TasksDelete(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id)
 
 def test_delete_non_existing_task(api, timeline):
 	with raises(RTMError):
