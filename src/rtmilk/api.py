@@ -32,9 +32,10 @@ def _CheckKwargs(keywordArgs, allowedArgs):
 
 def _ValidateReturn(type_, rsp):
 	try:
+		_log.info(f'Parsing {type_}:\n{pformat(rsp)}')
 		return type_(**rsp)
 	except ValidationError as e:
-		_log.error(f'Failed to validate against {type_}:\n{pformat(rsp)}')
+		_log.error(f'Failed to validate against {type_}:\n{pformat(rsp)}\n{e}')
 		failStat = FailStat(**rsp)
 		raise RTMError(failStat.err.code, failStat.err.msg) from e
 
@@ -216,6 +217,8 @@ class API:
 	@validate_arguments
 	def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
 		_CheckKwargs(kwargs, ['due', 'has_due_time', 'parse']) # TODO validate parameters
+		if 'has_due_time' in kwargs:
+			kwargs['has_due_time'] = '1' if kwargs['has_due_time'] else '0'
 		rsp = self._CallAuthorized('rtm.tasks.setDueDate', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
 		return _ValidateReturn(TaskResponse, rsp)
 
@@ -235,6 +238,8 @@ class API:
 	@validate_arguments
 	def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
 		_CheckKwargs(kwargs, ['start', 'has_start_time', 'parse']) # TODO validate parameter
+		if 'has_start_time' in kwargs:
+			kwargs['has_start_time'] = '1' if kwargs['has_start_time'] else '0'
 		rsp = self._CallAuthorized('rtm.tasks.setStartDate', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
 		return _ValidateReturn(TaskResponse, rsp)
 

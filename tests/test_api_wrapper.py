@@ -118,7 +118,7 @@ def test_dates(api, timeline, task):
 	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate2.isoformat())
 	assert updatedTask.list.taskseries[0].task[0].start == startDate2.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
-def test_get_list(api):
+def test_get_list(api, task): # pylint: disable=unused-argument
 	allTasks = api.TasksGetList()
 	if allTasks.tasks.list is None:
 		return

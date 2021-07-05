@@ -13,3 +13,4 @@ class AuthorizationSession:
 	def Done(self):
 		token = self._api.AuthGetToken(self._frob)
 		self._api.SetToken(token)
+		return token
