@@ -144,9 +144,13 @@ class TaskResponse(OkStat):
 	transaction: Transaction
 	list: TaskPayload
 
+class TasksInListPayload(BaseModel):
+	id: str
+	taskseries: Optional[list[TaskSeries]] # can be missing if there are no tasks in the list
+
 class ListPayload(BaseModel):
 	rev: str
-	list: Optional[list[RTMGenericListId]]
+	list: list[TasksInListPayload]
 
 class ListResponse(OkStat):
 	tasks: ListPayload
