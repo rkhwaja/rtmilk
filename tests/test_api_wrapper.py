@@ -4,16 +4,15 @@ from logging import info
 from dateutil.tz import gettz
 from pytest import raises
 
-from rtmilk import AuthCheckTokenResponse, RTMError, TestEchoResponse
-from rtmilk.models import PriorityDirectionEnum, PriorityEnum
+from rtmilk import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError
 
 def test_echo(api):
 	response = api.TestEcho(a='1', b='2')
-	assert isinstance(response, TestEchoResponse), response
+	assert isinstance(response, EchoResponse), response
 
 def test_check_token(api):
 	response = api.AuthCheckToken(api.storage.Load())
-	assert isinstance(response, AuthCheckTokenResponse)
+	assert isinstance(response, AuthResponse)
 
 def test_add_and_delete_basic_task(api):
 	timeline = api.TimelinesCreate()
@@ -101,13 +100,23 @@ def test_dates(api, timeline, task):
 	userTimezone = gettz(settings.settings.timezone)
 
 	dueDate = datetime(2021, 6, 1, 0, 0, 0, tzinfo=userTimezone)
+	dueDate2 = datetime(2021, 6, 2, 0, 0, 0, tzinfo=userTimezone)
+	startDate = datetime(2021, 5, 1, 0, 0, 0, tzinfo=userTimezone)
+	startDate2 = datetime(2021, 5, 2, 0, 0, 0, tzinfo=userTimezone)
 
 	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate.isoformat())
 	assert updatedTask.list.taskseries[0].task[0].due == dueDate.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
-	startDate = datetime(2021, 5, 1, 0, 0, 0, tzinfo=userTimezone)
 	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate.isoformat())
 	assert updatedTask.list.taskseries[0].task[0].start == startDate.astimezone(timezone.utc).isoformat()[:19] + 'Z'
+
+	api.TasksAddTags(timeline, listId, taskSeriesId, taskId, ['tag1'])
+
+	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate2.isoformat())
+	assert updatedTask.list.taskseries[0].task[0].due == dueDate2.astimezone(timezone.utc).isoformat()[:19] + 'Z'
+
+	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate2.isoformat())
+	assert updatedTask.list.taskseries[0].task[0].start == startDate2.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
 def test_get_list(api):
 	allTasks = api.TasksGetList()

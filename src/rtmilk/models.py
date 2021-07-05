@@ -6,7 +6,7 @@ from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator # pylint: d
 
 from .utils import EmptyStrToNone
 
-class RTMError2(BaseModel):
+class ErrorData(BaseModel):
 	code: int
 	msg: str
 
@@ -15,9 +15,9 @@ class OkStat(BaseModel):
 
 class FailStat(BaseModel):
 	stat: constr(regex='fail')
-	err: RTMError2
+	err: ErrorData
 
-class TestEchoResponse(OkStat):
+class EchoResponse(OkStat):
 	__test__ = False # avoid pytest warning
 	method: constr(regex='rtm.test.echo')
 
@@ -55,7 +55,7 @@ class RTMSmartList(RTMList):
 class List(BaseModel):
 	list: list[Union[RTMSmartList, RTMList]]
 
-class ListsGetListResponse(OkStat):
+class ListsResponse(OkStat):
 	lists: List
 
 class PermsEnum(str, Enum):
@@ -68,15 +68,15 @@ class User(BaseModel):
 	username: str
 	fullname: str
 
-class AuthCheckTokenResponsePayload(BaseModel):
+class AuthResponsePayload(BaseModel):
 	perms: PermsEnum
 	token: str
 	user: User
 
-class AuthCheckTokenResponse(OkStat):
-	auth: AuthCheckTokenResponsePayload
+class AuthResponse(OkStat):
+	auth: AuthResponsePayload
 
-class TimelinesCreateResponse(OkStat):
+class TimelineResponse(OkStat):
 	timeline: str # using str rather than int because you can't do any arithmetic with it
 
 class PriorityEnum(Enum):
@@ -120,7 +120,10 @@ class NotesResponse(OkStat):
 class NotesResponse2(BaseModel):
 	note: list[NotesResponsePayload]
 
-class TaskSeriesBase(BaseModel):
+class Tags(BaseModel):
+	tag: list[str]
+
+class TaskSeries(BaseModel):
 	id: str
 	created: datetime
 	modified: datetime
@@ -131,38 +134,22 @@ class TaskSeriesBase(BaseModel):
 	participants: list[str]
 	notes: Union[list[str], NotesResponse2]
 	task: list[Task]
+	tags: Union[Tags, list[str]] # in the case where it's a list, it seems to be always an empty list
 
-class TaskSeries(TaskSeriesBase):
-	tags: list[str]
-
-class Tag(BaseModel):
-	tag: list[str]
-
-class TaskSeriesForTags(TaskSeriesBase):
-	tags: Union[Tag, list[str]]
-
-class TasksResponsePayload(BaseModel):
+class TaskPayload(BaseModel):
 	id: str
 	taskseries: list[TaskSeries]
 
-class TasksTagsResponsePayload(BaseModel):
-	id: str
-	taskseries: list[TaskSeriesForTags]
-
-class TasksResponse(OkStat):
+class TaskResponse(OkStat):
 	transaction: Transaction
-	list: TasksResponsePayload
+	list: TaskPayload
 
-class TaskTagsResponse(OkStat):
-	transaction: Transaction
-	list: TasksTagsResponsePayload
-
-class TasksGetListPayload(BaseModel):
+class ListPayload(BaseModel):
 	rev: str
 	list: Optional[list[RTMGenericListId]]
 
-class TasksGetListResponse(OkStat):
-	tasks: TasksGetListPayload
+class ListResponse(OkStat):
+	tasks: ListPayload
 
 class TagObject(BaseModel):
 	name: str
@@ -170,7 +157,7 @@ class TagObject(BaseModel):
 class TagForList(BaseModel):
 	tag: list[TagObject]
 
-class TagsGetListResponse(OkStat):
+class TagListResponse(OkStat):
 	tags: TagForList
 
 class DateFormatEnum(IntEnum):
@@ -181,7 +168,7 @@ class TimeFormatEnum(IntEnum):
 	Format12Hour = 0
 	Format24Hour = 1
 
-class SettingsGetListPayload(BaseModel):
+class SettingsPayload(BaseModel):
 	timezone: str
 	dateformat: DateFormatEnum # 0 for Euro format, 1 for US format
 	timeformat: TimeFormatEnum # 0 for 12-hour format, 1 for 24-hour format
@@ -190,5 +177,5 @@ class SettingsGetListPayload(BaseModel):
 	defaultduedate: str
 	pro: bool
 
-class SettingsGetListResponse(OkStat):
-	settings: SettingsGetListPayload
+class SettingsResponse(OkStat):
+	settings: SettingsPayload
