@@ -126,18 +126,18 @@ def test_dates(api, timeline, task):
 	startDate = datetime(2021, 5, 1, 0, 0, 0, tzinfo=userTimezone)
 	startDate2 = datetime(2021, 5, 2, 0, 0, 0, tzinfo=userTimezone)
 
-	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate.isoformat())
+	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate)
 	assert updatedTask.list.taskseries[0].task[0].due == dueDate.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
-	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate.isoformat())
+	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate)
 	assert updatedTask.list.taskseries[0].task[0].start == startDate.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
 	api.TasksAddTags(timeline, listId, taskSeriesId, taskId, ['tag1'])
 
-	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate2.isoformat())
+	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate2)
 	assert updatedTask.list.taskseries[0].task[0].due == dueDate2.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
-	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate2.isoformat())
+	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate2)
 	assert updatedTask.list.taskseries[0].task[0].start == startDate2.astimezone(timezone.utc).isoformat()[:19] + 'Z'
 
 def test_get_list(api, task): # pylint: disable=unused-argument
