@@ -14,44 +14,66 @@ def test_check_token(api):
 	response = api.AuthCheckToken(api.storage.Load())
 	assert isinstance(response, AuthResponse)
 
-def test_add_and_delete_basic_task(api):
-	timeline = api.TimelinesCreate()
-	task = api.TasksAdd(timeline.timeline, 'test_add_and_delete_basic_task')
+def test_add_and_delete_basic_task(api, timeline):
+	task = api.TasksAdd(timeline, 'test_add_and_delete_basic_task')
 	api.TasksDelete(
-		timeline.timeline, task.list.id,
+		timeline, task.list.id,
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
 
-def test_add_and_delete_complex_task(api):
-	timeline = api.TimelinesCreate()
-	task = api.TasksAdd(timeline.timeline, 'test_add_and_delete_complex_task')
+def test_pf_use_case(api, timeline):
+	prefix1 = 'prefix1: '
+	prefix2 = 'prefix2: '
+	suffix1 = 'suffix1'
+	suffix2 = 'suffix2'
+	task1 = api.TasksAdd(timeline, prefix1 + suffix1)
+	task2 = api.TasksAdd(timeline, prefix1 + suffix2)
+	task3 = api.TasksAdd(timeline, prefix2 + suffix1)
+	task4 = api.TasksAdd(timeline, prefix2 + suffix2)
+	api.TasksComplete(timeline, task4.list.id, task4.list.taskseries[0].id, task4.list.taskseries[0].task[0].id)
 
-	task = api.TasksAddTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag1'])
+	emptyListResponse = api.TasksGetList(filter=
+		f'tag:auto AND tag:computer AND status:incomplete AND (name:"{prefix1}" OR name:"{prefix2}"')
+	info(emptyListResponse)
+
+	nonEmptyListResponse = api.TasksGetList(filter=
+		f'(name:"{prefix1}" OR name:"{prefix2}"')
+	info(nonEmptyListResponse)
+
+	api.TasksDelete(timeline, task1.list.id, task1.list.taskseries[0].id, task1.list.taskseries[0].task[0].id)
+	api.TasksDelete(timeline, task2.list.id, task2.list.taskseries[0].id, task2.list.taskseries[0].task[0].id)
+	api.TasksDelete(timeline, task3.list.id, task3.list.taskseries[0].id, task3.list.taskseries[0].task[0].id)
+	api.TasksDelete(timeline, task4.list.id, task4.list.taskseries[0].id, task4.list.taskseries[0].task[0].id)
+
+def test_add_and_delete_complex_task(api, timeline):
+	task = api.TasksAdd(timeline, 'test_add_and_delete_complex_task')
+
+	task = api.TasksAddTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag1'])
 	assert {'tag1'} == set(task.list.taskseries[0].tags.tag)
 
-	task = api.TasksSetTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, tags=['tag2'])
+	task = api.TasksSetTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, tags=['tag2'])
 	assert {'tag2'} == set(task.list.taskseries[0].tags.tag)
 
-	task = api.TasksRemoveTags(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag2'])
+	task = api.TasksRemoveTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag2'])
 	assert set() == set(task.list.taskseries[0].tags)
 
-	noteResponse = api.TasksNotesAdd(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, 'title', 'body')
+	noteResponse = api.TasksNotesAdd(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, 'title', 'body')
 	# assert noteResponse.note.title == 'title' # fails, but it's the service itself
 	assert noteResponse.note.body == 'title\nbody'
 
-	response = api.TasksSetPriority(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, priority=PriorityEnum.Priority3)
+	response = api.TasksSetPriority(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, priority=PriorityEnum.Priority3)
 	# assert response.taskseries[0].task[0].priority == PriorityEnum.Priority3 # fails, but it's the service itself
 
-	response = api.TasksMovePriority(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, PriorityDirectionEnum.Up)
+	response = api.TasksMovePriority(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, PriorityDirectionEnum.Up)
 	# assert response.list.taskseries[0].task[0].priority == PriorityEnum.Priority2 # fails, but it's the service itself
 
-	response = api.TasksSetName(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, name='test_add_and_delete_complex_task - renamed')
+	response = api.TasksSetName(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, name='test_add_and_delete_complex_task - renamed')
 	assert response.list.taskseries[0].name == 'test_add_and_delete_complex_task - renamed'
 
-	response = api.TasksComplete(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id)
+	response = api.TasksComplete(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id)
 	assert response.list.taskseries[0].task[0].completed is not None
 
-	api.TasksDelete(timeline.timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id)
+	api.TasksDelete(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id)
 
 def test_delete_non_existing_task(api, timeline):
 	with raises(RTMError):

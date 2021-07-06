@@ -150,7 +150,7 @@ class TasksInListPayload(BaseModel):
 
 class ListPayload(BaseModel):
 	rev: str
-	list: list[TasksInListPayload]
+	list: Optional[list[TasksInListPayload]] # if there are are no tasks in the list, this node is missing
 
 class ListResponse(OkStat):
 	tasks: ListPayload
