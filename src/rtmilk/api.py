@@ -44,24 +44,10 @@ def _ValidateReturn(type_, rsp):
 		failStat = FailStat(**rsp)
 		raise RTMError(failStat.err.code, failStat.err.msg) from e
 
-class API:
-	"""
-	Low-level API wrapper
-	Handles the authorization/authentication token and API signature
-	There is (almost) a 1-1 relationship between API calls and public member functions
-	Parameter names are the same as the API
-	The inputs are python types at the moment
-	The outputs are parsed into pydantic types, including errors
-	Translate errors into exceptions
-	The upper layer will:
-	- organize stuff like setting start/due dates in the order that they will be valid
-	- hide details like timeline, filter format
-	- only send API calls for changed properties
-	"""
-	def __init__(self, apiKey, sharedSecret, token):
+class UnauthorizedAPI:
+	def __init__(self, apiKey, sharedSecret):
 		self._apiKey = apiKey
 		self._sharedSecret = sharedSecret
-		self.token = token
 
 	def _ApiSig(self, params):
 		return _ApiSig(self._sharedSecret, params)
@@ -78,12 +64,6 @@ class API:
 	def _CallUnauthorized(self, method, **params):
 		_log.debug(f'_CallUnauthorized: {method}, {params}')
 		params.update(self._MethodParams(method))
-		return self._Call(params)
-
-	def _CallAuthorized(self, method, **params):
-		_log.debug(f'_CallAuthorized: {method}, {params}')
-		params.update(self._MethodParams(method))
-		params.update({'auth_token': self.token})
 		return self._Call(params)
 
 	def TestEcho(self, **params) -> EchoResponse:
@@ -104,6 +84,30 @@ class API:
 	def AuthCheckToken(self, auth_token: str) -> AuthResponse:
 		rsp = self._CallUnauthorized('rtm.auth.checkToken', auth_token=auth_token)
 		return AuthResponse(**rsp)
+
+class API(UnauthorizedAPI):
+	"""
+	Low-level API wrapper
+	Handles the authorization/authentication token and API signature
+	There is (almost) a 1-1 relationship between API calls and public member functions
+	Parameter names are the same as the API
+	The inputs are python types at the moment
+	The outputs are parsed into pydantic types, including errors
+	Translate errors into exceptions
+	The upper layer will:
+	- organize stuff like setting start/due dates in the order that they will be valid
+	- hide details like timeline, filter format
+	- only send API calls for changed properties
+	"""
+	def __init__(self, apiKey, sharedSecret, token):
+		super().__init__(apiKey, sharedSecret)
+		self.token = token
+
+	def _CallAuthorized(self, method, **params):
+		_log.debug(f'_CallAuthorized: {method}, {params}')
+		params.update(self._MethodParams(method))
+		params.update({'auth_token': self.token})
+		return self._Call(params)
 
 	@validate_arguments
 	def ListsAdd(self, timeline: str, name: str, **kwargs) -> ListResponse:
