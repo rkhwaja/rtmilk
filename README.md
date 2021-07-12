@@ -3,10 +3,9 @@ Python wrapper for "Remember the Milk" [API](https://www.rememberthemilk.com/ser
 
 # Usage
 ```python
-from rtmmilk import API, FileStorage, RTMError
+from rtmmilk import API, RTMError
 
-storage = FileStorage('rtm-token.json')
-api = API(API_KEY, SHARED_SECRET, storage)
+api = API(API_KEY, SHARED_SECRET, TOKEN)
 
 timeline = api.TasksCreateTimeline().timeline
 try:
@@ -17,11 +16,12 @@ except RTMError as e:
 
 # Authorization
 ```python
-from rtmmilk import API, AuthorizationSession, FileStorage
+from rtmmilk import API, AuthorizationSession
 
-api = API(API_KEY, SHARED_SECRET, FileStorage('rtm-token.json'))
+api = API(API_KEY, SHARED_SECRET, None)
 authenticationSession = AuthorizationSession(api, 'delete')
 input(f"Go to {authenticationSession.url} and authorize. Then Press ENTER")
 token = authenticationSession.Done()
-print('Authorization token written to rtm-token.json')
+print(f'Authorization token is {token}')
+api.SetToken(token)
 ```
