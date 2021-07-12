@@ -3,7 +3,7 @@
 from contextlib import suppress
 from os import environ
 
-from rtmilk import API, AuthorizationSession, FileStorage
+from rtmilk import API, AuthorizationSession
 
 try:
 	from dotenv import load_dotenv
@@ -13,7 +13,7 @@ except ImportError:
 	pass
 
 def Authorize():
-	rtm = API(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], FileStorage('rtm-token.json'))
+	rtm = API(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], None)
 	authenticationSession = AuthorizationSession(rtm, 'delete')
 	print(f'Go to {authenticationSession.url} and authorize')
 	with suppress(ImportError):
@@ -21,8 +21,11 @@ def Authorize():
 		copy(authenticationSession.url)
 		print('URL copied to clipboard')
 	input("Press ENTER when you've authorized the app")
-	authenticationSession.Done()
-	print('Authorization token written to rtm-token.json')
+	token = authenticationSession.Done()
+	filename = 'rtm-token.txt'
+	with open(filename) as f:
+		f.write(token)
+	print(f'Authorization token written to {filename}')
 
 if __name__ == '__main__':
 	Authorize()

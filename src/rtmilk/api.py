@@ -58,14 +58,10 @@ class API:
 	- hide details like timeline, filter format
 	- only send API calls for changed properties
 	"""
-	def __init__(self, apiKey, sharedSecret, storage):
+	def __init__(self, apiKey, sharedSecret, token):
 		self._apiKey = apiKey
 		self._sharedSecret = sharedSecret
-		self.storage = storage
-
-	@validate_arguments
-	def SetToken(self, token: str) -> None:
-		self.storage.Save(token)
+		self.token = token
 
 	def _ApiSig(self, params):
 		return _ApiSig(self._sharedSecret, params)
@@ -87,7 +83,7 @@ class API:
 	def _CallAuthorized(self, method, **params):
 		_log.debug(f'_CallAuthorized: {method}, {params}')
 		params.update(self._MethodParams(method))
-		params.update({'auth_token': self.storage.Load()})
+		params.update({'auth_token': self.token})
 		return self._Call(params)
 
 	def TestEcho(self, **params) -> EchoResponse:

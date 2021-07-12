@@ -11,7 +11,7 @@ def test_echo(api):
 	assert isinstance(response, EchoResponse), response
 
 def test_check_token(api):
-	response = api.AuthCheckToken(api.storage.Load())
+	response = api.AuthCheckToken(api.token)
 	assert isinstance(response, AuthResponse)
 
 def test_add_and_delete_basic_task(api, timeline):

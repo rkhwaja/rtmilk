@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rtmilk"
-version = "0.0.5"
+version = "0.0.6"
 description = "RTM API wrapper"
 authors = ["Rehan Khwaja <rehan@khwaja.name>"]
 license = "MIT"
