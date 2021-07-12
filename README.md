@@ -15,12 +15,10 @@ except RTMError as e:
 
 # Authorization
 ```python
-from rtmmilk import API, AuthorizationSession
+from rtmmilk import AuthorizationSession
 
-api = API(API_KEY, SHARED_SECRET, None)
-authenticationSession = AuthorizationSession(api, 'delete')
+authenticationSession = AuthorizationSession(API_KEY, SHARED_SECRET, 'delete')
 input(f"Go to {authenticationSession.url} and authorize. Then Press ENTER")
 token = authenticationSession.Done()
 print(f'Authorization token is {token}')
-api.SetToken(token)
 ```

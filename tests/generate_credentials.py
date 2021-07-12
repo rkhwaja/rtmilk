@@ -3,7 +3,7 @@
 from contextlib import suppress
 from os import environ
 
-from rtmilk import API, AuthorizationSession
+from rtmilk import AuthorizationSession
 
 try:
 	from dotenv import load_dotenv
@@ -13,8 +13,7 @@ except ImportError:
 	pass
 
 def Authorize():
-	rtm = API(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], None)
-	authenticationSession = AuthorizationSession(rtm, 'delete')
+	authenticationSession = AuthorizationSession(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], 'delete')
 	print(f'Go to {authenticationSession.url} and authorize')
 	with suppress(ImportError):
 		from pyperclip import copy # pylint: disable=import-outside-toplevel

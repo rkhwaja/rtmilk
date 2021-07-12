@@ -53,7 +53,7 @@ class RTMSmartList(RTMList):
 		return value
 
 class List(BaseModel):
-	list: list[Union[RTMSmartList, RTMList]]
+	list: list[Union[RTMSmartList, RTMList]] # pylint: disable=unsubscriptable-object
 
 class ListsResponse(OkStat):
 	lists: List
@@ -92,15 +92,15 @@ class PriorityDirectionEnum(Enum):
 class Task(BaseModel):
 	id: str
 	added: datetime
-	completed: Union[EmptyStrToNone[datetime]]
-	deleted: Union[EmptyStrToNone[datetime]]
-	due: Union[EmptyStrToNone[datetime]]
+	completed: Union[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
+	deleted: Union[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
+	due: Union[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
 	estimate: str
 	has_due_time: bool
 	has_start_time: bool
 	postponed: int
 	priority: PriorityEnum
-	start: Union[EmptyStrToNone[datetime]]
+	start: Union[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
 
 class NotesResponsePayload(BaseModel):
 	id: str
@@ -132,9 +132,10 @@ class TaskSeries(BaseModel):
 	url: EmptyStrToNone[AnyHttpUrl]
 	location_id: str
 	participants: list[str]
-	notes: Union[list[str], NotesResponse2]
+	notes: Union[list[str], NotesResponse2] # pylint: disable=unsubscriptable-object
 	task: list[Task]
-	tags: Union[Tags, list[str]] # in the case where it's a list, it seems to be always an empty list
+	# in the case where it's a list, it seems to be always an empty list
+	tags: Union[Tags, list[str]] # pylint: disable=unsubscriptable-object
 
 class TaskPayload(BaseModel):
 	id: str
@@ -146,11 +147,13 @@ class TaskResponse(OkStat):
 
 class TasksInListPayload(BaseModel):
 	id: str
-	taskseries: Optional[list[TaskSeries]] # can be missing if there are no tasks in the list
+	# can be missing if there are no tasks in the list
+	taskseries: Optional[list[TaskSeries]] # pylint: disable=unsubscriptable-object
 
 class ListPayload(BaseModel):
 	rev: str
-	list: Optional[list[TasksInListPayload]] # if there are are no tasks in the list, this node is missing
+	# if there are are no tasks in the list, this node is missing
+	list: Optional[list[TasksInListPayload]] # pylint: disable=unsubscriptable-object
 
 class ListResponse(OkStat):
 	tasks: ListPayload
