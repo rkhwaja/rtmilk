@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from logging import info
 
 from dateutil.tz import gettz
@@ -127,18 +127,18 @@ def test_dates(api, timeline, task):
 	startDate2 = datetime(2021, 5, 2, 0, 0, 0, tzinfo=userTimezone)
 
 	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate)
-	assert updatedTask.list.taskseries[0].task[0].due == dueDate.astimezone(timezone.utc).isoformat()[:19] + 'Z'
+	assert updatedTask.list.taskseries[0].task[0].due == dueDate
 
 	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate)
-	assert updatedTask.list.taskseries[0].task[0].start == startDate.astimezone(timezone.utc).isoformat()[:19] + 'Z'
+	assert updatedTask.list.taskseries[0].task[0].start == startDate
 
 	api.TasksAddTags(timeline, listId, taskSeriesId, taskId, ['tag1'])
 
 	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate2)
-	assert updatedTask.list.taskseries[0].task[0].due == dueDate2.astimezone(timezone.utc).isoformat()[:19] + 'Z'
+	assert updatedTask.list.taskseries[0].task[0].due == dueDate2
 
 	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate2)
-	assert updatedTask.list.taskseries[0].task[0].start == startDate2.astimezone(timezone.utc).isoformat()[:19] + 'Z'
+	assert updatedTask.list.taskseries[0].task[0].start == startDate2
 
 def test_get_list(api, task): # pylint: disable=unused-argument
 	allTasks = api.TasksGetList()

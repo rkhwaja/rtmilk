@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Generic, Optional, TypeVar
 
 from pydantic.fields import ModelField # pylint: disable=no-name-in-module
@@ -15,7 +16,7 @@ class EmptyStrToNone(Generic[PydanticField]):
 	def validate(cls, v: PydanticField, field: ModelField) -> Optional[PydanticField]: # pylint: disable=unsubscriptable-object,unused-argument
 		if v == '':
 			return None
-		return v
+		return datetime.strptime(v, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
 
 # class MissingToEmptyList(Generic[PydanticField]):
 # 	@classmethod
