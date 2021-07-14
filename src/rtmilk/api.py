@@ -37,7 +37,7 @@ def _RtmDate(date_):
 
 def _ValidateReturn(type_, rsp):
 	try:
-		_log.info(f'Parsing {type_}:\n{pformat(rsp)}')
+		_log.debug(f'Parsing {type_}:\n{pformat(rsp)}')
 		return type_(**rsp)
 	except ValidationError as e:
 		_log.error(f'Failed to validate against {type_}:\n{pformat(rsp)}\n{e}')
