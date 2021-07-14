@@ -48,15 +48,15 @@ async def test_async_add_and_delete_basic_task(apiAsync, timeline):
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
 
-def test_pf_use_case(api, timeline, taskCreator):
+def test_pf_use_case(api, timeline, taskCreatorAPI):
 	prefix1 = 'prefix1: '
 	prefix2 = 'prefix2: '
 	suffix1 = 'suffix1'
 	suffix2 = 'suffix2'
-	_ = taskCreator.Add(prefix1 + suffix1)
-	_ = taskCreator.Add(prefix1 + suffix2)
-	_ = taskCreator.Add(prefix2 + suffix1)
-	task4 = taskCreator.Add(prefix2 + suffix2)
+	_ = taskCreatorAPI.Add(prefix1 + suffix1)
+	_ = taskCreatorAPI.Add(prefix1 + suffix2)
+	_ = taskCreatorAPI.Add(prefix2 + suffix1)
+	task4 = taskCreatorAPI.Add(prefix2 + suffix2)
 	api.TasksComplete(timeline, task4.list.id, task4.list.taskseries[0].id, task4.list.taskseries[0].task[0].id)
 
 	emptyListResponse = api.TasksGetList(filter=
@@ -170,11 +170,11 @@ def test_get_list(api, task): # pylint: disable=unused-argument
 	for list_ in allTasks.tasks.list:
 		info(f'List ID: {list_.id}')
 
-def test_last_sync(api, taskCreator):
+def test_last_sync(api, taskCreatorAPI):
 	start = datetime.utcnow()
 	noChange = api.TasksGetList(last_sync=start)
 	assert noChange.tasks.list is None, 'No tasks added at the start'
-	task1 = taskCreator.Add('task 1')
+	task1 = taskCreatorAPI.Add('task 1')
 	task1CreateTime = task1.list.taskseries[0].created
 
 	# last_sync is inclusive
