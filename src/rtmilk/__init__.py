@@ -1,3 +1,4 @@
-from .api import API, RTMError
-from .authorization import AuthorizationSession
+from .api import *
+from .authorization import *
 from .models import *
+from .client import *

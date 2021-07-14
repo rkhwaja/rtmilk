@@ -2,7 +2,7 @@ from os import environ
 
 from pytest import fixture
 
-from rtmilk import API
+from rtmilk import API, Client
 
 try:
 	from dotenv import load_dotenv
@@ -11,13 +11,17 @@ try:
 except ImportError:
 	pass
 
-@fixture(scope='session')
-def api():
+def _GetConfig():
 	if 'RTM_TOKEN' in environ:
-		return API(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], environ['RTM_TOKEN'])
+		return (environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], environ['RTM_TOKEN'])
 	with open('rtm-token.txt') as f:
 		token = f.read()
-	return API(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], token)
+	return (environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], token)
+
+@fixture(scope='session')
+def api():
+	apiKey, sharedSecret, token = _GetConfig()
+	return API(apiKey, sharedSecret, token)
 
 @fixture
 def timeline(api): # pylint: disable=redefined-outer-name
@@ -56,3 +60,8 @@ def taskCreator(api, timeline): # pylint: disable=redefined-outer-name
 	creator = TaskCreator(api, timeline)
 	yield creator
 	creator.Cleanup()
+
+@fixture
+def client():
+	apiKey, sharedSecret, token = _GetConfig()
+	return Client(apiKey, sharedSecret, token)
