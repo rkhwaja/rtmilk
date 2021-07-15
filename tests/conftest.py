@@ -31,3 +31,28 @@ def task(api, timeline): # pylint: disable=redefined-outer-name
 		timeline, task.list.id,
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
+
+class TaskCreator:
+	def __init__(self, api, timeline): # pylint: disable=redefined-outer-name
+		self.api = api
+		self.timeline = timeline
+		self.tasks = []
+
+	def Add(self, name):
+		task = self.api.TasksAdd(self.timeline, name) # pylint: disable=redefined-outer-name
+		self.tasks.append(task)
+		return task
+
+	def Cleanup(self):
+		for task in self.tasks: # pylint: disable=redefined-outer-name
+			self.api.TasksDelete(
+				self.timeline, task.list.id,
+				task.list.taskseries[0].id,
+				task.list.taskseries[0].task[0].id)
+		self.tasks.clear()
+
+@fixture
+def taskCreator(api, timeline): # pylint: disable=redefined-outer-name
+	creator = TaskCreator(api, timeline)
+	yield creator
+	creator.Cleanup()

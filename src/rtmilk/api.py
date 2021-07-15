@@ -7,7 +7,7 @@ from typing import List
 from pydantic import AnyHttpUrl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
 from requests import get
 
-from .models import AuthResponse, EchoResponse, FailStat, NotesResponse, PriorityDirectionEnum, ListResponse, ListsResponse, SettingsResponse, TagListResponse, TaskPayload, TaskResponse, TimelineResponse
+from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, SettingsResponse, SingleListResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse
 
 _restUrl = 'https://api.rememberthemilk.com/services/rest/'
 _log = getLogger('rtmilk')
@@ -110,39 +110,39 @@ class API(UnauthorizedAPI):
 		return self._Call(params)
 
 	@validate_arguments
-	def ListsAdd(self, timeline: str, name: str, **kwargs) -> ListResponse:
+	def ListsAdd(self, timeline: str, name: str, **kwargs) -> SingleListResponse:
 		_CheckKwargs(kwargs, ['filter']) # TODO validate parameter
 		rsp = self._CallAuthorized('rtm.lists.add', timeline=timeline, name=name, **kwargs)
-		return ListResponse(**rsp)
+		return _ValidateReturn(SingleListResponse, rsp)
 
 	@validate_arguments
-	def ListsArchive(self, timeline: str, list_id: str) -> ListResponse:
+	def ListsArchive(self, timeline: str, list_id: str) -> SingleListResponse:
 		rsp = self._CallAuthorized('rtm.lists.archive', timeline=timeline, list_id=list_id)
-		return ListResponse(**rsp)
+		return _ValidateReturn(SingleListResponse, rsp)
 
 	@validate_arguments
-	def ListsDelete(self, timeline: str, list_id: str) -> ListResponse:
+	def ListsDelete(self, timeline: str, list_id: str) -> SingleListResponse:
 		rsp = self._CallAuthorized('rtm.lists.delete', timeline=timeline, list_id=list_id)
-		return ListResponse(**rsp)
+		return _ValidateReturn(SingleListResponse, rsp)
 
-	def ListsGetList(self) -> ListResponse:
+	def ListsGetList(self):
 		rsp = self._CallAuthorized('rtm.lists.getList')
 		return ListsResponse(**rsp)
 
 	@validate_arguments
-	def ListsSetDefaultList(self, timeline: str, list_id: str) -> ListResponse:
+	def ListsSetDefaultList(self, timeline: str, list_id: str):
 		rsp = self._CallAuthorized('rtm.lists.setDefaultList', timeline=timeline, list_id=list_id)
-		return ListResponse(**rsp)
+		return _ValidateReturn(SingleListResponse, rsp)
 
 	@validate_arguments
-	def ListsSetName(self, timeline: str, list_id: str, name: str) -> ListResponse:
+	def ListsSetName(self, timeline: str, list_id: str, name: str):
 		rsp = self._CallAuthorized('rtm.lists.setName', timeline=timeline, list_id=list_id, name=name)
-		return ListResponse(**rsp)
+		return _ValidateReturn(SingleListResponse, rsp)
 
 	@validate_arguments
-	def ListsUnarchive(self, timeline: str, list_id: str) -> ListResponse:
+	def ListsUnarchive(self, timeline: str, list_id: str):
 		rsp = self._CallAuthorized('rtm.lists.unarchive', timeline=timeline, list_id=list_id)
-		return ListResponse(**rsp)
+		return _ValidateReturn(SingleListResponse, rsp)
 
 	def PushGetSubscriptions(self) -> dict:
 		return self._CallAuthorized('rtm.push.getSubscriptions')['subscriptions']
@@ -169,11 +169,7 @@ class API(UnauthorizedAPI):
 
 	def TagsGetList(self) -> TagListResponse:
 		rsp = self._CallAuthorized('rtm.tags.getList')
-		try:
-			return TagListResponse(**rsp)
-		except ValidationError as e:
-			failStat = FailStat(**rsp)
-			raise RTMError(failStat.err.code, failStat.err.msg) from e
+		return _ValidateReturn(TagListResponse, rsp)
 
 	@validate_arguments
 	def TasksAdd(self, timeline: str, name: str, **kwargs) -> TaskResponse:
@@ -197,10 +193,10 @@ class API(UnauthorizedAPI):
 		rsp = self._CallAuthorized('rtm.tasks.delete', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)
 		return _ValidateReturn(TaskResponse, rsp)
 
-	def TasksGetList(self, **kwargs) -> ListResponse:
+	def TasksGetList(self, **kwargs) -> TaskListResponse:
 		_CheckKwargs(kwargs, ['list_id', 'filter', 'last_sync']) # TODO validate parameters
 		rsp = self._CallAuthorized('rtm.tasks.getList', **kwargs)
-		return _ValidateReturn(ListResponse, rsp)
+		return _ValidateReturn(TaskListResponse, rsp)
 
 	@validate_arguments
 	def TasksMovePriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, direction: PriorityDirectionEnum) -> TaskResponse:

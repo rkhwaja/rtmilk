@@ -48,11 +48,14 @@ class RTMSmartList(RTMList):
 			raise ValueError('must be True for non-smart lists')
 		return value
 
-class List(BaseModel):
+class ListPayload(BaseModel):
 	list: list[Union[RTMSmartList, RTMList]] # pylint: disable=unsubscriptable-object
 
+class SingleListResponse(OkStat):
+	list: Union[RTMSmartList, RTMList] # pylint: disable=unsubscriptable-object
+
 class ListsResponse(OkStat):
-	lists: List
+	lists: ListPayload
 
 class PermsEnum(str, Enum):
 	read = 'read'
@@ -146,13 +149,13 @@ class TasksInListPayload(BaseModel):
 	# can be missing if there are no tasks in the list
 	taskseries: Optional[list[TaskSeries]] # pylint: disable=unsubscriptable-object
 
-class ListPayload(BaseModel):
+class TaskListPayload(BaseModel):
 	rev: str
 	# if there are are no tasks in the list, this node is missing
 	list: Optional[list[TasksInListPayload]] # pylint: disable=unsubscriptable-object
 
-class ListResponse(OkStat):
-	tasks: ListPayload
+class TaskListResponse(OkStat):
+	tasks: TaskListPayload
 
 class TagObject(BaseModel):
 	name: str
