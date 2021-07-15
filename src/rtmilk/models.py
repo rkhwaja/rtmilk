@@ -21,17 +21,13 @@ class EchoResponse(OkStat):
 	__test__ = False # avoid pytest warning
 	method: constr(regex='rtm.test.echo')
 
-class RTMGenericListId(BaseModel):
+class RTMList(BaseModel):
 	id: int
-
-class RTMGenericList(RTMGenericListId):
 	name: str
 	deleted: bool
 	locked: bool
 	archived: bool
 	position: int
-
-class RTMList(RTMGenericList):
 	smart: bool # TODO - split on whether this is true or false
 
 	@classmethod
@@ -92,15 +88,15 @@ class PriorityDirectionEnum(Enum):
 class Task(BaseModel):
 	id: str
 	added: datetime
-	completed: Union[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
-	deleted: Union[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
-	due: Union[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
+	completed: Optional[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
+	deleted: Optional[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
+	due: Optional[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
 	estimate: str
 	has_due_time: bool
 	has_start_time: bool
 	postponed: int
 	priority: PriorityEnum
-	start: Union[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
+	start: Optional[EmptyStrToNone[datetime]] # pylint: disable=unsubscriptable-object
 
 class NotesResponsePayload(BaseModel):
 	id: str
