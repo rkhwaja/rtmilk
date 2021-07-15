@@ -5,6 +5,7 @@ from dateutil.tz import gettz
 from pytest import raises
 
 from rtmilk import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError
+from rtmilk.models import RTMList, RTMSmartList
 
 def test_echo(api):
 	response = api.TestEcho(a='1', b='2')
@@ -21,15 +22,15 @@ def test_add_and_delete_basic_task(api, timeline):
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
 
-def test_pf_use_case(api, timeline):
+def test_pf_use_case(api, timeline, taskCreator):
 	prefix1 = 'prefix1: '
 	prefix2 = 'prefix2: '
 	suffix1 = 'suffix1'
 	suffix2 = 'suffix2'
-	task1 = api.TasksAdd(timeline, prefix1 + suffix1)
-	task2 = api.TasksAdd(timeline, prefix1 + suffix2)
-	task3 = api.TasksAdd(timeline, prefix2 + suffix1)
-	task4 = api.TasksAdd(timeline, prefix2 + suffix2)
+	_ = taskCreator.Add(prefix1 + suffix1)
+	_ = taskCreator.Add(prefix1 + suffix2)
+	_ = taskCreator.Add(prefix2 + suffix1)
+	task4 = taskCreator.Add(prefix2 + suffix2)
 	api.TasksComplete(timeline, task4.list.id, task4.list.taskseries[0].id, task4.list.taskseries[0].task[0].id)
 
 	emptyListResponse = api.TasksGetList(filter=
@@ -39,11 +40,6 @@ def test_pf_use_case(api, timeline):
 	nonEmptyListResponse = api.TasksGetList(filter=
 		f'(name:"{prefix1}" OR name:"{prefix2}"')
 	info(nonEmptyListResponse)
-
-	api.TasksDelete(timeline, task1.list.id, task1.list.taskseries[0].id, task1.list.taskseries[0].task[0].id)
-	api.TasksDelete(timeline, task2.list.id, task2.list.taskseries[0].id, task2.list.taskseries[0].task[0].id)
-	api.TasksDelete(timeline, task3.list.id, task3.list.taskseries[0].id, task3.list.taskseries[0].task[0].id)
-	api.TasksDelete(timeline, task4.list.id, task4.list.taskseries[0].id, task4.list.taskseries[0].task[0].id)
 
 def test_add_and_delete_complex_task(api, timeline):
 	task = api.TasksAdd(timeline, 'test_add_and_delete_complex_task')
@@ -155,3 +151,38 @@ def test_lists_get_list(api):
 	assert 'Sent' in listNames, listNames
 	assert 'Personal' in listNames, listNames
 	assert 'Work' in listNames, listNames
+
+def test_add_list(api, timeline):
+	list_ = api.ListsAdd(timeline, 'new list')
+	assert isinstance(list_.list, RTMList) and not isinstance(list_.list, RTMSmartList)
+	assert list_.list.archived is False, list_
+	list_ = api.ListsSetName(timeline, list_.list.id, 'new list renamed')
+	assert list_.list.name == 'new list renamed', list_
+	list_ = api.ListsArchive(timeline, list_.list.id)
+	assert list_.list.archived is True, list_
+	list_ = api.ListsUnarchive(timeline, list_.list.id)
+	assert list_.list.archived is False, list_
+	list_ = api.ListsDelete(timeline, list_.list.id)
+	assert list_.list.deleted is True, list_
+
+def test_add_smart_list(api, timeline):
+	list_ = api.ListsAdd(timeline, 'new smart list', filter='tag:tag1')
+	assert isinstance(list_.list, RTMSmartList)
+	assert list_.list.archived is False, list_
+
+	# Can do this on the website but API *does* fail
+	try:
+		list_ = api.ListsSetName(timeline, list_.list.id, 'new smart list renamed')
+		assert False, 'Should have failed to change the name on a smart list'
+	except RTMError:
+		pass
+
+	# Looks like you can't archive a smart list
+	try:
+		list_ = api.ListsArchive(timeline, list_.list.id)
+		assert False, 'Should have failed to archive a smart list'
+	except RTMError:
+		pass
+
+	list_ = api.ListsDelete(timeline, list_.list.id)
+	assert list_.list.deleted is True, list_
