@@ -3,6 +3,7 @@ from enum import Enum, IntEnum
 from typing import Optional, Union
 
 from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator # pylint: disable=no-name-in-module
+from pydantic.types import ConstrainedStr # pylint: disable=no-name-in-module
 
 from .utils import EmptyStrToNone
 
@@ -185,3 +186,27 @@ class SettingsPayload(BaseModel):
 
 class SettingsResponse(OkStat):
 	settings: SettingsPayload
+
+class Topic(BaseModel):
+	topic: list[str]
+
+class TopicListResponse(OkStat):
+	topics: Topic
+
+class SubscriptionData:
+	id: str
+	url: str
+	format: ConstrainedStr('json')
+	expires: datetime
+	pending: bool
+	topics: list[str]
+
+class SubscriptionPayload(BaseModel, SubscriptionData):
+	pass
+
+class SubscriptionResponse(OkStat, SubscriptionData):
+	transaction: Transaction
+	subscription: SubscriptionPayload
+
+class SubscriptionListResponse(OkStat):
+	subscriptions: list[SubscriptionPayload]

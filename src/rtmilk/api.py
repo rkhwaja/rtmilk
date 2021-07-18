@@ -4,10 +4,10 @@ from logging import getLogger
 from pprint import pformat
 from typing import List
 
-from pydantic import AnyHttpUrl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
+from pydantic import stricturl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
 from requests import get
 
-from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, SettingsResponse, SingleListResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse
+from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 
 _restUrl = 'https://api.rememberthemilk.com/services/rest/'
 _log = getLogger('rtmilk')
@@ -144,19 +144,22 @@ class API(UnauthorizedAPI):
 		rsp = self._CallAuthorized('rtm.lists.unarchive', timeline=timeline, list_id=list_id)
 		return _ValidateReturn(SingleListResponse, rsp)
 
-	def PushGetSubscriptions(self) -> dict:
-		return self._CallAuthorized('rtm.push.getSubscriptions')['subscriptions']
+	def PushGetSubscriptions(self) -> SubscriptionListResponse:
+		rsp = self._CallAuthorized('rtm.push.getSubscriptions')
+		return _ValidateReturn(SubscriptionListResponse, rsp)
 
-	def PushGetTopics(self) -> dict:
-		return self._CallAuthorized('rtm.push.getTopics')['topics']
+	def PushGetTopics(self) -> TopicListResponse:
+		rsp = self._CallAuthorized('rtm.push.getTopics')
+		return _ValidateReturn(TopicListResponse, rsp)
 
 	@validate_arguments
-	def PushSubscribe(self, url: AnyHttpUrl, topics: List[str], push_format, timeline: str, **kwargs) -> dict:
+	def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, **kwargs) -> SubscriptionResponse:
 		_CheckKwargs(kwargs, ['lease_seconds', 'filter']) # TODO validate parameters
-		return self._CallAuthorized('rtm.push.subscribe', url=url, topics=topics, push_format=push_format, timeline=timeline, **kwargs)
+		rsp = self._CallAuthorized('rtm.push.subscribe', url=url, topics=topics, push_format=push_format, timeline=timeline, **kwargs)
+		return _ValidateReturn(SubscriptionResponse, rsp)
 
 	@validate_arguments
-	def PushUnsubscribe(self, timeline: str, subscription_id: str) -> dict:
+	def PushUnsubscribe(self, timeline: str, subscription_id: str) -> None:
 		self._CallAuthorized('rtm.push.unsubscribe', timeline=timeline, subscription_id=subscription_id)
 
 	def TimelinesCreate(self) -> TimelineResponse:
