@@ -186,3 +186,12 @@ def test_add_smart_list(api, timeline):
 
 	list_ = api.ListsDelete(timeline, list_.list.id)
 	assert list_.list.deleted is True, list_
+
+def test_subscriptions(api, timeline):
+	api.PushGetSubscriptions()
+	topics = api.PushGetTopics()
+	info(topics)
+	try:
+		api.PushSubscribe(timeline=timeline, url='http://hook.example', topics='task_created', filter='', push_format='json', lease_seconds='60')
+	except RTMError:
+		pass
