@@ -11,12 +11,16 @@ classifiers = [
 	"License :: OSI Approved :: MIT License",
 	"Development Status :: 3 - Alpha",
 	"Intended Audience :: Developers",
-	"Programming Language :: Python :: 3.9"
+	"Programming Language :: Python :: 3.9",
+	"Programming Language :: Python :: 3.10"
 ]
 
 [tool.poetry.dependencies]
 python = ">=3.9"
 requests = ">=2.23.0"
+urllib3 = [
+	{ version = ">=1.26", python = ">=3.10,<4" }
+]
 pydantic = ">=1.8.1"
 
 [tool.poetry.dev-dependencies]
