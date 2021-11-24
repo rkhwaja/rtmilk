@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/rkhwaja/rtmilk/branch/master/graph/badge.svg?token=RaMYgorajr)](https://codecov.io/gh/rkhwaja/rtmilk)
+
 Python wrapper for "Remember the Milk" [API](https://www.rememberthemilk.com/services/api/)
 
 # Usage

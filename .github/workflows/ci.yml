@@ -34,4 +34,7 @@ jobs:
         RTM_SHARED_SECRET: ${{ secrets.RTM_SHARED_SECRET }}
         RTM_TOKEN: ${{ secrets.RTM_TOKEN }}
       run: |
-        pytest
+        pytest --cov=src
+        coverage xml
+    - name: Coverage
+      uses: codecov/codecov-action@v2.1.0
