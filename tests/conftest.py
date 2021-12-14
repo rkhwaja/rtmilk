@@ -3,6 +3,7 @@ from os import environ
 from pytest import fixture
 
 from rtmilk import API, Client
+from rtmilk.api_async import APIAsync
 
 try:
 	from dotenv import load_dotenv
@@ -22,6 +23,11 @@ def _GetConfig():
 def api():
 	apiKey, sharedSecret, token = _GetConfig()
 	return API(apiKey, sharedSecret, token)
+
+@fixture(scope='session')
+def apiAsync():
+	apiKey, sharedSecret, token = _GetConfig()
+	return APIAsync(apiKey, sharedSecret, token)
 
 @fixture
 def timeline(api): # pylint: disable=redefined-outer-name

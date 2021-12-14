@@ -7,6 +7,15 @@ from pydantic.types import ConstrainedStr
 
 from .utils import EmptyStrToNone
 
+class RTMError(Exception):
+	def __init__(self, code, message):
+		super().__init__(self)
+		self.code = code
+		self.message = message
+
+	def __repr__(self):
+		return f'<RTMError code={self.code}, message={self.message}>'
+
 class ErrorData(BaseModel):
 	code: int
 	msg: str

@@ -2,7 +2,7 @@ from datetime import datetime
 from logging import info
 
 from dateutil.tz import gettz
-from pytest import raises
+from pytest import mark, raises
 
 from rtmilk import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError
 from rtmilk.models import RTMList, RTMSmartList
@@ -11,13 +11,26 @@ def test_echo(api):
 	response = api.TestEcho(a='1', b='2')
 	assert isinstance(response, EchoResponse), response
 
+@mark.asyncio
+async def test_async_echo(apiAsync):
+	response = await apiAsync.TestEcho(a='1', b='2')
+	assert isinstance(response, EchoResponse), response
+
 def test_check_token(api):
-	response = api.AuthCheckToken(api.token)
+	response = api.AuthCheckToken(api.secrets.token)
 	assert isinstance(response, AuthResponse)
 
 def test_add_and_delete_basic_task(api, timeline):
 	task = api.TasksAdd(timeline, 'test_add_and_delete_basic_task')
 	api.TasksDelete(
+		timeline, task.list.id,
+		task.list.taskseries[0].id,
+		task.list.taskseries[0].task[0].id)
+
+@mark.asyncio
+async def test_async_add_and_delete_basic_task(apiAsync, timeline):
+	task = await apiAsync.TasksAdd(timeline, 'test_async_add_and_delete_basic_task')
+	await apiAsync.TasksDelete(
 		timeline, task.list.id,
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
