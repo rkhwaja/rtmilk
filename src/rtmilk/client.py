@@ -3,7 +3,8 @@ from datetime import datetime
 from logging import getLogger
 from typing import List
 
-from .api import API, RTMError
+from .api_sync import API
+from .models import RTMError
 
 _log = getLogger('rtmilk')
 

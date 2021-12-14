@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rtmilk"
-version = "0.0.7"
+version = "0.0.8"
 description = "RTM API wrapper"
 authors = ["Rehan Khwaja <rehan@khwaja.name>"]
 license = "MIT"
@@ -22,6 +22,7 @@ urllib3 = [
 	{ version = ">=1.26", python = ">=3.10,<4" }
 ]
 pydantic = ">=1.8.1"
+aiohttp = ">=3.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=5.2"
@@ -32,6 +33,7 @@ pyperclip = ">=1.8.0"
 python-dateutil = ">=2.8.1"
 python-dotenv = ">=0.17.1"
 pytest-cov = "^3"
+pytest-asyncio = ">=0.16.0"
 
 [tool.pylint.master]
 load-plugins = "pylint_quotes"
