@@ -13,8 +13,8 @@ class _TaskPath:
 	taskSeriesId: str
 	taskId : str
 
-class Task: # pylint: disable=too-many-instance-attributes
-	def __init__(self, title, tags: List[str], startDate, dueDate, complete, note): # pylint: disable=too-many-instance-attributes
+class Task:
+	def __init__(self, title, tags: List[str], startDate, dueDate, complete, note):
 		self.path = None
 		self.title = title
 		self.tags = tags

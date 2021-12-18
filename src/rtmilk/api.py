@@ -4,7 +4,7 @@ from logging import getLogger
 from pprint import pformat
 from typing import List
 
-from pydantic import stricturl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
+from pydantic import stricturl, validate_arguments, ValidationError
 from requests import get
 
 from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse

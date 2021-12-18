@@ -35,6 +35,7 @@ pytest-cov = "^3"
 
 [tool.pylint.master]
 load-plugins = "pylint_quotes"
+enable="useless-suppression"
 
 [tool.pylint.format]
 indent-string="\t"
