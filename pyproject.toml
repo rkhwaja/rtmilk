@@ -16,7 +16,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = ">=3.9,<4"
 requests = ">=2.23.0"
 urllib3 = [
 	{ version = ">=1.26", python = ">=3.10,<4" }
@@ -27,7 +27,7 @@ aiohttp = ">=3.8.1"
 [tool.poetry.dev-dependencies]
 pytest = ">=5.2"
 # https://github.com/PyCQA/pylint/issues/4420
-pylint = ">=2.6.0, !=2.8.0, !=2.8.1, !=2.8.2"
+pylint = ">=2.11" # need at least this for all the extensions
 pylint-quotes = ">=0.2.1"
 pyperclip = ">=1.8.0"
 python-dateutil = ">=2.8.1"
@@ -36,7 +36,20 @@ pytest-cov = "^3"
 pytest-asyncio = ">=0.16.0"
 
 [tool.pylint.master]
-load-plugins = "pylint_quotes"
+load-plugins = [
+	"pylint_quotes",
+	"pylint.extensions.code_style",
+	"pylint.extensions.confusing_elif",
+	"pylint.extensions.bad_builtin",
+	"pylint.extensions.bad_builtin",
+	"pylint.extensions.mccabe",
+	"pylint.extensions.check_elif",
+	"pylint.extensions.redefined_variable_type",
+	"pylint.extensions.overlapping_exceptions",
+	"pylint.extensions.empty_comment",
+	"pylint.extensions.set_membership",
+	"pylint.extensions.while_used",
+	]
 enable="useless-suppression"
 
 [tool.pylint.format]

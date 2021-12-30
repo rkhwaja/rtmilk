@@ -13,7 +13,7 @@ class EmptyStrToNone(Generic[PydanticField]):
 		yield cls.validate
 
 	@classmethod
-	def validate(cls, v: PydanticField, field: ModelField) -> Optional[PydanticField]: # pylint: disable=unsubscriptable-object,unused-argument
+	def validate(cls, v: PydanticField, field: ModelField) -> Optional[PydanticField]: # pylint: disable=unused-argument
 		if v == '':
 			return None
 		return datetime.strptime(v, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)

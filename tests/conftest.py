@@ -15,7 +15,7 @@ except ImportError:
 def _GetConfig():
 	if 'RTM_TOKEN' in environ:
 		return (environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], environ['RTM_TOKEN'])
-	with open('rtm-token.txt') as f:
+	with open('rtm-token.txt', encoding='utf-8') as f:
 		token = f.read()
 	return (environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], token)
 
