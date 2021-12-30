@@ -2,7 +2,20 @@
 
 Python wrapper for "Remember the Milk" [API](https://www.rememberthemilk.com/services/api/)
 
-# Usage
+# Usage of client
+```python
+from rtmmilk import Client, RTMError, Task
+
+client = Client(API_KEY, SHARED_SECRET, TOKEN)
+
+try:
+    client.Add(Task(title='title', tags=['tag1', 'tag2']))
+    await client.AddAsync(Task(title='title', tags=['tag1', 'tag2']))
+except RTMError as e:
+    print(e)
+```
+
+# Usage of API functions directly
 ```python
 from rtmmilk import API, RTMError
 
