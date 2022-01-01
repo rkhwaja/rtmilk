@@ -1,12 +1,13 @@
+from datetime import date, datetime
 from json import loads
 from logging import getLogger
-from typing import List
+from typing import List, Optional, Union
 
 from aiohttp import ClientSession
-from pydantic import stricturl, validate_arguments
+from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
 
 from .api_base import UnauthorizedAPIBase
-from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirectionEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
+from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from .sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from .secrets import SecretsWithAuthorization
 
@@ -46,8 +47,8 @@ class APIAsync(UnauthorizedAPIAsync):
 		return self._authSecrets
 
 	@validate_arguments
-	async def ListsAdd(self, timeline: str, name: str, **kwargs) -> SingleListResponse:
-		return ListsAdd.Out(** await _CallAsync(ListsAdd(self._authSecrets).In(timeline=timeline, name=name, **kwargs)))
+	async def ListsAdd(self, timeline: str, name: str, filter: Optional[str] = None) -> SingleListResponse: # pylint: disable=redefined-builtin
+		return ListsAdd.Out(** await _CallAsync(ListsAdd(self._authSecrets).In(timeline=timeline, name=name, filter=filter)))
 
 	@validate_arguments
 	async def ListsArchive(self, timeline: str, list_id: str) -> SingleListResponse:
@@ -79,8 +80,8 @@ class APIAsync(UnauthorizedAPIAsync):
 		return PushGetTopics.Out(** await _CallAsync(PushGetTopics(self._authSecrets).In()))
 
 	@validate_arguments
-	async def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, **kwargs) -> SubscriptionResponse:
-		return PushSubscribe.Out(** await _CallAsync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, **kwargs)))
+	async def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: Optional[int] = None, filter: Optional[str] = None) -> SubscriptionResponse: # pylint: disable=redefined-builtin
+		return PushSubscribe.Out(** await _CallAsync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, lease_seconds=lease_seconds, filter=filter)))
 
 	@validate_arguments
 	async def PushUnsubscribe(self, timeline: str, subscription_id: str) -> None:
@@ -96,8 +97,8 @@ class APIAsync(UnauthorizedAPIAsync):
 		return TagsGetList.Out(** await _CallAsync(TagsGetList(self._authSecrets).In()))
 
 	@validate_arguments
-	async def TasksAdd(self, timeline: str, name: str, **kwargs) -> TaskResponse:
-		return TasksAdd.Out(** await _CallAsync(TasksAdd(self._authSecrets).In(timeline=timeline, name=name, **kwargs)))
+	async def TasksAdd(self, timeline: str, name: str, list_id: Optional[str] = None, parse: Optional[bool] = None, parent_task_id: Optional[str] = None, external_id: Optional[str] = None) -> TaskResponse:
+		return TasksAdd.Out(** await _CallAsync(TasksAdd(self._authSecrets).In(timeline=timeline, name=name, list_id=list_id, parse=parse, parent_task_id=parent_task_id, external_id=external_id)))
 
 	@validate_arguments
 	async def TasksAddTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]) -> TaskResponse:
@@ -111,8 +112,8 @@ class APIAsync(UnauthorizedAPIAsync):
 	async def TasksDelete(self, timeline: str, list_id: str, taskseries_id: str, task_id: str) -> TaskResponse:
 		return TasksDelete.Out(** await _CallAsync(TasksDelete(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)))
 
-	async def TasksGetList(self, **kwargs) -> TaskListResponse:
-		return TasksGetList.Out(** await _CallAsync(TasksGetList(self._authSecrets).In(**kwargs)))
+	async def TasksGetList(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[str] = None) -> TaskListResponse: # pylint: disable=redefined-builtin
+		return TasksGetList.Out(** await _CallAsync(TasksGetList(self._authSecrets).In(list_id=list_id, filter=filter, last_sync=last_sync)))
 
 	@validate_arguments
 	async def TasksMovePriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, direction: PriorityDirectionEnum) -> TaskResponse:
@@ -127,21 +128,21 @@ class APIAsync(UnauthorizedAPIAsync):
 		return TasksRemoveTags.Out(** await _CallAsync(TasksRemoveTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))
 
 	@validate_arguments
-	async def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs) -> TaskResponse:
-		return TasksSetDueDate.Out(** await _CallAsync(TasksSetDueDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)))
+	async def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, due: Union[date, datetime, str, None]=None, has_due_time: Optional[bool] = None, parse: Optional[bool] = None) -> TaskResponse:
+		return TasksSetDueDate.Out(** await _CallAsync(TasksSetDueDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, due=due, has_due_time=has_due_time, parse=parse)))
 
 	@validate_arguments
 	async def TasksSetName(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, name: str) -> TaskResponse:
 		return TasksSetName.Out(** await _CallAsync(TasksSetName(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, name=name)))
 
 	@validate_arguments
-	async def TasksSetPriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs) -> TaskPayload:
-		return TasksSetPriority.Out(** await _CallAsync(TasksSetPriority(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)))
+	async def TasksSetPriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, priority: Optional[PriorityEnum	] = None) -> TaskPayload:
+		return TasksSetPriority.Out(** await _CallAsync(TasksSetPriority(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, priority=priority)))
 
 	@validate_arguments
-	async def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs) -> TaskResponse:
-		return TasksSetStartDate.Out(** await _CallAsync(TasksSetStartDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)))
+	async def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, start: Union[date, datetime, str, None] = None, has_start_time: Optional[bool] = None, parse: Optional[bool] = None) -> TaskResponse:
+		return TasksSetStartDate.Out(** await _CallAsync(TasksSetStartDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, start=start, has_start_time=has_start_time, parse=parse)))
 
 	@validate_arguments
-	async def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs) -> TaskResponse:
-		return TasksSetTags.Out(** await _CallAsync(TasksSetTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)))
+	async def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[List[str]] = None) -> TaskResponse:
+		return TasksSetTags.Out(** await _CallAsync(TasksSetTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))

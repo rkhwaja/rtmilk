@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Generic, Optional, TypeVar
 
-from pydantic.fields import ModelField
+from pydantic.fields import ModelField # pylint: disable=no-name-in-module
 # from pydantic.main import Model
 
 PydanticField = TypeVar('PydanticField')

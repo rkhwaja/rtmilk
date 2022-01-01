@@ -2,8 +2,8 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import Optional, Union
 
-from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator
-from pydantic.types import ConstrainedStr
+from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator # pylint: disable=no-name-in-module
+from pydantic.types import ConstrainedStr # pylint: disable=no-name-in-module
 
 from .utils import EmptyStrToNone
 
