@@ -1,12 +1,13 @@
+from datetime import date, datetime
 from logging import getLogger
 from pprint import pformat
-from typing import List
+from typing import List, Optional, Union
 
-from pydantic import stricturl, validate_arguments
+from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
 from requests import get
 
 from .api_base import UnauthorizedAPIBase
-from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirectionEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
+from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from .sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from .secrets import SecretsWithAuthorization
 
@@ -60,8 +61,8 @@ class API(UnauthorizedAPI):
 		return self._authSecrets
 
 	@validate_arguments
-	def ListsAdd(self, timeline: str, name: str, **kwargs) -> SingleListResponse:
-		return ListsAdd.Out(**_CallSync(ListsAdd(self._authSecrets).In(timeline=timeline, name=name, **kwargs)))
+	def ListsAdd(self, timeline: str, name: str, filter: Optional[str] = None) -> SingleListResponse: # pylint: disable=redefined-builtin
+		return ListsAdd.Out(**_CallSync(ListsAdd(self._authSecrets).In(timeline=timeline, name=name, filter=filter)))
 
 	@validate_arguments
 	def ListsArchive(self, timeline: str, list_id: str) -> SingleListResponse:
@@ -93,8 +94,8 @@ class API(UnauthorizedAPI):
 		return PushGetTopics.Out(**_CallSync(PushGetTopics(self._authSecrets).In()))
 
 	@validate_arguments
-	def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, **kwargs) -> SubscriptionResponse:
-		return PushSubscribe.Out(**_CallSync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, **kwargs)))
+	def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: Optional[int] = None, filter: Optional[str] = None) -> SubscriptionResponse: # pylint: disable=redefined-builtin
+		return PushSubscribe.Out(**_CallSync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, lease_seconds=lease_seconds, filter=filter)))
 
 	@validate_arguments
 	def PushUnsubscribe(self, timeline: str, subscription_id: str) -> None:
@@ -110,8 +111,8 @@ class API(UnauthorizedAPI):
 		return TagsGetList.Out(**_CallSync(TagsGetList(self._authSecrets).In()))
 
 	@validate_arguments
-	def TasksAdd(self, timeline: str, name: str, **kwargs) -> TaskResponse:
-		return TasksAdd.Out(**_CallSync(TasksAdd(self._authSecrets).In(timeline=timeline, name=name, **kwargs)))
+	def TasksAdd(self, timeline: str, name: str, list_id: Optional[str] = None, parse: Optional[bool] = None, parent_task_id: Optional[str] = None, external_id: Optional[str] = None) -> TaskResponse:
+		return TasksAdd.Out(**_CallSync(TasksAdd(self._authSecrets).In(timeline=timeline, name=name, list_id=list_id, parse=parse, parent_task_id=parent_task_id, external_id=external_id)))
 
 	@validate_arguments
 	def TasksAddTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]) -> TaskResponse:
@@ -125,8 +126,8 @@ class API(UnauthorizedAPI):
 	def TasksDelete(self, timeline: str, list_id: str, taskseries_id: str, task_id: str) -> TaskResponse:
 		return TasksDelete.Out(**_CallSync(TasksDelete(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)))
 
-	def TasksGetList(self, **kwargs) -> TaskListResponse:
-		return TasksGetList.Out(**_CallSync(TasksGetList(self._authSecrets).In(**kwargs)))
+	def TasksGetList(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[str] = None) -> TaskListResponse: # pylint: disable=redefined-builtin
+		return TasksGetList.Out(**_CallSync(TasksGetList(self._authSecrets).In(list_id=list_id, filter=filter, last_sync=last_sync)))
 
 	@validate_arguments
 	def TasksMovePriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, direction: PriorityDirectionEnum) -> TaskResponse:
@@ -141,21 +142,21 @@ class API(UnauthorizedAPI):
 		return TasksRemoveTags.Out(**_CallSync(TasksRemoveTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))
 
 	@validate_arguments
-	def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs) -> TaskResponse:
-		return TasksSetDueDate.Out(**_CallSync(TasksSetDueDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)))
+	def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, due: Union[date, datetime, str, None] = None, has_due_time: Optional[bool] = None, parse: Optional[bool] = None) -> TaskResponse:
+		return TasksSetDueDate.Out(**_CallSync(TasksSetDueDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, due=due, has_due_time=has_due_time, parse=parse)))
 
 	@validate_arguments
 	def TasksSetName(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, name: str) -> TaskResponse:
 		return TasksSetName.Out(**_CallSync(TasksSetName(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, name=name)))
 
 	@validate_arguments
-	def TasksSetPriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs) -> TaskPayload:
-		return TasksSetPriority.Out(**_CallSync(TasksSetPriority(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)))
+	def TasksSetPriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, priority: Optional[PriorityEnum] = None) -> TaskPayload:
+		return TasksSetPriority.Out(**_CallSync(TasksSetPriority(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, priority=priority)))
 
 	@validate_arguments
-	def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs) -> TaskResponse:
-		return TasksSetStartDate.Out(**_CallSync(TasksSetStartDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)))
+	def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, start: Union[date, datetime, str, None] = None, has_start_time: Optional[bool] = None, parse: Optional[bool] = None) -> TaskResponse:
+		return TasksSetStartDate.Out(**_CallSync(TasksSetStartDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, start=start, has_start_time=has_start_time, parse=parse)))
 
 	@validate_arguments
-	def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs) -> TaskResponse:
-		return TasksSetTags.Out(**_CallSync(TasksSetTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)))
+	def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[List[str]] = None) -> TaskResponse:
+		return TasksSetTags.Out(**_CallSync(TasksSetTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))

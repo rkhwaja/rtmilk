@@ -1,25 +1,28 @@
-from datetime import datetime
+from datetime import date, datetime
 from hashlib import md5
 from logging import getLogger
 from pprint import pformat
-from typing import List
+from typing import List, Optional, Union
 
-from pydantic import stricturl, validate_arguments, ValidationError
+from pydantic import stricturl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
 
-from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, RTMError, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
+from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, RTMError, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 
 REST_URL = 'https://api.rememberthemilk.com/services/rest/'
 
 _log = getLogger('rtmilk')
 
-def _CheckKwargs(keywordArgs, allowedArgs):
-	for name, _ in keywordArgs.items():
-		if name not in allowedArgs:
-			raise TypeError(f'{name} is an unexpected keyword argument')
-
 def _RtmDate(date_):
 	"""Serialize python datetime object to string for use by main "set" API functions"""
 	return datetime(date_.year, date_.month, date_.day, hour=8).isoformat()
+
+def _RebuildArgs(**kwargs):
+	"""Filter out the args that were set to None - they were optional"""
+	result = {}
+	for key, value in kwargs.items():
+		if value is not None:
+			result[key] = value
+	return result
 
 def _ValidateReturn(type_, rsp):
 	try:
@@ -92,8 +95,8 @@ class AuthCheckToken(UnauthorizedCall):
 AuthorizedCall = Call
 
 class ListsAdd(AuthorizedCall):
-	def In(self, timeline: str, name: str, **kwargs):
-		_CheckKwargs(kwargs, ['filter']) # TODO validate parameter
+	def In(self, timeline: str, name: str, filter: Optional[str] = None): # pylint: disable=redefined-builtin
+		kwargs = _RebuildArgs(filter=filter) # TODO validate parameter
 		return self.CommonParams('rtm.lists.add', timeline=timeline, name=name, **kwargs)
 
 	@classmethod
@@ -171,8 +174,10 @@ class PushGetTopics(AuthorizedCall):
 
 class PushSubscribe(AuthorizedCall):
 	@validate_arguments
-	def In(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, **kwargs):
-		_CheckKwargs(kwargs, ['lease_seconds', 'filter']) # TODO validate parameters
+	def In(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: Optional[int] = None, filter: Optional[str] = None): # pylint: disable=redefined-builtin
+		kwargs = _RebuildArgs(lease_seconds=lease_seconds, filter=filter) # TODO validate parameters
+		if 'lease_seconds' in kwargs:
+			kwargs['lease_seconds'] = str(kwargs['lease_seconds'])
 		return self.CommonParams('rtm.push.subscribe', url=url, topics=topics, push_format=push_format, timeline=timeline, **kwargs)
 
 	@classmethod
@@ -212,8 +217,8 @@ class TagsGetList(AuthorizedCall):
 		return _ValidateReturn(TagListResponse, rsp)
 
 class TasksAdd(AuthorizedCall):
-	def In(self, timeline: str, name: str, **kwargs):
-		_CheckKwargs(kwargs, ['list_id', 'parse', 'parent_task_id', 'external_id']) # TODO validate parameters
+	def In(self, timeline: str, name: str, list_id: Optional[str] = None, parse: Optional[bool] = None, parent_task_id: Optional[str] = None, external_id: Optional[str] = None):
+		kwargs = _RebuildArgs(list_id=list_id, parse=parse, parent_task_id=parent_task_id, external_id=external_id)
 		return self.CommonParams('rtm.tasks.add', timeline=timeline, name=name, **kwargs)
 
 	@classmethod
@@ -246,8 +251,8 @@ class TasksDelete(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksGetList(AuthorizedCall):
-	def In(self, **kwargs):
-		_CheckKwargs(kwargs, ['list_id', 'filter', 'last_sync']) # TODO validate parameters
+	def In(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[str] = None): # pylint: disable=redefined-builtin
+		kwargs = _RebuildArgs(list_id=list_id, filter=filter, last_sync=last_sync)
 		return self.CommonParams('rtm.tasks.getList', **kwargs)
 
 	@classmethod
@@ -281,12 +286,17 @@ class TasksRemoveTags(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksSetDueDate(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
-		_CheckKwargs(kwargs, ['due', 'has_due_time', 'parse']) # TODO validate parameters
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, due: Union[date, datetime, str, None]=None, has_due_time: Optional[bool] = None, parse: Optional[bool] = None):
+		kwargs = _RebuildArgs(due=due, has_due_time=has_due_time, parse=parse)
 		if 'has_due_time' in kwargs:
 			kwargs['has_due_time'] = '1' if kwargs['has_due_time'] else '0'
 		if 'due' in kwargs:
-			kwargs['due'] = _RtmDate(kwargs['due'])
+			if isinstance(kwargs['due'], (date, datetime)):
+				kwargs['due'] = _RtmDate(kwargs['due'])
+			else:
+				assert isinstance(kwargs['due'], str)
+		if 'parse' in kwargs:
+			kwargs['parse'] = '1' if kwargs['parse'] else '0'
 		return self.CommonParams('rtm.tasks.setDueDate', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
 
 	@classmethod
@@ -302,9 +312,9 @@ class TasksSetName(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksSetPriority(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
-		_CheckKwargs(kwargs, ['priority']) # TODO validate parameter
-		if 'priority' in kwargs:
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, priority: Optional[PriorityEnum	] = None):
+		kwargs = _RebuildArgs(priority=priority)
+		if 'priority' in kwargs: # translate to the string that RTM needs
 			kwargs['priority'] = kwargs['priority'].value
 		return self.CommonParams('rtm.tasks.setPriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
 
@@ -313,12 +323,17 @@ class TasksSetPriority(AuthorizedCall):
 		return _ValidateReturn(TaskPayload, rsp['list'])
 
 class TasksSetStartDate(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
-		_CheckKwargs(kwargs, ['start', 'has_start_time', 'parse']) # TODO validate parameter
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, start: Union[date, datetime, str, None] = None, has_start_time: Optional[bool] = None, parse: Optional[bool] = None):
+		kwargs = _RebuildArgs(start=start, has_start_time=has_start_time, parse=parse)
 		if 'has_start_time' in kwargs:
 			kwargs['has_start_time'] = '1' if kwargs['has_start_time'] else '0'
 		if 'start' in kwargs:
-			kwargs['start'] = _RtmDate(kwargs['start'])
+			if isinstance(kwargs['start'], (date, datetime)):
+				kwargs['start'] = _RtmDate(kwargs['start'])
+			else:
+				assert isinstance(kwargs['start'], str)
+		if 'parse' in kwargs:
+			kwargs['parse'] = '1' if kwargs['parse'] is True else '0'
 		return self.CommonParams('rtm.tasks.setStartDate', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
 
 	@classmethod
@@ -326,8 +341,8 @@ class TasksSetStartDate(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksSetTags(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, **kwargs):
-		_CheckKwargs(kwargs, ['tags']) # TODO validate parameter
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[List[str]] = None):
+		kwargs = _RebuildArgs(tags=tags)
 		if 'tags' in kwargs:
 			kwargs['tags'] = ','.join(kwargs['tags'])
 		return self.CommonParams('rtm.tasks.setTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
