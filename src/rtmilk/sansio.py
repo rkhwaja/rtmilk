@@ -10,7 +10,7 @@ from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesRe
 
 REST_URL = 'https://api.rememberthemilk.com/services/rest/'
 
-_log = getLogger('rtmilk')
+_log = getLogger(__name__)
 
 def _RtmDate(date_):
 	"""Serialize python datetime object to string for use by main "set" API functions"""

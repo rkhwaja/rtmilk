@@ -11,7 +11,7 @@ from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirection
 from .sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from .secrets import SecretsWithAuthorization
 
-_log = getLogger('rtmilk')
+_log = getLogger(__name__)
 
 def _CallSync(params):
 	json = get(REST_URL, params=params).json()
@@ -21,7 +21,6 @@ def _CallSync(params):
 class UnauthorizedAPI(UnauthorizedAPIBase):
 
 	def TestEcho(self, **params) -> EchoResponse:
-		_log.info(f'Echo: {params}')
 		return TestEcho.Out(**_CallSync(TestEcho(self._secrets).In(**params)))
 
 	def AuthGetFrob(self) -> str:

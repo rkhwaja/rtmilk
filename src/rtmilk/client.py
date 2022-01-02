@@ -8,7 +8,7 @@ from .api_async import APIAsync
 from .api_sync import API
 from .models import RTMError
 
-_log = getLogger('rtmilk')
+_log = getLogger(__name__)
 
 @dataclass
 class _TaskPath:
@@ -147,7 +147,7 @@ class Client:
 		self.timeline = self.api.TimelinesCreate().timeline
 
 	async def GetAsync(self, filter_):
-		_log.info(f'Get: {filter_}')
+		_log.info(f'GetAsync: {filter_}')
 		listResponse = await self.apiAsync.TasksGetList(filter=filter_)
 		return _CreateListOfTasks(listResponse)
 
@@ -210,7 +210,7 @@ class Client:
 										note_text=task.note)
 
 	async def EditAsync(self, task):
-		_log.info(f'Edit: {task}')
+		_log.info(f'EditAsync: {task}')
 		_log.debug(f'Setting {task.title} tags to {task.tags}')
 		await task.SetTagsAsync(self)
 
@@ -220,12 +220,12 @@ class Client:
 			await task.SetStartDateAsync(self)
 			await task.SetDueDateAsync(self)
 		except RTMError:
-			_log.warning('Trying other ordering')
+			_log.debug('Trying other ordering')
 			await task.SetDueDateAsync(self)
 			await task.SetStartDateAsync(self)
 
 	def Edit(self, task):
-		_log.info(f'EditAsync: {task}')
+		_log.info(f'Edit: {task}')
 		_log.debug(f'Setting {task.title} tags to {task.tags}')
 		task.SetTags(self)
 
@@ -235,7 +235,7 @@ class Client:
 			task.SetStartDate(self)
 			task.SetDueDate(self)
 		except RTMError:
-			_log.warning('Trying other ordering')
+			_log.debug('Trying other ordering')
 			task.SetDueDate(self)
 			task.SetStartDate(self)
 
