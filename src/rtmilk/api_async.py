@@ -11,7 +11,7 @@ from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirection
 from .sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from .secrets import SecretsWithAuthorization
 
-_log = getLogger('rtmilk')
+_log = getLogger(__name__)
 
 async def _CallAsync(params):
 	async with ClientSession() as session:
@@ -22,7 +22,6 @@ async def _CallAsync(params):
 class UnauthorizedAPIAsync(UnauthorizedAPIBase):
 
 	async def TestEcho(self, **params) -> EchoResponse:
-		_log.info(f'Echo: {params}')
 		rsp = await _CallAsync(TestEcho(self._secrets).In(**params))
 		return TestEcho.Out(**rsp)
 
