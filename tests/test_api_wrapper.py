@@ -2,10 +2,24 @@ from datetime import datetime
 from logging import info
 
 from dateutil.tz import gettz
+from pydantic import ValidationError
 from pytest import mark, raises
 
 from rtmilk import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError
 from rtmilk.models import RTMList, RTMSmartList
+
+def test_validation(api, timeline):
+	with raises(ValidationError):
+		_ = api.TasksAdd(timeline=timeline, name=None)
+	taskResponse = api.TasksAdd(timeline=timeline, name=42) # doesn't throw a validation error
+	api.TasksDelete(timeline=timeline, list_id=taskResponse.list.id, taskseries_id=taskResponse.list.taskseries[0].id, task_id=taskResponse.list.taskseries[0].task[0].id)
+
+@mark.asyncio
+async def test_validation_async(apiAsync, timeline):
+	with raises(ValidationError):
+		_ = await apiAsync.TasksAdd(timeline=timeline, name=None)
+	taskResponse = await apiAsync.TasksAdd(timeline=timeline, name=42) # doesn't throw a validation error
+	await apiAsync.TasksDelete(timeline=timeline, list_id=taskResponse.list.id, taskseries_id=taskResponse.list.taskseries[0].id, task_id=taskResponse.list.taskseries[0].task[0].id)
 
 def test_echo(api):
 	response = api.TestEcho(a='1', b='2')

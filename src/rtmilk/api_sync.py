@@ -125,6 +125,7 @@ class API(UnauthorizedAPI):
 	def TasksDelete(self, timeline: str, list_id: str, taskseries_id: str, task_id: str) -> TaskResponse:
 		return TasksDelete.Out(**_CallSync(TasksDelete(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)))
 
+	@validate_arguments
 	def TasksGetList(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[str] = None) -> TaskListResponse: # pylint: disable=redefined-builtin
 		return TasksGetList.Out(**_CallSync(TasksGetList(self._authSecrets).In(list_id=list_id, filter=filter, last_sync=last_sync)))
 
