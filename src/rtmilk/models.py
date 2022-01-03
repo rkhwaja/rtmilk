@@ -125,7 +125,7 @@ class NotesResponse(OkStat):
 	transaction: Transaction
 	note: NotesResponsePayload
 
-class NotesResponse2(BaseModel):
+class NotePayload(BaseModel):
 	note: list[NotesResponsePayload]
 
 class Tags(BaseModel):
@@ -140,7 +140,7 @@ class TaskSeries(BaseModel):
 	url: EmptyStrToNone[AnyHttpUrl]
 	location_id: str
 	participants: list[str]
-	notes: Union[list[str], NotesResponse2]
+	notes: Union[list[str], NotePayload]
 	task: list[Task]
 	# in the case where it's a list, it seems to be always an empty list
 	tags: Union[Tags, list[str]]
