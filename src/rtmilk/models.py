@@ -97,7 +97,7 @@ class PriorityDirectionEnum(Enum):
 	Up = 'up'
 	Down = 'down'
 
-class Task(BaseModel):
+class TaskAllData(BaseModel):
 	id: str
 	added: datetime
 	completed: Optional[EmptyStrToNone[datetime]]
@@ -141,7 +141,7 @@ class TaskSeries(BaseModel):
 	location_id: str
 	participants: list[str]
 	notes: Union[list[str], NotePayload]
-	task: list[Task]
+	task: list[TaskAllData]
 	# in the case where it's a list, it seems to be always an empty list
 	tags: Union[Tags, list[str]]
 
