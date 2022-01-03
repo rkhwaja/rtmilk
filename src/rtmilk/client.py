@@ -1,8 +1,10 @@
 from asyncio import gather
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from logging import getLogger
-from typing import List
+from typing import List, Optional
+
+from pydantic import validate_arguments
 
 from .api_async import APIAsync
 from .api_sync import API
@@ -16,18 +18,15 @@ class _TaskPath:
 	taskSeriesId: str
 	taskId : str
 
+@dataclass
 class Task:
-	def __init__(self, title, tags: List[str], startDate, dueDate, complete, note):
-		self.path = None
-		self.title = title
-		self.tags = tags
-		self.startDate = startDate # None means no start date
-		self.dueDate = dueDate # None means no due date
-		self.complete = complete
-		self.note = note
-
-	def __repr__(self):
-		return f'<Task title={self.title}, startDate={self.startDate}, dueDate={self.dueDate}, tags={self.tags}, complete={self.complete}, note={self.note}>'
+	title: str
+	tags: List[str]
+	startDate: date # None means no start date
+	dueDate: date # None means no due date
+	complete: bool
+	note: str
+	path: Optional[_TaskPath] = None
 
 	def Attach(self, listId, taskSeriesId, taskId): # attach to the server-side copy
 		self.path = _TaskPath(listId, taskSeriesId, taskId)
@@ -146,17 +145,20 @@ class Client:
 		self.apiAsync = APIAsync(clientId, clientSecret, token)
 		self.timeline = self.api.TimelinesCreate().timeline
 
-	async def GetAsync(self, filter_):
+	@validate_arguments
+	async def GetAsync(self, filter_: str) -> List[Task]:
 		_log.info(f'GetAsync: {filter_}')
 		listResponse = await self.apiAsync.TasksGetList(filter=filter_)
 		return _CreateListOfTasks(listResponse)
 
-	def Get(self, filter_):
+	@validate_arguments
+	def Get(self, filter_: str) -> List[Task]:
 		_log.info(f'Get: {filter_}')
 		listResponse = self.api.TasksGetList(filter=filter_)
 		return _CreateListOfTasks(listResponse)
 
-	async def AddAsync(self, task):
+	@validate_arguments
+	async def AddAsync(self, task: Task) -> Task:
 		_log.info(f'AddAsync: {task}')
 		# Adds to Inbox by default
 		assert task.path is None, f'Already added: {task}'
@@ -185,8 +187,10 @@ class Client:
 				note_title='',
 				note_text=task.note))
 		await gather(*awaitables)
+		return task
 
-	def Add(self, task):
+	@validate_arguments
+	def Add(self, task: Task) -> Task:
 		_log.info(f'Add: {task}')
 		# Adds to Inbox by default
 		assert task.path is None, f'Already added: {task}'
@@ -208,8 +212,10 @@ class Client:
 										task_id=task.path.taskId,
 										note_title='',
 										note_text=task.note)
+		return task
 
-	async def EditAsync(self, task):
+	@validate_arguments
+	async def EditAsync(self, task: Task):
 		_log.info(f'EditAsync: {task}')
 		_log.debug(f'Setting {task.title} tags to {task.tags}')
 		await task.SetTagsAsync(self)
@@ -224,7 +230,8 @@ class Client:
 			await task.SetDueDateAsync(self)
 			await task.SetStartDateAsync(self)
 
-	def Edit(self, task):
+	@validate_arguments
+	def Edit(self, task: Task):
 		_log.info(f'Edit: {task}')
 		_log.debug(f'Setting {task.title} tags to {task.tags}')
 		task.SetTags(self)
@@ -239,14 +246,16 @@ class Client:
 			task.SetDueDate(self)
 			task.SetStartDate(self)
 
-	async def DeleteAsync(self, task):
+	@validate_arguments
+	async def DeleteAsync(self, task: Task):
 		_log.info(f'DeleteAsync: {task}')
 		await self.apiAsync.TasksDelete(timeline=self.timeline,
 								list_id=task.path.listId,
 								taskseries_id=task.path.taskSeriesId,
 								task_id=task.path.taskId)
 
-	def Delete(self, task):
+	@validate_arguments
+	def Delete(self, task: Task):
 		_log.info(f'Delete: {task}')
 		self.api.TasksDelete(timeline=self.timeline,
 								list_id=task.path.listId,

@@ -1,7 +1,8 @@
 from datetime import date, timedelta
 from uuid import uuid4
 
-from pytest import mark
+from pydantic import ValidationError
+from pytest import mark, raises
 from rtmilk import Task
 
 def testClient(client):
@@ -18,6 +19,8 @@ def testClient(client):
 		note='note')
 
 	client.Add(taskToAdd)
+	with raises(ValidationError):
+		client.Add(None)
 	tasks = client.Get('')
 	assert len(tasks) == 1 + len(existingTasks), tasks
 	for task in existingTasks:
@@ -48,6 +51,8 @@ async def testClientAsync(client):
 		note='note')
 
 	await client.AddAsync(taskToAdd)
+	with raises(ValidationError):
+		await client.AddAsync(None)
 	tasks = await client.GetAsync('')
 	assert len(tasks) == 1 + len(existingTasks), tasks
 	for task in existingTasks:
