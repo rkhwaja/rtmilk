@@ -38,24 +38,23 @@ class RTMList(BaseModel):
 	locked: bool
 	archived: bool
 	position: int
-	smart: bool # TODO - split on whether this is true or false
+	smart: bool
 
 	@classmethod
 	@validator('smart')
 	def NotASmartList(cls, value: bool) -> bool:
 		if value is not False:
-			raise ValueError('must be False for non-smart lists')
+			raise ValueError('Must be False for non-smart lists')
 		return value
 
 class RTMSmartList(RTMList):
-	smart: bool
 	filter: str
 
 	@classmethod
 	@validator('smart')
 	def IsASmartList(cls, value: bool) -> bool:
 		if value is not True:
-			raise ValueError('must be True for non-smart lists')
+			raise ValueError('Must be True for smart lists')
 		return value
 
 class ListPayload(BaseModel):
