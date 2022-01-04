@@ -43,6 +43,16 @@ def task(api, timeline): # pylint: disable=redefined-outer-name
 		task.list.taskseries[0].task[0].id)
 
 class TaskCreator:
+	def __init__(self, client_):
+		self.client = client_
+		self.tasks = []
+
+	def Add(self, name):
+		task_ = self.client.Add(Task.CreateNew(title=name))
+		self.tasks.append(task_)
+		return task_
+
+class TaskCreatorAPI:
 	def __init__(self, api, timeline): # pylint: disable=redefined-outer-name
 		self.api = api
 		self.timeline = timeline
@@ -62,8 +72,8 @@ class TaskCreator:
 		self.tasks.clear()
 
 @fixture
-def taskCreator(api, timeline): # pylint: disable=redefined-outer-name
-	creator = TaskCreator(api, timeline)
+def taskCreatorAPI(api, timeline): # pylint: disable=redefined-outer-name
+	creator = TaskCreatorAPI(api, timeline)
 	yield creator
 	creator.Cleanup()
 

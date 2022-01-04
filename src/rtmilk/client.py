@@ -1,5 +1,5 @@
 from asyncio import gather
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from logging import getLogger
 from typing import List, Optional
@@ -21,11 +21,11 @@ class _TaskPath:
 @dataclass
 class Task:
 	title: str
-	tags: List[str]
-	startDate: date # None means no start date
-	dueDate: date # None means no due date
-	complete: bool
-	note: str
+	tags: List[str] = field(default_factory=lambda: [])
+	startDate: date = None # None means no start date
+	dueDate: date = None # None means no due date
+	complete: bool = False
+	note: str = ''
 	path: Optional[_TaskPath] = None
 
 	def Attach(self, listId, taskSeriesId, taskId): # attach to the server-side copy
@@ -116,7 +116,8 @@ class Task:
 		return result
 
 	@classmethod
-	def CreateNew(cls, title, tags, startDate, dueDate=None, note=''):
+	def CreateNew(cls, title, tags=None, startDate=None, dueDate=None, note=''):
+		tags = [] if tags is None else tags
 		return Task(title=title, tags=tags, startDate=startDate, dueDate=dueDate, complete=False, note=note)
 
 # Serialize python datetime object to string for use by filters
@@ -138,6 +139,9 @@ def _CreateListOfTasks(listResponse):
 		for taskSeries in list_.taskseries:
 			tasks.append(Task.CreateFromTaskSeries(listId=list_.id, taskSeries=taskSeries))
 	return tasks
+
+def _CreateTaskFromTaskResponse(taskResponse):
+
 
 class Client:
 	def __init__(self, clientId, clientSecret, token):

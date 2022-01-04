@@ -49,15 +49,15 @@ async def test_async_add_and_delete_basic_task(apiAsync, timeline):
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
 
-def test_pf_use_case(api, timeline, taskCreator):
+def test_pf_use_case(api, timeline, taskCreatorAPI):
 	prefix1 = 'prefix1: '
 	prefix2 = 'prefix2: '
 	suffix1 = 'suffix1'
 	suffix2 = 'suffix2'
-	_ = taskCreator.Add(prefix1 + suffix1)
-	_ = taskCreator.Add(prefix1 + suffix2)
-	_ = taskCreator.Add(prefix2 + suffix1)
-	task4 = taskCreator.Add(prefix2 + suffix2)
+	_ = taskCreatorAPI.Add(prefix1 + suffix1)
+	_ = taskCreatorAPI.Add(prefix1 + suffix2)
+	_ = taskCreatorAPI.Add(prefix2 + suffix1)
+	task4 = taskCreatorAPI.Add(prefix2 + suffix2)
 	api.TasksComplete(timeline, task4.list.id, task4.list.taskseries[0].id, task4.list.taskseries[0].task[0].id)
 
 	emptyListResponse = api.TasksGetList(filter=

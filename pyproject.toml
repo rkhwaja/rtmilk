@@ -25,7 +25,6 @@ aiohttp = ">=3.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=5.2"
-# https://github.com/PyCQA/pylint/issues/4420
 pylint = ">=2.11" # need at least this for all the extensions
 pylint-quotes = ">=0.2.1"
 pyperclip = ">=1.8.0"
