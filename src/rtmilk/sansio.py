@@ -16,6 +16,10 @@ def _RtmDate(date_):
 	"""Serialize python datetime object to string for use by main "set" API functions"""
 	return datetime(date_.year, date_.month, date_.day, hour=8).isoformat()
 
+def _RtmDatetime(datetime_):
+	"""Serialize python datetime object to string for use by main "set" API functions"""
+	return datetime_.isoformat()
+
 def _RebuildArgs(**kwargs):
 	"""Filter out the args that were set to None - they were optional"""
 	result = {}
@@ -251,8 +255,11 @@ class TasksDelete(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksGetList(AuthorizedCall):
-	def In(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[str] = None): # pylint: disable=redefined-builtin
+	def In(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[datetime] = None): # pylint: disable=redefined-builtin
 		kwargs = _RebuildArgs(list_id=list_id, filter=filter, last_sync=last_sync)
+		if 'last_sync' in kwargs:
+			if isinstance(kwargs['last_sync'], (datetime)):
+				kwargs['last_sync'] = _RtmDatetime(kwargs['last_sync'])
 		return self.CommonParams('rtm.tasks.getList', **kwargs)
 
 	@classmethod

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging import info
 
 from dateutil.tz import gettz
@@ -170,6 +170,27 @@ def test_get_list(api, task): # pylint: disable=unused-argument
 	info([x.id for x in allTasks.tasks.list])
 	for list_ in allTasks.tasks.list:
 		info(f'List ID: {list_.id}')
+
+def test_last_sync(api, taskCreator):
+	start = datetime.utcnow()
+	noChange = api.TasksGetList(last_sync=start)
+	assert noChange.tasks.list is None, 'No tasks added at the start'
+	task1 = taskCreator.Add('task 1')
+	task1CreateTime = task1.list.taskseries[0].created
+
+	# last_sync is inclusive
+	exactTimeQuery = api.TasksGetList(last_sync=task1CreateTime)
+	assert exactTimeQuery.tasks.list is not None
+	assert exactTimeQuery.tasks.list[0].taskseries is not None
+	assert len(exactTimeQuery.tasks.list[0].taskseries) == 1, f'One task added: {exactTimeQuery.tasks}'
+
+	oneAdded = api.TasksGetList(last_sync=start)
+	assert oneAdded.tasks.list is not None
+	assert oneAdded.tasks.list[0].taskseries is not None
+	assert len(oneAdded.tasks.list[0].taskseries) == 1, f'One task added: {oneAdded.tasks}'
+
+	noChange = api.TasksGetList(last_sync=task1CreateTime + timedelta(seconds=1))
+	assert noChange.tasks.list is None, f'No tasks added after: {noChange.tasks}'
 
 def test_lists_get_list(api):
 	allLists = api.ListsGetList()

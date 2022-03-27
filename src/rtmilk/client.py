@@ -19,7 +19,7 @@ class _TaskPath:
 	taskId : str
 
 @dataclass
-class Task:
+class Task: # pylint: disable=too-many-instance-attributes
 	title: str
 	tags: List[str]
 	startDate: date # None means no start date
@@ -27,6 +27,8 @@ class Task:
 	complete: bool
 	note: str
 	path: Optional[_TaskPath] = None
+	createTime: Optional[datetime] = None
+	modifiedTime: Optional[datetime] = None
 
 	def Attach(self, listId, taskSeriesId, taskId): # attach to the server-side copy
 		self.path = _TaskPath(listId, taskSeriesId, taskId)
@@ -110,7 +112,9 @@ class Task:
 			startDate=task0.start.date() if task0.start is not None else None, # None means no change
 			dueDate=task0.due.date() if task0.due is not None else None, # None means no change
 			complete=task0.completed is not None,
-			note=''
+			note='',
+			createTime=taskSeries.created,
+			modifiedTime=taskSeries.modified
 		)
 		result.Attach(listId, taskSeries.id, task0.id)
 		return result
@@ -146,15 +150,15 @@ class Client:
 		self.timeline = self.api.TimelinesCreate().timeline
 
 	@validate_arguments
-	async def GetAsync(self, filter_: str) -> List[Task]:
+	async def GetAsync(self, filter_: str, lastSync: Optional[datetime] = None) -> List[Task]:
 		_log.info(f'GetAsync: {filter_}')
-		listResponse = await self.apiAsync.TasksGetList(filter=filter_)
+		listResponse = await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(listResponse)
 
 	@validate_arguments
-	def Get(self, filter_: str) -> List[Task]:
+	def Get(self, filter_: str, lastSync: Optional[datetime] = None) -> List[Task]:
 		_log.info(f'Get: {filter_}')
-		listResponse = self.api.TasksGetList(filter=filter_)
+		listResponse = self.api.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(listResponse)
 
 	@validate_arguments

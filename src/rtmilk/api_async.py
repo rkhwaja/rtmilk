@@ -112,7 +112,7 @@ class APIAsync(UnauthorizedAPIAsync):
 		return TasksDelete.Out(** await _CallAsync(TasksDelete(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)))
 
 	@validate_arguments
-	async def TasksGetList(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[str] = None) -> TaskListResponse: # pylint: disable=redefined-builtin
+	async def TasksGetList(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[datetime] = None) -> TaskListResponse: # pylint: disable=redefined-builtin
 		return TasksGetList.Out(** await _CallAsync(TasksGetList(self._authSecrets).In(list_id=list_id, filter=filter, last_sync=last_sync)))
 
 	@validate_arguments
