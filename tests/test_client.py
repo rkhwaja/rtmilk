@@ -34,6 +34,10 @@ def testClient(client):
 	assert tasks[0].startDate == startDate
 	assert tasks[0].dueDate == dueDate
 	assert tasks[0].complete is False
+
+	noTasks = client.Get('', lastSync=tasks[0].modifiedTime + timedelta(seconds=1))
+	assert len(noTasks) == 0
+
 	client.Delete(tasks[0])
 
 @mark.asyncio
@@ -66,4 +70,8 @@ async def testClientAsync(client):
 	assert tasks[0].startDate == startDate
 	assert tasks[0].dueDate == dueDate
 	assert tasks[0].complete is False
+
+	noTasks = await client.GetAsync('', lastSync=tasks[0].modifiedTime + timedelta(seconds=1))
+	assert len(noTasks) == 0
+
 	await client.DeleteAsync(tasks[0])
