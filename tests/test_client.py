@@ -5,6 +5,18 @@ from pydantic import ValidationError
 from pytest import mark, raises
 from rtmilk import Task
 
+def testClientDeleteWithNoDates(client):
+	_ = client.Get('')
+	taskToAdd = Task(
+		title='title 1',
+		tags=['tag1', 'tag2'],
+		startDate=None,
+		dueDate=None,
+		complete=False,
+		note='note')
+	taskAdded = client.Add(taskToAdd)
+	client.Delete(taskAdded)
+
 def testClient(client):
 	existingTasks = client.Get('')
 	title = f'title: {uuid4()}'

@@ -22,10 +22,10 @@ class _TaskPath:
 class Task: # pylint: disable=too-many-instance-attributes
 	title: str
 	tags: List[str]
-	startDate: date # None means no start date
-	dueDate: date # None means no due date
-	complete: bool
-	note: str
+	startDate: Optional[date] = None # None means no start date
+	dueDate: Optional[date] = None # None means no due date
+	complete: bool = False
+	note: str = ''
 	path: Optional[_TaskPath] = None
 	createTime: Optional[datetime] = None
 	modifiedTime: Optional[datetime] = None
@@ -143,6 +143,11 @@ def _CreateListOfTasks(listResponse):
 			tasks.append(Task.CreateFromTaskSeries(listId=list_.id, taskSeries=taskSeries))
 	return tasks
 
+def _CreateTaskFromValidatedTask(task):
+	newTask = Task.CreateNew(task.title, task.tags, task.startDate, task.dueDate, task.note)
+	newTask.Attach(task.path.listId, task.path.taskSeriesId, task.path.taskId)
+	return newTask
+
 class Client:
 	def __init__(self, clientId, clientSecret, token):
 		self.api = API(clientId, clientSecret, token)
@@ -191,7 +196,8 @@ class Client:
 				note_title='',
 				note_text=task.note))
 		await gather(*awaitables)
-		return task
+
+		return _CreateTaskFromValidatedTask(task)
 
 	@validate_arguments
 	def Add(self, task: Task) -> Task:
@@ -216,7 +222,8 @@ class Client:
 										task_id=task.path.taskId,
 										note_title='',
 										note_text=task.note)
-		return task
+
+		return _CreateTaskFromValidatedTask(task)
 
 	@validate_arguments
 	async def EditAsync(self, task: Task):
