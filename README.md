@@ -17,13 +17,25 @@ except RTMError as e:
 
 # Usage of API functions directly
 ```python
-from rtmmilk import API, RTMError
+from rtmmilk import API, APIAsync, RTMError
 
 api = API(API_KEY, SHARED_SECRET, TOKEN)
 
-timeline = api.TasksCreateTimeline().timeline
+timeline = api.TimelinesCreate().timeline
 try:
     api.TasksAdd(timeline, 'task name')
+except RTMError as e:
+    print(e)
+```
+
+```python
+from rtmmilk import APIAsync, RTMError
+
+apiAsync = APIAsync(API_KEY, SHARED_SECRET, TOKEN)
+
+timeline = await apiAsync.TimelinesCreate().timeline
+try:
+    await api.TasksAdd(timeline, 'task name')
 except RTMError as e:
     print(e)
 ```
