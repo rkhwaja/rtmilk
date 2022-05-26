@@ -17,7 +17,7 @@ except RTMError as e:
 
 # Usage of API functions directly
 ```python
-from rtmmilk import API, APIAsync, RTMError
+from rtmmilk import API, RTMError
 
 api = API(API_KEY, SHARED_SECRET, TOKEN)
 
