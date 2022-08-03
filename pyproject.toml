@@ -24,7 +24,7 @@ pydantic = ">=1.8.1"
 aiohttp = ">=3.8.1"
 
 [tool.poetry.dev-dependencies]
-pytest = ">=5.2"
+pytest = ">=7.1"
 # https://github.com/PyCQA/pylint/issues/4420
 pylint = ">=2.11" # need at least this for all the extensions
 pylint-quotes = ">=0.2.1"
@@ -66,6 +66,9 @@ disable = [
 	"too-many-arguments",
 	"too-many-public-methods"
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]
