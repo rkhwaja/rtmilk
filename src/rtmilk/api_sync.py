@@ -14,7 +14,7 @@ from .secrets import SecretsWithAuthorization
 _log = getLogger(__name__)
 
 def _CallSync(params):
-	json = get(REST_URL, params=params).json()
+	json = get(REST_URL, params=params).json() # pylint: disable=missing-timeout
 	_log.debug(f'JSON response:\n{pformat(json)}')
 	return json['rsp']
 
