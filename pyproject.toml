@@ -23,7 +23,7 @@ urllib3 = [
 pydantic = ">=1.8.1"
 aiohttp = ">=3.8.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = ">=7.1"
 # https://github.com/PyCQA/pylint/issues/4420
 pylint = ">=2.11" # need at least this for all the extensions
@@ -33,6 +33,18 @@ python-dateutil = ">=2.8.1"
 python-dotenv = ">=0.17.1"
 pytest-cov = ">=3"
 pytest-asyncio = ">=0.16.0"
+poethepoet = ">=0.16.4"
+
+[tool.poe.tasks]
+build = "poetry build --no-interaction"
+test = "pytest"
+lint = "pylint src/rtmilk tests --disable=fixme"
+
+[tool.poe.tasks.test-with-coverage]
+shell = """
+pytest --cov=src
+coverage xml
+"""
 
 [tool.pylint.master]
 load-plugins = [

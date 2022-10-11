@@ -27,14 +27,13 @@ jobs:
         poetry install
     - name: Lint
       run: |
-        pylint src/rtmilk tests --disable=fixme
+        poe lint
     - name: Tests
       env:
         RTM_API_KEY: ${{ secrets.RTM_API_KEY }}
         RTM_SHARED_SECRET: ${{ secrets.RTM_SHARED_SECRET }}
         RTM_TOKEN: ${{ secrets.RTM_TOKEN }}
       run: |
-        pytest --cov=src
-        coverage xml
+        poe test-with-coverage
     - name: Coverage
       uses: codecov/codecov-action@v2.1.0
