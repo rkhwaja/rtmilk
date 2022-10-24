@@ -13,3 +13,6 @@ class AuthorizedAPIBase:
 	"""Holds secrets for authorized calls"""
 	def __init__(self, apiKey, sharedSecret, token):
 		self._authSecrets = SecretsWithAuthorization(apiKey, sharedSecret, token)
+
+class RTMError(Exception):
+	pass

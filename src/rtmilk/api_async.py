@@ -3,10 +3,10 @@ from json import loads
 from logging import getLogger
 from typing import List, Optional, Union
 
-from aiohttp import ClientSession
+from aiohttp import ClientResponseError, ClientSession
 from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
 
-from .api_base import UnauthorizedAPIBase
+from .api_base import RTMError, UnauthorizedAPIBase
 from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from .sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from .secrets import SecretsWithAuthorization
@@ -14,10 +14,13 @@ from .secrets import SecretsWithAuthorization
 _log = getLogger(__name__)
 
 async def _CallAsync(params):
-	async with ClientSession() as session:
-		async with session.get(REST_URL, params=params) as resp:
-			text = await resp.text()
-			return loads(text)['rsp']
+	try:
+		async with ClientSession() as session:
+			async with session.get(REST_URL, params=params) as resp:
+				text = await resp.text()
+				return loads(text)['rsp']
+	except (ClientResponseError, ValueError) as e:
+		raise RTMError() from e
 
 class UnauthorizedAPIAsync(UnauthorizedAPIBase):
 
