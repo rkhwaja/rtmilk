@@ -5,8 +5,9 @@ from typing import List, Optional, Union
 
 from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
 from requests import get
+from requests.exceptions import RequestException
 
-from .api_base import UnauthorizedAPIBase
+from .api_base import RTMError, UnauthorizedAPIBase
 from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from .sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from .secrets import SecretsWithAuthorization
@@ -14,9 +15,12 @@ from .secrets import SecretsWithAuthorization
 _log = getLogger(__name__)
 
 def _CallSync(params):
-	json = get(REST_URL, params=params).json() # pylint: disable=missing-timeout
-	_log.debug(f'JSON response:\n{pformat(json)}')
-	return json['rsp']
+	try:
+		json = get(REST_URL, params=params).json() # pylint: disable=missing-timeout
+		_log.debug(f'JSON response:\n{pformat(json)}')
+		return json['rsp']
+	except (RequestException, ValueError) as e:
+		raise RTMError() from e
 
 class UnauthorizedAPI(UnauthorizedAPIBase):
 
