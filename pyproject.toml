@@ -43,7 +43,7 @@ lint = "pylint src/rtmilk tests --disable=fixme"
 
 [tool.poe.tasks.test-with-coverage]
 shell = """
-pytest --cov=src
+pytest --cov=src || exit 1
 coverage xml
 """
 
