@@ -36,6 +36,7 @@ jobs:
         RTM_API_KEY: ${{ secrets.RTM_API_KEY }}
         RTM_SHARED_SECRET: ${{ secrets.RTM_SHARED_SECRET }}
         RTM_TOKEN: ${{ secrets.RTM_TOKEN }}
+      if: ${{needs.secrets.outputs.valid}} == 'true'
       run: |
         if python --version | grep -q 'Python 3.11' ; then
           poe test-with-coverage
