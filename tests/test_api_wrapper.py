@@ -5,7 +5,7 @@ from dateutil.tz import gettz
 from pydantic import ValidationError
 from pytest import mark, raises
 
-from rtmilk import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError
+from rtmilk import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError, TasksGetList
 from rtmilk.models import RTMList, RTMSmartList
 
 def test_validation(api, timeline):
@@ -243,3 +243,41 @@ def test_subscriptions(api, timeline):
 		api.PushSubscribe(timeline=timeline, url='http://hook.example', topics='task_created', filter='', push_format='json', lease_seconds='60')
 	except RTMError:
 		pass
+
+def test_url():
+	fake = {'stat': 'ok',
+			'tasks': {
+				'list': [
+					{'id': '123456',
+					'taskseries': [
+						{'created': '2022-09-28T01:52:58Z',
+						'id': '123456',
+						'location_id': '',
+						'modified': '2022-09-28T01:52:58Z',
+						'name': 'Test',
+						'notes': [],
+						'parent_task_id': '',
+						'participants': [],
+						'rrule': {'$t': 'FREQ=MONTHLY;INTERVAL=1;WKST=SU',
+									'every': '0'},
+						'source': 'js',
+						'tags': [],
+						'task': [
+							{'added': '2022-09-28T01:52:58Z',
+							'completed': '',
+							'deleted': '',
+							'due': '2022-10-27T15:00:00Z',
+							'estimate': '',
+							'has_due_time': '0',
+							'has_start_time': '0',
+							'id': '123456',
+							'postponed': '0',
+							'priority': 'N',
+							'start': ''}
+							],
+						'url': '7:a'},
+						]}],
+			'rev': '87847jglkfujagg7gei543897jgslkg'}}
+
+	r = TasksGetList.Out(**fake)
+	print(r)
