@@ -14,7 +14,7 @@ class RTMError(Exception):
 		self.message = message
 
 	def __repr__(self):
-		return f'<RTMError code={self.code}, message={self.message}>'
+		return f'RTMError({self.code=}, {self.message=})'
 
 class ErrorData(BaseModel):
 	code: int
