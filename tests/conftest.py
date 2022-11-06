@@ -2,8 +2,7 @@ from os import environ
 
 from pytest import fixture
 
-from rtmilk import API, Client
-from rtmilk.api_async import APIAsync
+from rtmilk import API, APIAsync, Client
 
 try:
 	from dotenv import load_dotenv
