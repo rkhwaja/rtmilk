@@ -50,6 +50,16 @@ def testClient(client):
 	noTasks = client.Get('', lastSync=tasks[0].modifiedTime + timedelta(seconds=1))
 	assert len(noTasks) == 0
 
+	tasks[0].startDate = dueDate
+	tasks[0].dueDate = None
+	client.Edit(tasks[0])
+
+	tasks = client.Get(f'name:"{title}"')
+	assert len(tasks) == 1, f'Should be only 1 task with title: "{title}"\n{tasks}'
+
+	assert tasks[0].startDate == dueDate, 'Start date should have been updated'
+	assert tasks[0].dueDate is None, 'Due date should have been updated'
+
 	client.Delete(tasks[0])
 
 @mark.asyncio
