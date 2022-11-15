@@ -62,6 +62,24 @@ def testClient(client):
 
 	client.Delete(tasks[0])
 
+def testDateSwapping(client):
+	title = f'title: {uuid4()}'
+	startDate = date.today()
+	dueDate = startDate + timedelta(days=1)
+	task = Task(
+		title=title,
+		tags=['tag1', 'tag2'],
+		startDate=startDate,
+		dueDate=dueDate,
+		complete=False,
+		note='note')
+
+	client.Add(task)
+
+	task.startDate = dueDate + timedelta(days=2)
+	task.dueDate = dueDate + timedelta(days=3)
+	client.Edit(task)
+
 @mark.asyncio
 async def testClientAsync(client):
 	existingTasks = await client.GetAsync('')
