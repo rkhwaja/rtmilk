@@ -35,7 +35,7 @@ apiAsync = APIAsync(API_KEY, SHARED_SECRET, TOKEN)
 
 timeline = await apiAsync.TimelinesCreate().timeline
 try:
-    await api.TasksAdd(timeline, 'task name')
+    await apiAsync.TasksAdd(timeline, 'task name')
 except RTMError as e:
     print(e)
 ```
