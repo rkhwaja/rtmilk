@@ -3,115 +3,109 @@ from uuid import uuid4
 
 from pydantic import ValidationError
 from pytest import mark, raises
-from rtmilk import Task
 
 def testClientDeleteWithNoDates(client):
 	_ = client.Get('')
-	taskToAdd = Task(
-		title='title 1',
-		tags=['tag1', 'tag2'],
-		startDate=None,
-		dueDate=None,
-		complete=False,
-		note='note')
-	taskAdded = client.Add(taskToAdd)
-	client.Delete(taskAdded)
+	taskAdded = client.Add('title 1')
+	taskAdded.tags.Set(['tag1', 'tag2'])
+	taskAdded.notes.Add('note title', 'note')
+	taskAdded.Delete()
 
-def testClient(client):
-	existingTasks = client.Get('')
-	title = f'title: {uuid4()}'
-	startDate = date.today()
-	dueDate = startDate + timedelta(days=2)
-	taskToAdd = Task(
-		title=title,
-		tags=['tag1', 'tag2'],
-		startDate=startDate,
-		dueDate=dueDate,
-		complete=False,
-		note='note')
-
-	client.Add(taskToAdd)
+def testClientSync(client):
 	with raises(ValidationError):
 		client.Add(None)
-	tasks = client.Get('')
-	assert len(tasks) == 1 + len(existingTasks), tasks
-	for task in existingTasks:
-		for index in range(len(tasks)): # pylint: disable=consider-using-enumerate
-			if task.title == tasks[index].title:
-				del tasks[index]
-				break
-	assert len(tasks) == 1, tasks
-	assert tasks[0].title == title
-	assert sorted(tasks[0].tags) == ['tag1', 'tag2']
-	assert tasks[0].startDate == startDate
-	assert tasks[0].dueDate == dueDate
-	assert tasks[0].complete is False
 
-	noTasks = client.Get('', lastSync=tasks[0].modifiedTime + timedelta(seconds=1))
+	beforeTasks = client.Get('')
+
+	title = f'title: {uuid4()}'
+	task = client.Add(title)
+
+	# Verify that 1 task was added
+	allTasks = client.Get('')
+	assert len(allTasks) == 1 + len(beforeTasks), allTasks
+
+	# Set initial values of properties
+	startDate = date.today()
+	dueDate = startDate + timedelta(days=2)
+	task.tags.Set(['tag1', 'tag2'])
+	task.startDate.Set(startDate)
+	task.dueDate.Set(dueDate)
+	task.notes.Add('note title', 'note')
+
+	# Verify that the new task has the expected values
+	tasksWithTitle = client.Get(f'name:"{title}"')
+	assert len(tasksWithTitle) == 1, tasksWithTitle
+	newTask = tasksWithTitle[0]
+	assert newTask.title.value == title
+	assert sorted(newTask.tags.value) == ['tag1', 'tag2']
+	assert newTask.startDate.value == startDate
+	assert newTask.dueDate.value == dueDate
+	assert newTask.complete.value is False
+
+	# lastSync and lastModifiedTime works
+	noTasks = client.Get('', lastSync=newTask.modifiedTime + timedelta(seconds=1))
 	assert len(noTasks) == 0
 
-	tasks[0].startDate = dueDate
-	tasks[0].dueDate = None
-	client.Edit(tasks[0])
+	# Update some properties
+	newTask.startDate.Set(dueDate)
+	newTask.dueDate.Set(None)
 
-	tasks = client.Get(f'name:"{title}"')
-	assert len(tasks) == 1, f'Should be only 1 task with title: "{title}"\n{tasks}'
+	tasksWithTitle = client.Get(f'name:"{title}"')
+	assert len(tasksWithTitle) == 1, f'Should be only 1 task with title: "{title}"\n{tasksWithTitle}'
 
-	assert tasks[0].startDate == dueDate, 'Start date should have been updated'
-	assert tasks[0].dueDate is None, 'Due date should have been updated'
+	newTaskToo = tasksWithTitle[0]
 
-	client.Delete(tasks[0])
+	assert newTaskToo.startDate.value == dueDate, 'Start date should have been updated'
+	assert newTaskToo.dueDate.value is None, 'Due date should have been updated'
 
-def testDateSwapping(client):
-	title = f'title: {uuid4()}'
-	startDate = date.today()
-	dueDate = startDate + timedelta(days=1)
-	task = Task(
-		title=title,
-		tags=['tag1', 'tag2'],
-		startDate=startDate,
-		dueDate=dueDate,
-		complete=False,
-		note='note')
-
-	client.Add(task)
-
-	task.startDate = dueDate + timedelta(days=2)
-	task.dueDate = dueDate + timedelta(days=3)
-	client.Edit(task)
+	newTaskToo.Delete()
 
 @mark.asyncio
 async def testClientAsync(client):
-	existingTasks = await client.GetAsync('')
-	title = f'title: {uuid4()}'
-	startDate = date.today()
-	dueDate = startDate + timedelta(days=2)
-	taskToAdd = Task(
-		title=title,
-		tags=['tag1', 'tag2'],
-		startDate=startDate,
-		dueDate=dueDate,
-		complete=False,
-		note='note')
-
-	await client.AddAsync(taskToAdd)
 	with raises(ValidationError):
 		await client.AddAsync(None)
-	tasks = await client.GetAsync('')
-	assert len(tasks) == 1 + len(existingTasks), tasks
-	for task in existingTasks:
-		for index in range(len(tasks)): # pylint: disable=consider-using-enumerate
-			if task.title == tasks[index].title:
-				del tasks[index]
-				break
-	assert len(tasks) == 1, tasks
-	assert tasks[0].title == title
-	assert sorted(tasks[0].tags) == ['tag1', 'tag2']
-	assert tasks[0].startDate == startDate
-	assert tasks[0].dueDate == dueDate
-	assert tasks[0].complete is False
 
-	noTasks = await client.GetAsync('', lastSync=tasks[0].modifiedTime + timedelta(seconds=1))
+	beforeTasks = await client.GetAsync('')
+
+	title = f'title: {uuid4()}'
+	task = await client.AddAsync(title)
+
+	# Verify that 1 task was added
+	allTasks = await client.GetAsync('')
+	assert len(allTasks) == 1 + len(beforeTasks), allTasks
+
+	# Set initial values of properties
+	startDate = date.today()
+	dueDate = startDate + timedelta(days=2)
+	await task.tags.SetAsync(['tag1', 'tag2'])
+	await task.startDate.SetAsync(startDate)
+	await task.dueDate.SetAsync(dueDate)
+	await task.notes.AddAsync('note title', 'note')
+
+	# Verify that the new task has the expected values
+	tasksWithTitle = await client.GetAsync(f'name:"{title}"')
+	assert len(tasksWithTitle) == 1, tasksWithTitle
+	newTask = tasksWithTitle[0]
+	assert newTask.title.value == title
+	assert sorted(newTask.tags.value) == ['tag1', 'tag2']
+	assert newTask.startDate.value == startDate
+	assert newTask.dueDate.value == dueDate
+	assert newTask.complete.value is False
+
+	# lastSync and lastModifiedTime works
+	noTasks = await client.GetAsync('', lastSync=newTask.modifiedTime + timedelta(seconds=1))
 	assert len(noTasks) == 0
 
-	await client.DeleteAsync(tasks[0])
+	# Update some properties
+	await newTask.startDate.SetAsync(dueDate)
+	await newTask.dueDate.SetAsync(None)
+
+	tasksWithTitle = await client.GetAsync(f'name:"{title}"')
+	assert len(tasksWithTitle) == 1, f'Should be only 1 task with title: "{title}"\n{tasksWithTitle}'
+
+	newTaskToo = tasksWithTitle[0]
+
+	assert newTaskToo.startDate.value == dueDate, 'Start date should have been updated'
+	assert newTaskToo.dueDate.value is None, 'Due date should have been updated'
+
+	await newTaskToo.DeleteAsync()

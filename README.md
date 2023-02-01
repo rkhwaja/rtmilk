@@ -4,20 +4,23 @@ Python wrapper for "Remember the Milk" [API](https://www.rememberthemilk.com/ser
 
 # Usage of client
 ```python
-from rtmmilk import Client, RTMError, Task
+from rtmilk import Client, RTMError
 
-client = Client(API_KEY, SHARED_SECRET, TOKEN)
+client = Client.Create(API_KEY, SHARED_SECRET, TOKEN)
+client2 = await Client.CreateAsync(API_KEY, SHARED_SECRET, TOKEN)
 
 try:
-    client.Add(Task(title='title', tags=['tag1', 'tag2']))
-    await client.AddAsync(Task(title='title', tags=['tag1', 'tag2']))
+    task = client.Add(title='title')
+    task.tags.Set(['tag1', 'tag2'])
+    task = await client.AddAsync(title='title')
+    await task.tags.Set(['tag1', 'tag2'])
 except RTMError as e:
     print(e)
 ```
 
 # Usage of API functions directly
 ```python
-from rtmmilk import API, RTMError
+from rtmilk import API, RTMError
 
 api = API(API_KEY, SHARED_SECRET, TOKEN)
 
@@ -29,7 +32,7 @@ except RTMError as e:
 ```
 
 ```python
-from rtmmilk import APIAsync, RTMError
+from rtmilk import APIAsync, RTMError
 
 apiAsync = APIAsync(API_KEY, SHARED_SECRET, TOKEN)
 
@@ -42,7 +45,7 @@ except RTMError as e:
 
 # Authorization
 ```python
-from rtmmilk import AuthorizationSession
+from rtmilk import AuthorizationSession
 
 authenticationSession = AuthorizationSession(API_KEY, SHARED_SECRET, 'delete')
 input(f"Go to {authenticationSession.url} and authorize. Then Press ENTER")

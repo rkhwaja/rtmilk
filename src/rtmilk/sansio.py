@@ -357,3 +357,11 @@ class TasksSetTags(AuthorizedCall):
 	@classmethod
 	def Out(cls, **rsp):
 		return _ValidateReturn(TaskResponse, rsp)
+
+class TasksUncomplete(AuthorizedCall):
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str):
+		return self.CommonParams('rtm.tasks.uncomplete', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)
+
+	@classmethod
+	def Out(cls, **rsp):
+		return _ValidateReturn(TaskResponse, rsp)

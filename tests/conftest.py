@@ -69,4 +69,4 @@ def taskCreator(api, timeline): # pylint: disable=redefined-outer-name
 @fixture
 def client():
 	apiKey, sharedSecret, token = _GetConfig()
-	return Client(apiKey, sharedSecret, token)
+	return Client.Create(apiKey, sharedSecret, token)
