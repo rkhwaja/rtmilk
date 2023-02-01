@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rtmilk"
-version = "0.0.12"
+version = "0.1.0"
 description = "RTM API wrapper"
 authors = ["Rehan Khwaja <rehan@khwaja.name>"]
 license = "MIT"
@@ -77,7 +77,8 @@ disable = [
 	"missing-docstring",
 	"too-few-public-methods",
 	"too-many-arguments",
-	"too-many-public-methods"
+	"too-many-public-methods",
+	"protected-access" # temporary until I figure out the privacy
 ]
 
 [tool.pytest.ini_options]

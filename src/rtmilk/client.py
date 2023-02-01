@@ -1,6 +1,6 @@
-from asyncio import gather
-from dataclasses import dataclass
-from datetime import date, datetime
+from __future__ import annotations
+
+from datetime import datetime
 from logging import getLogger
 from typing import List, Optional
 
@@ -8,131 +8,66 @@ from pydantic import validate_arguments
 
 from .api_async import APIAsync
 from .api_sync import API
-from .models import RTMError
+from .properties import CompleteProperty, DueDateProperty, NameProperty, NotesProperty, StartDateProperty, TagsProperty
 
 _log = getLogger(__name__)
 
-@dataclass
-class _TaskPath:
-	listId : str
-	taskSeriesId: str
-	taskId : str
-
-@dataclass
 class Task: # pylint: disable=too-many-instance-attributes
-	title: str
-	tags: List[str]
-	startDate: Optional[date] = None # None means no start date
-	dueDate: Optional[date] = None # None means no due date
-	complete: bool = False
-	note: str = ''
-	path: Optional[_TaskPath] = None
-	createTime: Optional[datetime] = None
-	modifiedTime: Optional[datetime] = None
+	def __init__(self, client, listId, taskSeriesId, taskId):
+		self._client = client
+		self._listId = listId
+		self._taskSeriesId = taskSeriesId
+		self._taskId = taskId
 
-	def Attach(self, listId, taskSeriesId, taskId): # attach to the server-side copy
-		self.path = _TaskPath(listId, taskSeriesId, taskId)
+		self.title = NameProperty(self)
+		self.tags = TagsProperty(self)
+		self.startDate = StartDateProperty(self)
+		self.dueDate = DueDateProperty(self)
+		self.complete = CompleteProperty(self)
+		self.notes = NotesProperty(self)
+		self.createTime: Optional[datetime] = None
+		self.modifiedTime: Optional[datetime] = None
 
-	def SetStartDate(self, client):
-		if self.startDate is None:
-			_ = client.api.TasksSetStartDate(timeline=client.timeline,
-												list_id=self.path.listId,
-												taskseries_id=self.path.taskSeriesId,
-												task_id=self.path.taskId)
-		else:
-			_ = client.api.TasksSetStartDate(timeline=client.timeline,
-												list_id=self.path.listId,
-												taskseries_id=self.path.taskSeriesId,
-												task_id=self.path.taskId,
-												start=self.startDate,
-												has_start_time=False)
+	def __repr__(self):
+		return f'Task({self.title.value})'
 
-	async def SetStartDateAsync(self, client):
-		if self.startDate is None:
-			_ = await client.apiAsync.TasksSetStartDate(timeline=client.timeline,
-												list_id=self.path.listId,
-												taskseries_id=self.path.taskSeriesId,
-												task_id=self.path.taskId)
-		else:
-			_ = await client.apiAsync.TasksSetStartDate(timeline=client.timeline,
-												list_id=self.path.listId,
-												taskseries_id=self.path.taskSeriesId,
-												task_id=self.path.taskId,
-												start=self.startDate,
-												has_start_time=False)
+	@validate_arguments
+	def Delete(self):
+		_log.info(f'{self}.Delete')
+		self._client.api.TasksDelete(timeline=self._client.timeline,
+								list_id=self._listId,
+								taskseries_id=self._taskSeriesId,
+								task_id=self._taskId)
 
-	def SetDueDate(self, client):
-		if self.dueDate is None:
-			_ = client.api.TasksSetDueDate(timeline=client.timeline,
-											list_id=self.path.listId,
-											taskseries_id=self.path.taskSeriesId,
-											task_id=self.path.taskId)
-		else:
-			_ = client.api.TasksSetDueDate(timeline=client.timeline,
-											list_id=self.path.listId,
-											taskseries_id=self.path.taskSeriesId,
-											task_id=self.path.taskId,
-											due=self.dueDate,
-											has_due_time=False)
-
-	async def SetDueDateAsync(self, client):
-		if self.dueDate is None:
-			_ = await client.apiAsync.TasksSetDueDate(timeline=client.timeline,
-											list_id=self.path.listId,
-											taskseries_id=self.path.taskSeriesId,
-											task_id=self.path.taskId)
-		else:
-			_ = await client.apiAsync.TasksSetDueDate(timeline=client.timeline,
-											list_id=self.path.listId,
-											taskseries_id=self.path.taskSeriesId,
-											task_id=self.path.taskId,
-											due=self.dueDate,
-											has_due_time=False)
-
-	def SetTags(self, client):
-		_ = client.api.TasksSetTags(timeline=client.timeline,
-								list_id=self.path.listId,
-								taskseries_id=self.path.taskSeriesId,
-								task_id=self.path.taskId,
-								tags=self.tags)
-
-	async def SetTagsAsync(self, client):
-		_ = await client.apiAsync.TasksSetTags(timeline=client.timeline,
-								list_id=self.path.listId,
-								taskseries_id=self.path.taskSeriesId,
-								task_id=self.path.taskId,
-								tags=self.tags)
-
-	@classmethod
-	def CreateFromTaskSeries(cls, listId, taskSeries):
-		task0 = taskSeries.task[0]
-		result = Task(
-			title=taskSeries.name,
-			tags=taskSeries.tags.tag if hasattr(taskSeries.tags, 'tag') else taskSeries.tags,
-			startDate=task0.start.date() if task0.start is not None else None, # None means no change
-			dueDate=task0.due.date() if task0.due is not None else None, # None means no change
-			complete=task0.completed is not None,
-			note='',
-			createTime=taskSeries.created,
-			modifiedTime=taskSeries.modified
-		)
-		result.Attach(listId, taskSeries.id, task0.id)
-		return result
-
-	@classmethod
-	def CreateNew(cls, title, tags, startDate, dueDate=None, note=''):
-		return Task(title=title, tags=tags, startDate=startDate, dueDate=dueDate, complete=False, note=note)
+	@validate_arguments
+	async def DeleteAsync(self):
+		_log.info(f'{self}.DeleteAsync')
+		await self._client.apiAsync.TasksDelete(timeline=self._client.timeline,
+								list_id=self._listId,
+								taskseries_id=self._taskSeriesId,
+								task_id=self._taskId)
 
 # Serialize python datetime object to string for use by filters
 def FilterDate(date_):
 	return datetime.strftime(date_, '%m/%d/%Y')
 
-def _CheckDates(startDate, dueDate):
-	# Cannot set start date earlier than due date
-	if startDate is not None and dueDate is not None and startDate > dueDate:
-		raise RuntimeError(f"Start date can't be strictly later than due date: {startDate}, {dueDate}")
+def _CreateFromTaskSeries(client, listId, taskSeries):
+	_log.info(f'{taskSeries=}')
+	task0 = taskSeries.task[0]
+	result = Task(client, listId, taskSeries.id, task0.id)
 
-def _CreateListOfTasks(listResponse):
+	result.title._LoadValue(taskSeries.name)
+	result.tags._LoadValue(taskSeries.tags.tag if hasattr(taskSeries.tags, 'tag') else taskSeries.tags)
+	result.startDate._LoadValue(task0.start.date() if task0.start is not None else None) # None means no change
+	result.dueDate._LoadValue(task0.due.date() if task0.due is not None else None) # None means no change
+	result.complete._LoadValue(task0.completed is not None)
+	result.notes._LoadValue(taskSeries.notes)
+	result.createTime = taskSeries.created
+	result.modifiedTime = taskSeries.modified
+
+	return result
+
+def _CreateListOfTasks(client, listResponse):
 	if listResponse.tasks.list is None:
 		return []
 	tasks = []
@@ -140,135 +75,56 @@ def _CreateListOfTasks(listResponse):
 		if not hasattr(list_, 'taskseries') or list_.taskseries is None:
 			continue
 		for taskSeries in list_.taskseries:
-			tasks.append(Task.CreateFromTaskSeries(listId=list_.id, taskSeries=taskSeries))
+			tasks.append(_CreateFromTaskSeries(client, listId=list_.id, taskSeries=taskSeries))
 	return tasks
 
-def _CreateTaskFromValidatedTask(task):
-	newTask = Task.CreateNew(task.title, task.tags, task.startDate, task.dueDate, task.note)
-	newTask.Attach(task.path.listId, task.path.taskSeriesId, task.path.taskId)
-	return newTask
-
 class Client:
+	@classmethod
+	def Create(cls, clientId, clientSecret, token):
+		client = Client(clientId, clientSecret, token)
+		client._CreateTimeline()
+		return client
+
+	@classmethod
+	async def CreateAsync(cls, clientId, clientSecret, token):
+		client = Client(clientId, clientSecret, token)
+		await client._CreateTimelineAsync()
+		return client
+
 	def __init__(self, clientId, clientSecret, token):
 		self.api = API(clientId, clientSecret, token)
 		self.apiAsync = APIAsync(clientId, clientSecret, token)
+		self.timeline = None
+
+	def __repr__(self):
+		return 'Client()'
+
+	def _CreateTimeline(self):
 		self.timeline = self.api.TimelinesCreate().timeline
 
-	@validate_arguments
-	async def GetAsync(self, filter_: str, lastSync: Optional[datetime] = None) -> List[Task]:
-		_log.info(f'GetAsync: {filter_}')
-		listResponse = await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync)
-		return _CreateListOfTasks(listResponse)
+	async def _CreateTimelineAsync(self):
+		self.timeline = await self.apiAsync.TimelinesCreate().timeline
 
 	@validate_arguments
 	def Get(self, filter_: str, lastSync: Optional[datetime] = None) -> List[Task]:
 		_log.info(f'Get: {filter_}')
 		listResponse = self.api.TasksGetList(filter=filter_, last_sync=lastSync)
-		return _CreateListOfTasks(listResponse)
+		return _CreateListOfTasks(self, listResponse)
 
 	@validate_arguments
-	async def AddAsync(self, task: Task) -> Task:
-		_log.info(f'AddAsync: {task}')
-		# Adds to Inbox by default
-		assert task.path is None, f'Already added: {task}'
-		# need to wait for this one so that we have something to set the other properties on
-		taskResponse = await self.apiAsync.TasksAdd(self.timeline, task.title)
-		task.Attach(
-			taskResponse.list.id,
-			taskResponse.list.taskseries[0].id,
-			taskResponse.list.taskseries[0].task[0].id)
-
-		setTags = task.SetTagsAsync(self)
-
-		_CheckDates(task.startDate, task.dueDate)
-
-		# shouldn't have to order these since we know that startDate <= dueDate
-		setDueDate = task.SetDueDateAsync(self)
-		setStartDate = task.SetStartDateAsync(self)
-
-		awaitables = [setTags, setDueDate, setStartDate]
-		if task.note != '':
-			awaitables.append(self.apiAsync.TasksNotesAdd(
-				timeline=self.timeline,
-				list_id=task.path.listId,
-				taskseries_id=task.path.taskSeriesId,
-				task_id=task.path.taskId,
-				note_title='',
-				note_text=task.note))
-		await gather(*awaitables)
-
-		return _CreateTaskFromValidatedTask(task)
+	def Add(self, title: str) -> Task:
+		_log.info(f'Add: {title}')
+		taskResponse = self.api.TasksAdd(self.timeline, title)
+		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
 	@validate_arguments
-	def Add(self, task: Task) -> Task:
-		_log.info(f'Add: {task}')
-		# Adds to Inbox by default
-		assert task.path is None, f'Already added: {task}'
-		taskResponse = self.api.TasksAdd(self.timeline, task.title)
-		task.Attach(
-			taskResponse.list.id,
-			taskResponse.list.taskseries[0].id,
-			taskResponse.list.taskseries[0].task[0].id)
-		task.SetTags(self)
-
-		_CheckDates(task.startDate, task.dueDate)
-
-		task.SetDueDate(self)
-		task.SetStartDate(self)
-		if task.note != '':
-			_ = self.api.TasksNotesAdd(timeline=self.timeline,
-										list_id=task.path.listId,
-										taskseries_id=task.path.taskSeriesId,
-										task_id=task.path.taskId,
-										note_title='',
-										note_text=task.note)
-
-		return _CreateTaskFromValidatedTask(task)
+	async def GetAsync(self, filter_: str, lastSync: Optional[datetime] = None) -> List[Task]:
+		_log.info(f'GetAsync: {filter_}')
+		listResponse = await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync)
+		return _CreateListOfTasks(self, listResponse)
 
 	@validate_arguments
-	async def EditAsync(self, task: Task):
-		_log.info(f'EditAsync: {task}')
-		_log.debug(f'Setting {task.title} tags to {task.tags}')
-		await task.SetTagsAsync(self)
-
-		_log.debug(f'Setting {task.title} start date to {task.startDate}')
-		_log.debug(f'Setting {task.title} due date to {task.dueDate}')
-		try:
-			await task.SetStartDateAsync(self)
-			await task.SetDueDateAsync(self)
-		except RTMError:
-			_log.debug('Trying other ordering')
-			await task.SetDueDateAsync(self)
-			await task.SetStartDateAsync(self)
-
-	@validate_arguments
-	def Edit(self, task: Task):
-		_log.info(f'Edit: {task}')
-		_log.debug(f'Setting {task.title} tags to {task.tags}')
-		task.SetTags(self)
-
-		_log.debug(f'Setting {task.title} start date to {task.startDate}')
-		_log.debug(f'Setting {task.title} due date to {task.dueDate}')
-		try:
-			task.SetStartDate(self)
-			task.SetDueDate(self)
-		except RTMError:
-			_log.debug('Trying other ordering')
-			task.SetDueDate(self)
-			task.SetStartDate(self)
-
-	@validate_arguments
-	async def DeleteAsync(self, task: Task):
-		_log.info(f'DeleteAsync: {task}')
-		await self.apiAsync.TasksDelete(timeline=self.timeline,
-								list_id=task.path.listId,
-								taskseries_id=task.path.taskSeriesId,
-								task_id=task.path.taskId)
-
-	@validate_arguments
-	def Delete(self, task: Task):
-		_log.info(f'Delete: {task}')
-		self.api.TasksDelete(timeline=self.timeline,
-								list_id=task.path.listId,
-								taskseries_id=task.path.taskSeriesId,
-								task_id=task.path.taskId)
+	async def AddAsync(self, title: str) -> Task:
+		_log.info(f'AddAsync: {title}')
+		taskResponse = await self.apiAsync.TasksAdd(self.timeline, title)
+		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
