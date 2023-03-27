@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from json import loads
 from logging import getLogger
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from aiohttp import ClientResponseError, ClientSession
 from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
@@ -103,7 +103,7 @@ class APIAsync(UnauthorizedAPIAsync):
 		return TasksAdd.Out(** await _CallAsync(TasksAdd(self._authSecrets).In(timeline=timeline, name=name, list_id=list_id, parse=parse, parent_task_id=parent_task_id, external_id=external_id)))
 
 	@validate_arguments
-	async def TasksAddTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]) -> TaskResponse:
+	async def TasksAddTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str]) -> TaskResponse:
 		return TasksAddTags.Out(** await _CallAsync(TasksAddTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))
 
 	@validate_arguments
@@ -131,7 +131,7 @@ class APIAsync(UnauthorizedAPIAsync):
 		return TasksNotesAdd.Out(** await _CallAsync(TasksNotesAdd(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, note_title=note_title, note_text=note_text)))
 
 	@validate_arguments
-	async def TasksRemoveTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]) -> TaskResponse:
+	async def TasksRemoveTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str]) -> TaskResponse:
 		return TasksRemoveTags.Out(** await _CallAsync(TasksRemoveTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))
 
 	@validate_arguments
@@ -151,5 +151,5 @@ class APIAsync(UnauthorizedAPIAsync):
 		return TasksSetStartDate.Out(** await _CallAsync(TasksSetStartDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, start=start, has_start_time=has_start_time, parse=parse)))
 
 	@validate_arguments
-	async def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[List[str]] = None) -> TaskResponse:
+	async def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[list[str]] = None) -> TaskResponse:
 		return TasksSetTags.Out(** await _CallAsync(TasksSetTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))

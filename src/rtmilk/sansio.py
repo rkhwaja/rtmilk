@@ -2,7 +2,7 @@ from datetime import date, datetime
 from hashlib import md5
 from logging import getLogger
 from pprint import pformat
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import stricturl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
 
@@ -230,7 +230,7 @@ class TasksAdd(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksAddTags(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]):
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str]):
 		# TODO the join here should be done as part of the pydantic parameter validation stuff
 		return self.CommonParams('rtm.tasks.addTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=','.join(tags))
 
@@ -284,7 +284,7 @@ class TasksNotesAdd(AuthorizedCall):
 		return _ValidateReturn(NotesResponse, rsp)
 
 class TasksRemoveTags(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]):
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str]):
 		tags = ','.join(tags)
 		return self.CommonParams('rtm.tasks.removeTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)
 
@@ -348,7 +348,7 @@ class TasksSetStartDate(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksSetTags(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[List[str]] = None):
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[list[str]] = None):
 		kwargs = _RebuildArgs(tags=tags)
 		if 'tags' in kwargs:
 			kwargs['tags'] = ','.join(kwargs['tags'])
