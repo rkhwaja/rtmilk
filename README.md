@@ -6,14 +6,19 @@ Python wrapper for "Remember the Milk" [API](https://www.rememberthemilk.com/ser
 ```python
 from rtmilk import Client, RTMError
 
+# These are the equivalent objects, created differently
 client = Client.Create(API_KEY, SHARED_SECRET, TOKEN)
 client2 = await Client.CreateAsync(API_KEY, SHARED_SECRET, TOKEN)
 
 try:
-    task = client.Add(title='title')
+    task = client.Add(title='title 1')
+    assert task.complete.value is False
     task.tags.Set(['tag1', 'tag2'])
-    task = await client.AddAsync(title='title')
+    assert task.tags.value == ['tag1', 'tag2']
+    task = await client.AddAsync(title='title 2')
     await task.tags.Set(['tag1', 'tag2'])
+    tasks = client2.Get('name:"title 1"')
+    assert tasks[0].tags.value == ['tag1', 'tag2']
 except RTMError as e:
     print(e)
 ```
