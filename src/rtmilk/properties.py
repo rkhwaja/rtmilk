@@ -55,24 +55,24 @@ class NotesProperty:
 			note_title=title,
 			note_text=text)
 
-class TagsProperty(_Property[List[str]]):
-	def Set(self, value: List[str]):
+class TagsProperty(_Property[set[str]]):
+	def Set(self, value: set[str]):
 		task = self._task
 		client = task._client
 		client.api.TasksSetTags(timeline=self._task._client.timeline,
 								list_id=self._task._listId,
 								taskseries_id=self._task._taskSeriesId,
 								task_id=self._task._taskId,
-								tags=value)
+								tags=list(value))
 
-	async def SetAsync(self, value: List[str]):
+	async def SetAsync(self, value: set[str]):
 		task = self._task
 		client = task._client
 		await client.apiAsync.TasksSetTags(timeline=self._task._client.timeline,
 								list_id=self._task._listId,
 								taskseries_id=self._task._taskSeriesId,
 								task_id=self._task._taskId,
-								tags=value)
+								tags=list(value))
 
 class CompleteProperty(_Property[bool]):
 	def Set(self, value: bool):
