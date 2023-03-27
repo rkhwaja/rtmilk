@@ -6,7 +6,7 @@ from pytest import mark, raises
 
 def testClientDeleteWithNoDates(client):
 	_ = client.Get('')
-	taskAdded = client.Add('title 1')
+	taskAdded = client.Add('name 1')
 	taskAdded.tags.Set(['tag1', 'tag2'])
 	taskAdded.notes.Add('note title', 'note')
 	taskAdded.Delete()
@@ -17,8 +17,8 @@ def testClientSync(client):
 
 	beforeTasks = client.Get('')
 
-	title = f'title: {uuid4()}'
-	task = client.Add(title)
+	name = f'name: {uuid4()}'
+	task = client.Add(name)
 
 	# Verify that 1 task was added
 	allTasks = client.Get('')
@@ -33,10 +33,10 @@ def testClientSync(client):
 	task.notes.Add('note title', 'note')
 
 	# Verify that the new task has the expected values
-	tasksWithTitle = client.Get(f'name:"{title}"')
+	tasksWithTitle = client.Get(f'name:"{name}"')
 	assert len(tasksWithTitle) == 1, tasksWithTitle
 	newTask = tasksWithTitle[0]
-	assert newTask.title.value == title
+	assert newTask.name.value == name
 	assert sorted(newTask.tags.value) == ['tag1', 'tag2']
 	assert newTask.startDate.value == startDate
 	assert newTask.dueDate.value == dueDate
@@ -50,8 +50,8 @@ def testClientSync(client):
 	newTask.startDate.Set(dueDate)
 	newTask.dueDate.Set(None)
 
-	tasksWithTitle = client.Get(f'name:"{title}"')
-	assert len(tasksWithTitle) == 1, f'Should be only 1 task with title: "{title}"\n{tasksWithTitle}'
+	tasksWithTitle = client.Get(f'name:"{name}"')
+	assert len(tasksWithTitle) == 1, f'Should be only 1 task with name: "{name}"\n{tasksWithTitle}'
 
 	newTaskToo = tasksWithTitle[0]
 
@@ -67,8 +67,8 @@ async def testClientAsync(client):
 
 	beforeTasks = await client.GetAsync('')
 
-	title = f'title: {uuid4()}'
-	task = await client.AddAsync(title)
+	name = f'name: {uuid4()}'
+	task = await client.AddAsync(name)
 
 	# Verify that 1 task was added
 	allTasks = await client.GetAsync('')
@@ -83,10 +83,10 @@ async def testClientAsync(client):
 	await task.notes.AddAsync('note title', 'note')
 
 	# Verify that the new task has the expected values
-	tasksWithTitle = await client.GetAsync(f'name:"{title}"')
+	tasksWithTitle = await client.GetAsync(f'name:"{name}"')
 	assert len(tasksWithTitle) == 1, tasksWithTitle
 	newTask = tasksWithTitle[0]
-	assert newTask.title.value == title
+	assert newTask.name.value == name
 	assert sorted(newTask.tags.value) == ['tag1', 'tag2']
 	assert newTask.startDate.value == startDate
 	assert newTask.dueDate.value == dueDate
@@ -100,8 +100,8 @@ async def testClientAsync(client):
 	await newTask.startDate.SetAsync(dueDate)
 	await newTask.dueDate.SetAsync(None)
 
-	tasksWithTitle = await client.GetAsync(f'name:"{title}"')
-	assert len(tasksWithTitle) == 1, f'Should be only 1 task with title: "{title}"\n{tasksWithTitle}'
+	tasksWithTitle = await client.GetAsync(f'name:"{name}"')
+	assert len(tasksWithTitle) == 1, f'Should be only 1 task with name: "{name}"\n{tasksWithTitle}'
 
 	newTaskToo = tasksWithTitle[0]
 

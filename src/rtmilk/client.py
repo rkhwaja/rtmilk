@@ -19,7 +19,7 @@ class Task: # pylint: disable=too-many-instance-attributes
 		self._taskSeriesId = taskSeriesId
 		self._taskId = taskId
 
-		self.title = NameProperty(self)
+		self.name = NameProperty(self)
 		self.tags = TagsProperty(self)
 		self.startDate = StartDateProperty(self)
 		self.dueDate = DueDateProperty(self)
@@ -29,7 +29,7 @@ class Task: # pylint: disable=too-many-instance-attributes
 		self.modifiedTime: Optional[datetime] = None
 
 	def __repr__(self):
-		return f'Task({self.title.value})'
+		return f'Task({self.name.value})'
 
 	@validate_arguments
 	def Delete(self):
@@ -56,7 +56,7 @@ def _CreateFromTaskSeries(client, listId, taskSeries):
 	task0 = taskSeries.task[0]
 	result = Task(client, listId, taskSeries.id, task0.id)
 
-	result.title._LoadValue(taskSeries.name)
+	result.name._LoadValue(taskSeries.name)
 	result.tags._LoadValue(taskSeries.tags.tag if hasattr(taskSeries.tags, 'tag') else taskSeries.tags)
 	result.startDate._LoadValue(task0.start.date() if task0.start is not None else None) # None means no change
 	result.dueDate._LoadValue(task0.due.date() if task0.due is not None else None) # None means no change
@@ -112,9 +112,9 @@ class Client:
 		return _CreateListOfTasks(self, listResponse)
 
 	@validate_arguments
-	def Add(self, title: str) -> Task:
-		_log.info(f'Add: {title}')
-		taskResponse = self.api.TasksAdd(self.timeline, title)
+	def Add(self, name: str) -> Task:
+		_log.info(f'Add: {name}')
+		taskResponse = self.api.TasksAdd(self.timeline, name)
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
 	@validate_arguments
@@ -124,7 +124,7 @@ class Client:
 		return _CreateListOfTasks(self, listResponse)
 
 	@validate_arguments
-	async def AddAsync(self, title: str) -> Task:
-		_log.info(f'AddAsync: {title}')
-		taskResponse = await self.apiAsync.TasksAdd(self.timeline, title)
+	async def AddAsync(self, name: str) -> Task:
+		_log.info(f'AddAsync: {name}')
+		taskResponse = await self.apiAsync.TasksAdd(self.timeline, name)
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
