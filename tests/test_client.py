@@ -7,7 +7,7 @@ from pytest import mark, raises
 def testClientDeleteWithNoDates(client):
 	_ = client.Get('')
 	taskAdded = client.Add('name 1')
-	taskAdded.tags.Set(['tag1', 'tag2'])
+	taskAdded.tags.Set({'tag1', 'tag2'})
 	taskAdded.notes.Add('note title', 'note')
 	taskAdded.Delete()
 
@@ -27,7 +27,7 @@ def testClientSync(client):
 	# Set initial values of properties
 	startDate = date.today()
 	dueDate = startDate + timedelta(days=2)
-	task.tags.Set(['tag1', 'tag2'])
+	task.tags.Set({'tag1', 'tag2'})
 	task.startDate.Set(startDate)
 	task.dueDate.Set(dueDate)
 	task.notes.Add('note title', 'note')
@@ -77,7 +77,7 @@ async def testClientAsync(client):
 	# Set initial values of properties
 	startDate = date.today()
 	dueDate = startDate + timedelta(days=2)
-	await task.tags.SetAsync(['tag1', 'tag2'])
+	await task.tags.SetAsync({'tag1', 'tag2'})
 	await task.startDate.SetAsync(startDate)
 	await task.dueDate.SetAsync(dueDate)
 	await task.notes.AddAsync('note title', 'note')
