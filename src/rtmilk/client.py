@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from logging import getLogger
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import validate_arguments
 
@@ -106,7 +106,7 @@ class Client:
 		self.timeline = await self.apiAsync.TimelinesCreate().timeline
 
 	@validate_arguments
-	def Get(self, filter_: str, lastSync: Optional[datetime] = None) -> List[Task]:
+	def Get(self, filter_: str, lastSync: Optional[datetime] = None) -> list[Task]:
 		_log.info(f'Get: {filter_}')
 		listResponse = self.api.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(self, listResponse)
@@ -118,7 +118,7 @@ class Client:
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
 	@validate_arguments
-	async def GetAsync(self, filter_: str, lastSync: Optional[datetime] = None) -> List[Task]:
+	async def GetAsync(self, filter_: str, lastSync: Optional[datetime] = None) -> list[Task]:
 		_log.info(f'GetAsync: {filter_}')
 		listResponse = await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(self, listResponse)

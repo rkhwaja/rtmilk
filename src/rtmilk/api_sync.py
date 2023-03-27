@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from logging import getLogger
 from pprint import pformat
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
 from requests import get
@@ -118,7 +118,7 @@ class API(UnauthorizedAPI):
 		return TasksAdd.Out(**_CallSync(TasksAdd(self._authSecrets).In(timeline=timeline, name=name, list_id=list_id, parse=parse, parent_task_id=parent_task_id, external_id=external_id)))
 
 	@validate_arguments
-	def TasksAddTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]) -> TaskResponse:
+	def TasksAddTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str]) -> TaskResponse:
 		return TasksAddTags.Out(**_CallSync(TasksAddTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))
 
 	@validate_arguments
@@ -146,7 +146,7 @@ class API(UnauthorizedAPI):
 		return TasksNotesAdd.Out(**_CallSync(TasksNotesAdd(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, note_title=note_title, note_text=note_text)))
 
 	@validate_arguments
-	def TasksRemoveTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: List[str]) -> TaskResponse:
+	def TasksRemoveTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str]) -> TaskResponse:
 		return TasksRemoveTags.Out(**_CallSync(TasksRemoveTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))
 
 	@validate_arguments
@@ -166,5 +166,5 @@ class API(UnauthorizedAPI):
 		return TasksSetStartDate.Out(**_CallSync(TasksSetStartDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, start=start, has_start_time=has_start_time, parse=parse)))
 
 	@validate_arguments
-	def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[List[str]] = None) -> TaskResponse:
+	def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[list[str]] = None) -> TaskResponse:
 		return TasksSetTags.Out(**_CallSync(TasksSetTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))

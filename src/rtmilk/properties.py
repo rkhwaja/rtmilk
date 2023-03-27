@@ -1,6 +1,6 @@
 from datetime import date
 from logging import getLogger
-from typing import Generic, List, Optional, TypeVar
+from typing import Generic, Optional, TypeVar
 
 from .api_sync import API
 from .api_async import APIAsync
@@ -30,7 +30,7 @@ class NotesProperty:
 		self._task = task
 		self._value = None
 
-	def _LoadValue(self, value: List[str]):
+	def _LoadValue(self, value: list[str]):
 		self._value = value
 
 	@property
