@@ -13,6 +13,8 @@ from .properties import CompleteProperty, DueDateProperty, NameProperty, NotesPr
 _log = getLogger(__name__)
 
 class Task: # pylint: disable=too-many-instance-attributes
+	"""Represents an RTM task"""
+
 	def __init__(self, client, listId, taskSeriesId, taskId):
 		self._client = client
 		self._listId = listId
@@ -79,6 +81,8 @@ def _CreateListOfTasks(client, listResponse):
 	return tasks
 
 class Client:
+	"""Wraps the timeline and adds convenience functions to add and query tasks"""
+
 	@classmethod
 	def Create(cls, clientId, clientSecret, token):
 		client = Client(clientId, clientSecret, token)

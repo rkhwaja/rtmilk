@@ -23,6 +23,7 @@ async def _CallAsync(params):
 		raise RTMError() from e
 
 class UnauthorizedAPIAsync(UnauthorizedAPIBase):
+	"""Async wrappers for API calls that don't need authorization"""
 
 	async def TestEcho(self, **params) -> EchoResponse:
 		rsp = await _CallAsync(TestEcho(self._secrets).In(**params))
@@ -40,6 +41,8 @@ class UnauthorizedAPIAsync(UnauthorizedAPIBase):
 		return AuthCheckToken.Out(** await _CallAsync(AuthCheckToken(self._secrets).In(auth_token)))
 
 class APIAsync(UnauthorizedAPIAsync):
+	"""Async wrappers for all API calls"""
+
 	def __init__(self, apiKey, sharedSecret, token):
 		super().__init__(apiKey, sharedSecret)
 		self._authSecrets = SecretsWithAuthorization(apiKey, sharedSecret, token)
