@@ -15,4 +15,4 @@ class AuthorizedAPIBase:
 		self._authSecrets = SecretsWithAuthorization(apiKey, sharedSecret, token)
 
 class RTMError(Exception):
-	pass
+	"""Base class for all errors"""

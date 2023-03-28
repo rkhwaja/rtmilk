@@ -23,6 +23,7 @@ def _CallSync(params):
 		raise RTMError() from e
 
 class UnauthorizedAPI(UnauthorizedAPIBase):
+	"""Synchronous wrappers for API calls that don't need authorization"""
 
 	def TestEcho(self, **params) -> EchoResponse:
 		return TestEcho.Out(**_CallSync(TestEcho(self._secrets).In(**params)))
@@ -46,13 +47,9 @@ class API(UnauthorizedAPI):
 	Handles the authorization/authentication token and API signature
 	There is (almost) a 1-1 relationship between API calls and public member functions
 	Parameter names are the same as the API
-	The inputs are python types at the moment
+	The inputs are python types
 	The outputs are parsed into pydantic types, including errors
-	Translate errors into exceptions
-	The upper layer will:
-	- organize stuff like setting start/due dates in the order that they will be valid
-	- hide details like timeline, filter format
-	- only send API calls for changed properties
+	Translate API errors into exceptions
 	"""
 
 	def __init__(self, apiKey, sharedSecret, token):
