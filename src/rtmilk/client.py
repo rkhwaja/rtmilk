@@ -107,7 +107,7 @@ class Client:
 
 	@validate_arguments
 	def Get(self, filter_: str, lastSync: Optional[datetime] = None) -> list[Task]:
-		_log.info(f'Get: {filter_}')
+		_log.info(f'Get: {filter_}, {lastSync}')
 		listResponse = self.api.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(self, listResponse)
 
@@ -119,7 +119,7 @@ class Client:
 
 	@validate_arguments
 	async def GetAsync(self, filter_: str, lastSync: Optional[datetime] = None) -> list[Task]:
-		_log.info(f'GetAsync: {filter_}')
+		_log.info(f'GetAsync: {filter_}, {lastSync}')
 		listResponse = await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(self, listResponse)
 
