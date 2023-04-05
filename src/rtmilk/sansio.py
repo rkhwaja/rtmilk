@@ -131,7 +131,7 @@ class ListsGetList(AuthorizedCall):
 
 	@classmethod
 	def Out(cls, **rsp):
-		return ListsResponse(**rsp)
+		return _ValidateReturn(ListsResponse, rsp)
 
 class ListsSetDefaultList(AuthorizedCall):
 	@validate_arguments
@@ -139,8 +139,8 @@ class ListsSetDefaultList(AuthorizedCall):
 		return self.CommonParams('rtm.lists.setDefaultList', timeline=timeline, list_id=list_id)
 
 	@classmethod
-	def Out(cls, **rsp):
-		return _ValidateReturn(SingleListResponse, rsp)
+	def Out(cls):
+		return None
 
 class ListsSetName(AuthorizedCall):
 	@validate_arguments
@@ -202,7 +202,7 @@ class TimelinesCreate(AuthorizedCall):
 
 	@classmethod
 	def Out(cls, **rsp):
-		return TimelineResponse(**rsp)
+		return _ValidateReturn(TimelineResponse, rsp)
 
 class SettingsGetList(AuthorizedCall):
 	def In(self):
@@ -210,7 +210,7 @@ class SettingsGetList(AuthorizedCall):
 
 	@classmethod
 	def Out(cls, **rsp):
-		return SettingsResponse(**rsp)
+		return _ValidateReturn(SettingsResponse, rsp)
 
 class TagsGetList(AuthorizedCall):
 	def In(self):
