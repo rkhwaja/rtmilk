@@ -1,6 +1,6 @@
 from datetime import date
 
-from rtmilk import And, Due, NameIs, Or, Priority, PriorityEnum, Status
+from rtmilk.filter import And, Due, NameIs, Or, Priority, PriorityEnum, Status
 
 def testFilterString():
 	assert And(NameIs('the-name'), Status(True)).Text() == '(name:"the-name") AND (status:completed)'

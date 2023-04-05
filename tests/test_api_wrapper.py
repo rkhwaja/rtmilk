@@ -5,7 +5,8 @@ from dateutil.tz import gettz
 from pydantic import ValidationError
 from pytest import mark, raises
 
-from rtmilk import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError, RTMList, RTMSmartList, TasksGetList
+from rtmilk.models import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError, RTMList, RTMSmartList
+from rtmilk.sansio import TasksGetList
 
 def test_validation(api, timeline):
 	with raises(ValidationError):
