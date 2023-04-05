@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 from logging import getLogger
-from typing import Generic, Optional, TypeVar
+from typing import Generic, Optional, TypeVar, Union
 
 from .api_sync import API
 from .api_async import APIAsync
@@ -103,53 +103,37 @@ class CompleteProperty(_Property[bool]):
 				taskseries_id=self._task._taskSeriesId,
 				task_id=self._task._taskId)
 
-class DateProperty(_Property[Optional[date]]):
+class DateProperty(_Property[Optional[Union[date, datetime]]]):
 	def __init__(self, task, dateType):
 		super().__init__(task)
 		self._dateType = dateType
 
-	def _Parameters(self):
-		return {
+	def _Parameters(self, value):
+		parameters = {
 			'timeline': self._task._client.timeline,
 			'list_id': self._task._listId,
 			'taskseries_id': self._task._taskSeriesId,
 			'task_id': self._task._taskId
 		}
-
-	# TODO can just make this Set and don't need to override in derived classes
-	def _Set(self, value: Optional[date]):
-		parameters = self._Parameters()
-		if value is None:
-			(self.__class__.F)(self._task._client.api, **parameters) # pylint: disable=no-member
-		else:
+		if value is not None:
 			parameters[self._dateType] = value
-			parameters[f'has_{self._dateType}_time'] = False
-			_log.info(f'{parameters=}')
-			(self.__class__.F)(self._task._client.api, **parameters) # pylint: disable=no-member
+			parameters[f'has_{self._dateType}_time'] = isinstance(value, datetime)
+		return parameters
 
-	async def _SetAsync(self, value: Optional[date]):
-		parameters = self._Parameters()
-		if value is None:
-			await (self.__class__.FA)(self._task._client.apiAsync, **parameters) # pylint: disable=no-member
-		else:
-			parameters[self._dateType] = value
-			parameters[f'has_{self._dateType}_time'] = False
-			await (self.__class__.FA)(self._task._client.apiAsync, **parameters) # pylint: disable=no-member
+	def Set(self, value: Optional[Union[date, datetime]]):
+		parameters = self._Parameters(value)
+		(self.__class__.F)(self._task._client.api, **parameters) # pylint: disable=no-member
+
+	async def SetAsync(self, value: Optional[Union[date, datetime]]):
+		parameters = self._Parameters(value)
+		await (self.__class__.FA)(self._task._client.apiAsync, **parameters) # pylint: disable=no-member
 
 class StartDateProperty(DateProperty):
 	"""None means no start date"""
 	def __init__(self, task):
 		super().__init__(task, 'start')
 		self.__class__.F = staticmethod(API.TasksSetStartDate)
-		_log.info(f'{self.__class__.F=}')
 		self.__class__.FA = APIAsync.TasksSetStartDate
-		_log.info(f'{API.TasksSetStartDate=}')
-
-	def Set(self, value: Optional[date]):
-		super()._Set(value)
-
-	async def SetAsync(self, value: Optional[date]):
-		await super()._SetAsync(value)
 
 class DueDateProperty(DateProperty):
 	"""None means no due date"""
@@ -157,12 +141,6 @@ class DueDateProperty(DateProperty):
 		super().__init__(task, 'due')
 		self.__class__.F = staticmethod(API.TasksSetDueDate)
 		self.__class__.FA = APIAsync.TasksSetDueDate
-
-	def Set(self, value: Optional[date]):
-		super()._Set(value)
-
-	async def SetAsync(self, value: Optional[date]):
-		await super()._SetAsync(value)
 
 class NameProperty(_Property[str]):
 	def Set(self, value: str):
