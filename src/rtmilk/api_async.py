@@ -7,7 +7,7 @@ from aiohttp import ClientResponseError, ClientSession
 from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
 
 from .api_base import RTMError, UnauthorizedAPIBase
-from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
+from .models import AuthResponse, EchoResponse, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from .sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TasksUncomplete, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from .secrets import SecretsWithAuthorization
 
@@ -63,19 +63,19 @@ class APIAsync(UnauthorizedAPIAsync):
 	async def ListsDelete(self, timeline: str, list_id: str) -> SingleListResponse:
 		return ListsDelete.Out(** await _CallAsync(ListsDelete(self._authSecrets).In(timeline=timeline, list_id=list_id)))
 
-	async def ListsGetList(self):
+	async def ListsGetList(self) -> ListsResponse:
 		return ListsGetList.Out(** await _CallAsync(ListsGetList(self._authSecrets).In()))
 
 	@validate_arguments
-	async def ListsSetDefaultList(self, timeline: str, list_id: str):
+	async def ListsSetDefaultList(self, timeline: str, list_id: str) -> None:
 		return ListsSetDefaultList.Out(** await _CallAsync(ListsSetDefaultList(self._authSecrets).In(timeline=timeline, list_id=list_id)))
 
 	@validate_arguments
-	async def ListsSetName(self, timeline: str, list_id: str, name: str):
+	async def ListsSetName(self, timeline: str, list_id: str, name: str) -> SingleListResponse:
 		return ListsSetName.Out(** await _CallAsync(ListsSetName(self._authSecrets).In(timeline=timeline, list_id=list_id, name=name)))
 
 	@validate_arguments
-	async def ListsUnarchive(self, timeline: str, list_id: str):
+	async def ListsUnarchive(self, timeline: str, list_id: str) -> SingleListResponse:
 		return ListsUnarchive.Out(** await _CallAsync(ListsUnarchive(self._authSecrets).In(timeline=timeline, list_id=list_id)))
 
 	async def PushGetSubscriptions(self) -> SubscriptionListResponse:

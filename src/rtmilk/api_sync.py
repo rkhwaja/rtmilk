@@ -8,7 +8,7 @@ from requests import get
 from requests.exceptions import RequestException
 
 from .api_base import RTMError, UnauthorizedAPIBase
-from .models import AuthResponse, EchoResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
+from .models import AuthResponse, EchoResponse, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from .sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TasksUncomplete, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from .secrets import SecretsWithAuthorization
 
@@ -72,19 +72,19 @@ class API(UnauthorizedAPI):
 	def ListsDelete(self, timeline: str, list_id: str) -> SingleListResponse:
 		return ListsDelete.Out(**_CallSync(ListsDelete(self._authSecrets).In(timeline=timeline, list_id=list_id)))
 
-	def ListsGetList(self):
+	def ListsGetList(self) -> ListsResponse:
 		return ListsGetList.Out(**_CallSync(ListsGetList(self._authSecrets).In()))
 
 	@validate_arguments
-	def ListsSetDefaultList(self, timeline: str, list_id: str):
+	def ListsSetDefaultList(self, timeline: str, list_id: str) -> None:
 		return ListsSetDefaultList.Out(**_CallSync(ListsSetDefaultList(self._authSecrets).In(timeline=timeline, list_id=list_id)))
 
 	@validate_arguments
-	def ListsSetName(self, timeline: str, list_id: str, name: str):
+	def ListsSetName(self, timeline: str, list_id: str, name: str) -> SingleListResponse:
 		return ListsSetName.Out(**_CallSync(ListsSetName(self._authSecrets).In(timeline=timeline, list_id=list_id, name=name)))
 
 	@validate_arguments
-	def ListsUnarchive(self, timeline: str, list_id: str):
+	def ListsUnarchive(self, timeline: str, list_id: str) -> SingleListResponse:
 		return ListsUnarchive.Out(**_CallSync(ListsUnarchive(self._authSecrets).In(timeline=timeline, list_id=list_id)))
 
 	def PushGetSubscriptions(self) -> SubscriptionListResponse:
