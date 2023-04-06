@@ -7,7 +7,7 @@ from pytest import mark, raises
 def testClientDeleteWithNoDates(client):
 	_ = client.Get('')
 	taskAdded = client.Add(f'{uuid4()}')
-	taskAdded.tags.Set({'tag1', 'tag2'})
+	taskAdded.tags.Set({'rtmilk-test-tag1', 'rtmilk-test-tag2'})
 	taskAdded.notes.Add('note title', 'note')
 	taskAdded.Delete()
 
@@ -27,7 +27,7 @@ def testClientSync(client):
 	# Set initial values of properties
 	startDate = date.today()
 	dueDate = startDate + timedelta(days=2)
-	task.tags.Set({'tag1', 'tag2'})
+	task.tags.Set({'rtmilk-test-tag1', 'rtmilk-test-tag2'})
 	task.startDate.Set(startDate)
 	task.dueDate.Set(dueDate)
 	task.notes.Add('note title', 'note')
@@ -37,7 +37,7 @@ def testClientSync(client):
 	assert len(tasksWithTitle) == 1, tasksWithTitle
 	newTask = tasksWithTitle[0]
 	assert newTask.name.value == name
-	assert sorted(newTask.tags.value) == ['tag1', 'tag2']
+	assert sorted(newTask.tags.value) == ['rtmilk-test-tag1', 'rtmilk-test-tag2']
 	assert newTask.startDate.value == startDate
 	assert newTask.dueDate.value == dueDate
 	assert newTask.complete.value is False
@@ -77,7 +77,7 @@ async def testClientAsync(client):
 	# Set initial values of properties
 	startDate = date.today()
 	dueDate = startDate + timedelta(days=2)
-	await task.tags.SetAsync({'tag1', 'tag2'})
+	await task.tags.SetAsync({'rtmilk-test-tag1', 'rtmilk-test-tag2'})
 	await task.startDate.SetAsync(startDate)
 	await task.dueDate.SetAsync(dueDate)
 	await task.notes.AddAsync('note title', 'note')
@@ -87,7 +87,7 @@ async def testClientAsync(client):
 	assert len(tasksWithTitle) == 1, tasksWithTitle
 	newTask = tasksWithTitle[0]
 	assert newTask.name.value == name
-	assert sorted(newTask.tags.value) == ['tag1', 'tag2']
+	assert sorted(newTask.tags.value) == ['rtmilk-test-tag1', 'rtmilk-test-tag2']
 	assert newTask.startDate.value == startDate
 	assert newTask.dueDate.value == dueDate
 	assert newTask.complete.value is False
