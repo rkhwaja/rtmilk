@@ -160,12 +160,12 @@ class TaskResponse(OkStat):
 
 class TasksInListPayload(BaseModel):
 	id: str
-	# can be missing if there are no tasks in the list
+	# can be missing if there are no tasks in the list returned from TasksGetList with just a listid
 	taskseries: Optional[list[TaskSeries]]
 
 class TaskListPayload(BaseModel):
 	rev: str
-	# if there are are no tasks in the list, this node is missing
+	# if there are are no tasks in the list, returned from TasksGetList via a filter, this node is missing
 	list: Optional[list[TasksInListPayload]]
 
 class TaskListResponse(OkStat):

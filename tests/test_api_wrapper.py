@@ -75,6 +75,17 @@ def test_that_unions_are_necessary_for_notes_list(api, timeline, task):
 	assert isinstance(theTaskSeries.notes.note, list)
 	assert len(theTaskSeries.notes.note) == 1
 
+def test_optional_in_task_list_payload(api, newList):
+	# this call returns an object with "list" in TaskListPayload, but no taskseries in TasksInListPayload
+	noTasks = api.TasksGetList(list_id=newList.list.id)
+	assert hasattr(noTasks.tasks, 'list') is True
+	assert hasattr(noTasks.tasks.list, 'taskseries') is False
+
+	# this call returns an object missing "list" from TaskListPayload
+	noTasks = api.TasksGetList(filter=f'name:"{uuid4()}"')
+	assert hasattr(noTasks.tasks, 'list') is True
+	assert hasattr(noTasks.tasks.list, 'taskseries') is False
+
 def test_check_token(api):
 	response = api.AuthCheckToken(api.secrets.token)
 	assert isinstance(response, AuthResponse)
@@ -248,42 +259,33 @@ def test_lists_get_list(api):
 	assert 'Personal' in listNames, listNames
 	assert 'Work' in listNames, listNames
 
-def test_add_list(api, timeline):
-	name = f'new list {uuid4()}'
-	list_ = api.ListsAdd(timeline, name)
-	assert isinstance(list_.list, RTMList) and not isinstance(list_.list, RTMSmartList)
-	assert list_.list.archived is False, list_
-	list_ = api.ListsSetName(timeline, list_.list.id, name +' renamed')
-	assert list_.list.name == name + ' renamed', list_
+def test_add_list(api, timeline, newList):
+	assert isinstance(newList.list, RTMList) and not isinstance(newList.list, RTMSmartList)
+	assert newList.list.archived is False, newList
+	list_ = api.ListsSetName(timeline, newList.list.id, newList.list.name +' renamed')
+	assert list_.list.name == newList.list.name + ' renamed', list_
 	list_ = api.ListsArchive(timeline, list_.list.id)
 	assert list_.list.archived is True, list_
 	list_ = api.ListsUnarchive(timeline, list_.list.id)
 	assert list_.list.archived is False, list_
-	list_ = api.ListsDelete(timeline, list_.list.id)
-	assert list_.list.deleted is True, list_
 
-def test_add_smart_list(api, timeline):
-	name = f'new smart list {uuid4()}'
-	list_ = api.ListsAdd(timeline, name, filter='tag:tag1')
-	assert isinstance(list_.list, RTMSmartList)
-	assert list_.list.archived is False, list_
+def test_add_smart_list(api, timeline, newSmartList):
+	assert isinstance(newSmartList.list, RTMSmartList)
+	assert newSmartList.list.archived is False, newSmartList
 
 	# Can do this on the website but API *does* fail
 	try:
-		list_ = api.ListsSetName(timeline, list_.list.id, name + ' renamed')
+		_ = api.ListsSetName(timeline, newSmartList.list.id, newSmartList.list.name + ' renamed')
 		assert False, 'Should have failed to change the name on a smart list'
 	except RTMError:
 		pass
 
 	# Looks like you can't archive a smart list
 	try:
-		list_ = api.ListsArchive(timeline, list_.list.id)
+		_ = api.ListsArchive(timeline, newSmartList.list.id)
 		assert False, 'Should have failed to archive a smart list'
 	except RTMError:
 		pass
-
-	list_ = api.ListsDelete(timeline, list_.list.id)
-	assert list_.list.deleted is True, list_
 
 def test_subscriptions(api, timeline):
 	api.PushGetSubscriptions()

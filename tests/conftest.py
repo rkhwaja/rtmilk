@@ -44,6 +44,20 @@ def task(api, timeline): # pylint: disable=redefined-outer-name
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
 
+@fixture
+def newList(api, timeline): # pylint: disable=redefined-outer-name
+	list_ = api.ListsAdd(timeline, f'list {uuid4()}')
+	yield list_
+	list_ = api.ListsDelete(timeline, list_.list.id)
+	assert list_.list.deleted is True, list_
+
+@fixture
+def newSmartList(api, timeline): # pylint: disable=redefined-outer-name
+	list_ = api.ListsAdd(timeline, f'list {uuid4()}', filter='tag:tag1')
+	yield list_
+	list_ = api.ListsDelete(timeline, list_.list.id)
+	assert list_.list.deleted is True, list_
+
 class TaskCreator:
 	def __init__(self, client_):
 		self.client = client_
