@@ -6,7 +6,7 @@ from typing import Generic, TypeVar
 
 from .api_sync import API
 from .api_async import APIAsync
-from .models import Note
+from .models import Note, Tags
 
 _log = getLogger(__name__)
 _T = TypeVar('_T')
@@ -137,14 +137,19 @@ class DueDateProperty(DateProperty):
 
 class NameProperty(_Property[str]):
 	def Set(self, value: str):
-		self._task._client.api.TasksSetName(timeline=self._task._client.timeline,
+		taskResponse = self._task._client.api.TasksSetName(timeline=self._task._client.timeline,
 								list_id=self._task._listId,
 								taskseries_id=self._task._taskSeriesId,
 								task_id=self._task._taskId,
 								name=value)
+		tags = taskResponse.list.taskseries[0].tags
+		# TODO this is an example of the problem in #14
+		if isinstance(taskResponse.list.taskseries[0].tags, Tags):
+			tags = tags.tag
+		self._task.tags._LoadValue(tags)
 
 	async def SetAsync(self, value: str):
-		await self._task._client.apiAsync.TasksSetName(timeline=self._task._client.timeline,
+		_ = await self._task._client.apiAsync.TasksSetName(timeline=self._task._client.timeline,
 								list_id=self._task._listId,
 								taskseries_id=self._task._taskSeriesId,
 								task_id=self._task._taskId,
