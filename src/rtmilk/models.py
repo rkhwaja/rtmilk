@@ -216,5 +216,8 @@ class SubscriptionResponse(OkStat, SubscriptionData):
 	transaction: Transaction
 	subscription: SubscriptionPayload
 
+class SubscriptionList(BaseModel):
+	subscription: list[SubscriptionPayload]
+
 class SubscriptionListResponse(OkStat):
-	subscriptions: list[SubscriptionPayload]
+	subscriptions: Union[SubscriptionList, list[SubscriptionPayload]]
