@@ -7,7 +7,7 @@ from dateutil.tz import gettz
 from pydantic import ValidationError
 from pytest import mark, raises
 
-from rtmilk.models import AuthResponse, EchoResponse, PriorityDirectionEnum, PriorityEnum, RTMError, RTMList, RTMSmartList
+from rtmilk.models import AuthResponse, EchoResponse, NotePayload, PriorityDirectionEnum, PriorityEnum, RTMError, RTMList, RTMSmartList, Tags, TaskResponse, TaskSeries
 from rtmilk.sansio import TasksGetList
 
 def test_validation(api, timeline):
@@ -31,6 +31,49 @@ def test_echo(api):
 async def test_async_echo(apiAsync):
 	response = await apiAsync.TestEcho(a='1', b='2')
 	assert isinstance(response, EchoResponse), response
+
+def test_that_unions_are_necessary_for_tag_list(api, timeline, task):
+	taskList = api.TasksGetList(filter=f'name:"{task.list.taskseries[0].name}"')
+	theTaskSeries = taskList.tasks.list[0].taskseries[0]
+
+	assert isinstance(theTaskSeries, TaskSeries)
+	assert isinstance(theTaskSeries.tags, list)
+	assert len(theTaskSeries.tags) == 0
+
+	response = api.TasksSetTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['rtmilk-test-tag1'])
+	assert isinstance(response, TaskResponse)
+	assert isinstance(response.list.taskseries[0].tags, Tags)
+	assert isinstance(response.list.taskseries[0].tags.tag, list)
+	assert len(response.list.taskseries[0].tags.tag) == 1
+
+	taskList = api.TasksGetList(filter=f'name:"{task.list.taskseries[0].name}"')
+	theTaskSeries = taskList.tasks.list[0].taskseries[0]
+	assert isinstance(theTaskSeries.tags, Tags)
+	assert isinstance(theTaskSeries.tags.tag, list)
+	assert len(theTaskSeries.tags.tag) == 1
+
+def test_that_unions_are_necessary_for_notes_list(api, timeline, task):
+	assert isinstance(task, TaskResponse)
+	assert isinstance(task.list.taskseries[0].notes, list)
+	assert len(task.list.taskseries[0].notes) == 0
+
+	taskList = api.TasksGetList(filter=f'name:"{task.list.taskseries[0].name}"')
+	theTaskSeries = taskList.tasks.list[0].taskseries[0]
+	assert isinstance(theTaskSeries, TaskSeries)
+	assert isinstance(theTaskSeries.notes, list)
+	assert len(theTaskSeries.notes) == 0
+
+	# add a note
+	_ = api.TasksNotesAdd(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, 'note title', 'note body')
+
+	# reget the task
+	taskList = api.TasksGetList(filter=f'name:"{task.list.taskseries[0].name}"')
+	theTaskSeries = taskList.tasks.list[0].taskseries[0]
+	assert isinstance(theTaskSeries, TaskSeries)
+
+	assert isinstance(theTaskSeries.notes, NotePayload)
+	assert isinstance(theTaskSeries.notes.note, list)
+	assert len(theTaskSeries.notes.note) == 1
 
 def test_check_token(api):
 	response = api.AuthCheckToken(api.secrets.token)
@@ -74,11 +117,11 @@ def test_add_and_delete_complex_task(api, timeline):
 	name = f'test_add_and_delete_complex_task {uuid4()}'
 	task = api.TasksAdd(timeline, name)
 
-	tag1 = f'rtmilk-test-tag1'
+	tag1 = 'rtmilk-test-tag1'
 	task = api.TasksAddTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, [tag1])
 	assert {tag1} == set(task.list.taskseries[0].tags.tag)
 
-	tag2 = f'rtmilk-test-tag2'
+	tag2 = 'rtmilk-test-tag2'
 	task = api.TasksSetTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, tags=[tag2])
 	assert {tag2} == set(task.list.taskseries[0].tags.tag)
 
