@@ -1,4 +1,5 @@
 from os import environ
+from uuid import uuid4
 
 from pytest import fixture
 
@@ -36,7 +37,7 @@ def timeline(api): # pylint: disable=redefined-outer-name
 
 @fixture
 def task(api, timeline): # pylint: disable=redefined-outer-name
-	task = api.TasksAdd(timeline, 'new task') # pylint: disable=redefined-outer-name
+	task = api.TasksAdd(timeline, f'new task {uuid4()}') # pylint: disable=redefined-outer-name
 	yield task
 	api.TasksDelete(
 		timeline, task.list.id,

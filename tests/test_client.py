@@ -6,7 +6,7 @@ from pytest import mark, raises
 
 def testClientDeleteWithNoDates(client):
 	_ = client.Get('')
-	taskAdded = client.Add('name 1')
+	taskAdded = client.Add(f'{uuid4()}')
 	taskAdded.tags.Set({'tag1', 'tag2'})
 	taskAdded.notes.Add('note title', 'note')
 	taskAdded.Delete()
