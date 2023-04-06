@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 from logging import info
+from random import randint
+from uuid import uuid4
 
 from dateutil.tz import gettz
 from pydantic import ValidationError
@@ -11,14 +13,14 @@ from rtmilk.sansio import TasksGetList
 def test_validation(api, timeline):
 	with raises(ValidationError):
 		_ = api.TasksAdd(timeline=timeline, name=None)
-	taskResponse = api.TasksAdd(timeline=timeline, name=42) # doesn't throw a validation error
+	taskResponse = api.TasksAdd(timeline=timeline, name=randint(0, 10000)) # doesn't throw a validation error because the int gets converted to a str
 	api.TasksDelete(timeline=timeline, list_id=taskResponse.list.id, taskseries_id=taskResponse.list.taskseries[0].id, task_id=taskResponse.list.taskseries[0].task[0].id)
 
 @mark.asyncio
 async def test_validation_async(apiAsync, timeline):
 	with raises(ValidationError):
 		_ = await apiAsync.TasksAdd(timeline=timeline, name=None)
-	taskResponse = await apiAsync.TasksAdd(timeline=timeline, name=42) # doesn't throw a validation error
+	taskResponse = await apiAsync.TasksAdd(timeline=timeline, name=randint(0, 10000)) # doesn't throw a validation error because the int gets converted to a str
 	await apiAsync.TasksDelete(timeline=timeline, list_id=taskResponse.list.id, taskseries_id=taskResponse.list.taskseries[0].id, task_id=taskResponse.list.taskseries[0].task[0].id)
 
 def test_echo(api):
@@ -35,7 +37,7 @@ def test_check_token(api):
 	assert isinstance(response, AuthResponse)
 
 def test_add_and_delete_basic_task(api, timeline):
-	task = api.TasksAdd(timeline, 'test_add_and_delete_basic_task')
+	task = api.TasksAdd(timeline, f'test_add_and_delete_basic_task {uuid4()}')
 	api.TasksDelete(
 		timeline, task.list.id,
 		task.list.taskseries[0].id,
@@ -43,7 +45,7 @@ def test_add_and_delete_basic_task(api, timeline):
 
 @mark.asyncio
 async def test_async_add_and_delete_basic_task(apiAsync, timeline):
-	task = await apiAsync.TasksAdd(timeline, 'test_async_add_and_delete_basic_task')
+	task = await apiAsync.TasksAdd(timeline, f'test_async_add_and_delete_basic_task {uuid4()}')
 	await apiAsync.TasksDelete(
 		timeline, task.list.id,
 		task.list.taskseries[0].id,
@@ -54,9 +56,9 @@ def test_pf_use_case(api, timeline, taskCreatorAPI):
 	prefix2 = 'prefix2: '
 	suffix1 = 'suffix1'
 	suffix2 = 'suffix2'
-	_ = taskCreatorAPI.Add(prefix1 + suffix1)
-	_ = taskCreatorAPI.Add(prefix1 + suffix2)
-	_ = taskCreatorAPI.Add(prefix2 + suffix1)
+	_ = taskCreatorAPI.Add(prefix1 + suffix1 + str(uuid4()))
+	_ = taskCreatorAPI.Add(prefix1 + suffix2 + str(uuid4()))
+	_ = taskCreatorAPI.Add(prefix2 + suffix1 + str(uuid4()))
 	task4 = taskCreatorAPI.Add(prefix2 + suffix2)
 	api.TasksComplete(timeline, task4.list.id, task4.list.taskseries[0].id, task4.list.taskseries[0].task[0].id)
 
@@ -69,15 +71,18 @@ def test_pf_use_case(api, timeline, taskCreatorAPI):
 	info(nonEmptyListResponse)
 
 def test_add_and_delete_complex_task(api, timeline):
-	task = api.TasksAdd(timeline, 'test_add_and_delete_complex_task')
+	name = f'test_add_and_delete_complex_task {uuid4()}'
+	task = api.TasksAdd(timeline, name)
 
-	task = api.TasksAddTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag1'])
-	assert {'tag1'} == set(task.list.taskseries[0].tags.tag)
+	tag1 = f'rtmilk-test-tag1'
+	task = api.TasksAddTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, [tag1])
+	assert {tag1} == set(task.list.taskseries[0].tags.tag)
 
-	task = api.TasksSetTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, tags=['tag2'])
-	assert {'tag2'} == set(task.list.taskseries[0].tags.tag)
+	tag2 = f'rtmilk-test-tag2'
+	task = api.TasksSetTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, tags=[tag2])
+	assert {tag2} == set(task.list.taskseries[0].tags.tag)
 
-	task = api.TasksRemoveTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, ['tag2'])
+	task = api.TasksRemoveTags(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, [tag2])
 	assert set() == set(task.list.taskseries[0].tags)
 
 	noteResponse = api.TasksNotesAdd(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, 'title', 'body')
@@ -90,8 +95,8 @@ def test_add_and_delete_complex_task(api, timeline):
 	response = api.TasksMovePriority(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, PriorityDirectionEnum.Up)
 	# assert response.list.taskseries[0].task[0].priority == PriorityEnum.Priority2 # fails, but it's the service itself
 
-	response = api.TasksSetName(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, name='test_add_and_delete_complex_task - renamed')
-	assert response.list.taskseries[0].name == 'test_add_and_delete_complex_task - renamed'
+	response = api.TasksSetName(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id, name=name + ' renamed')
+	assert response.list.taskseries[0].name == name + ' renamed'
 
 	response = api.TasksComplete(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id)
 	assert response.list.taskseries[0].task[0].completed is not None
@@ -175,7 +180,7 @@ def test_last_sync(api, taskCreatorAPI):
 	start = datetime.utcnow()
 	noChange = api.TasksGetList(last_sync=start)
 	assert noChange.tasks.list is None, 'No tasks added at the start'
-	task1 = taskCreatorAPI.Add('task 1')
+	task1 = taskCreatorAPI.Add(f'task 1 {uuid4()}')
 	task1CreateTime = task1.list.taskseries[0].created
 
 	# last_sync is inclusive
@@ -201,11 +206,12 @@ def test_lists_get_list(api):
 	assert 'Work' in listNames, listNames
 
 def test_add_list(api, timeline):
-	list_ = api.ListsAdd(timeline, 'new list')
+	name = f'new list {uuid4()}'
+	list_ = api.ListsAdd(timeline, name)
 	assert isinstance(list_.list, RTMList) and not isinstance(list_.list, RTMSmartList)
 	assert list_.list.archived is False, list_
-	list_ = api.ListsSetName(timeline, list_.list.id, 'new list renamed')
-	assert list_.list.name == 'new list renamed', list_
+	list_ = api.ListsSetName(timeline, list_.list.id, name +' renamed')
+	assert list_.list.name == name + ' renamed', list_
 	list_ = api.ListsArchive(timeline, list_.list.id)
 	assert list_.list.archived is True, list_
 	list_ = api.ListsUnarchive(timeline, list_.list.id)
@@ -214,13 +220,14 @@ def test_add_list(api, timeline):
 	assert list_.list.deleted is True, list_
 
 def test_add_smart_list(api, timeline):
-	list_ = api.ListsAdd(timeline, 'new smart list', filter='tag:tag1')
+	name = f'new smart list {uuid4()}'
+	list_ = api.ListsAdd(timeline, name, filter='tag:tag1')
 	assert isinstance(list_.list, RTMSmartList)
 	assert list_.list.archived is False, list_
 
 	# Can do this on the website but API *does* fail
 	try:
-		list_ = api.ListsSetName(timeline, list_.list.id, 'new smart list renamed')
+		list_ = api.ListsSetName(timeline, list_.list.id, name + ' renamed')
 		assert False, 'Should have failed to change the name on a smart list'
 	except RTMError:
 		pass
