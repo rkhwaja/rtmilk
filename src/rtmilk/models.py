@@ -140,9 +140,14 @@ class TaskSeries(BaseModel):
 	url: EmptyStrToNone[AnyHttpUrl]
 	location_id: str
 	participants: list[str]
-	notes: Union[list[str], NotePayload]
+
+	# see test_that_unions_are_necessary_for_notes_list for why the Union is necessary
+	# in the case where this is a list[str], it's always an empty list
+	notes: Union[NotePayload, list[str]]
 	task: list[Task]
-	# in the case where it's a list, it seems to be always an empty list
+
+	# see test_that_unions_are_necessary_for_tag_list for why the Union is necessary
+	# in the case where this is a list[str], it's always an empty list
 	tags: Union[Tags, list[str]]
 
 class TaskPayload(BaseModel):
