@@ -168,7 +168,7 @@ def test_tags(api, timeline, task):
 	taskSeriesId = task.list.taskseries[0].id
 	taskId = task.list.taskseries[0].task[0].id
 
-	api.TasksAddTags(timeline, listId, taskSeriesId, taskId, ['rtmilk-test-ag1'])
+	api.TasksAddTags(timeline, listId, taskSeriesId, taskId, ['rtmilk-test-tag1'])
 	assert 'rtmilk-test-tag1' in {x.name for x in api.TagsGetList().tags.tag}
 	# allTaskSeries = api.TasksGetList(list_id=listId).tasks.list[0].id
 	# api.TasksDelete(
