@@ -15,11 +15,11 @@ try:
     task = client.Add(name='name 1')
     assert task.complete.value is False
     task.tags.Set({'tag1', 'tag2'})
-    assert task.tags.value == ['tag1', 'tag2']
+    assert task.tags.value == {'tag1', 'tag2'}
     task = await client.AddAsync(name='name 2')
-    await task.tags.Set({'tag1', 'tag2'})
+    await task.tags.SetAsync({'tag1', 'tag2'})
     tasks = client2.Get('name:"name 1"')
-    assert tasks[0].tags.value == ['tag1', 'tag2']
+    assert tasks[0].tags.value == {'tag1', 'tag2'}
 except RTMError as e:
     print(e)
 ```
