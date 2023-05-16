@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from pytest import mark, raises
 
 from rtmilk.models import AuthResponse, EchoResponse, NotePayload, PriorityDirectionEnum, PriorityEnum, RTMError, RTMList, RTMSmartList, Tags, TaskResponse, TaskSeries
-from rtmilk.sansio import TasksGetList
+from rtmilk._sansio import TasksGetList
 
 def test_validation(api, timeline):
 	with raises(ValidationError):

@@ -5,7 +5,7 @@ from typing import Optional, Union
 from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator # pylint: disable=no-name-in-module
 from pydantic.types import ConstrainedStr # pylint: disable=no-name-in-module
 
-from .utils import EmptyStrToNone
+from ._utils import EmptyStrToNone
 
 class RTMError(Exception):
 	def __init__(self, code, message):

@@ -1,4 +1,4 @@
-from .secrets import Secrets, SecretsWithAuthorization
+from ._secrets import Secrets, SecretsWithAuthorization
 
 class UnauthorizedAPIBase:
 	"""Holds secrets for unauthorized calls"""
