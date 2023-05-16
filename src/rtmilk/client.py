@@ -8,7 +8,7 @@ from pydantic import validate_arguments
 
 from .api_async import APIAsync
 from .api_sync import API
-from .properties import CompleteProperty, DueDateProperty, NameProperty, NotesProperty, StartDateProperty, TagsProperty
+from ._properties import CompleteProperty, DueDateProperty, NameProperty, NotesProperty, StartDateProperty, TagsProperty
 
 _log = getLogger(__name__)
 

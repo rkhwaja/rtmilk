@@ -1,5 +1,5 @@
 from .api_sync import UnauthorizedAPI
-from .sansio import ApiSig
+from ._sansio import ApiSig
 
 _AUTHORIZATION_URL = 'https://www.rememberthemilk.com/services/auth/'
 
