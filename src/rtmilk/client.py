@@ -93,6 +93,8 @@ class Client:
 		await client._CreateTimelineAsync()
 		return client
 
+	# TODO - pass timeline in constructor to at least prevent people who accidentally call this from making an invalid object?
+	# else change Client to _Client and make the factory functions free
 	def __init__(self, clientId, clientSecret, token):
 		self.api = API(clientId, clientSecret, token)
 		self.apiAsync = APIAsync(clientId, clientSecret, token)
