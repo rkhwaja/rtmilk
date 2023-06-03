@@ -59,7 +59,7 @@ def _CreateFromTaskSeries(client, listId, taskSeries):
 	result = Task(client, listId, taskSeries.id, task0.id)
 
 	result.name._LoadValue(taskSeries.name)
-	result.tags._LoadValue(taskSeries.tags.tag if hasattr(taskSeries.tags, 'tag') else taskSeries.tags)
+	result.tags._LoadValue(set(taskSeries.tags.tag) if hasattr(taskSeries.tags, 'tag') else set(taskSeries.tags))
 	result.startDate._LoadValue(task0.start.date() if task0.start is not None else None) # None means no change
 	result.dueDate._LoadValue(task0.due.date() if task0.due is not None else None) # None means no change
 	result.complete._LoadValue(task0.completed is not None)

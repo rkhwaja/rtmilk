@@ -37,7 +37,7 @@ def testClientSync(client):
 	assert len(tasksWithTitle) == 1, tasksWithTitle
 	newTask = tasksWithTitle[0]
 	assert newTask.name.value == name
-	assert sorted(newTask.tags.value) == ['rtmilk-test-tag1', 'rtmilk-test-tag2']
+	assert newTask.tags.value == {'rtmilk-test-tag1', 'rtmilk-test-tag2'}
 	assert newTask.startDate.value == startDate
 	assert newTask.dueDate.value == dueDate
 	assert newTask.complete.value is False
@@ -87,7 +87,7 @@ async def testClientAsync(client):
 	assert len(tasksWithTitle) == 1, tasksWithTitle
 	newTask = tasksWithTitle[0]
 	assert newTask.name.value == name
-	assert sorted(newTask.tags.value) == ['rtmilk-test-tag1', 'rtmilk-test-tag2']
+	assert newTask.tags.value == {'rtmilk-test-tag1', 'rtmilk-test-tag2'}
 	assert newTask.startDate.value == startDate
 	assert newTask.dueDate.value == dueDate
 	assert newTask.complete.value is False
