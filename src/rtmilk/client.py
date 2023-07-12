@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from logging import getLogger
 
-from pydantic import validate_arguments
+from pydantic import validate_call
 
 from .api_async import APIAsync
 from .api_sync import API
@@ -32,7 +32,7 @@ class Task:
 	def __repr__(self):
 		return f'Task({self.name.value})'
 
-	@validate_arguments
+	@validate_call
 	def Delete(self):
 		_log.info(f'{self}.Delete')
 		self._client.api.TasksDelete(timeline=self._client.timeline,
@@ -40,7 +40,7 @@ class Task:
 								taskseries_id=self._taskSeriesId,
 								task_id=self._taskId)
 
-	@validate_arguments
+	@validate_call
 	async def DeleteAsync(self):
 		_log.info(f'{self}.DeleteAsync')
 		await self._client.apiAsync.TasksDelete(timeline=self._client.timeline,
@@ -107,25 +107,25 @@ class Client:
 	async def _CreateTimelineAsync(self):
 		self.timeline = await self.apiAsync.TimelinesCreate().timeline
 
-	@validate_arguments
+	@validate_call
 	def Get(self, filter_: str, lastSync: datetime | None = None) -> list[Task]:
 		_log.info(f'Get: {filter_}, {lastSync}')
 		listResponse = self.api.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(self, listResponse)
 
-	@validate_arguments
+	@validate_call
 	def Add(self, name: str) -> Task:
 		_log.info(f'Add: {name}')
 		taskResponse = self.api.TasksAdd(self.timeline, name)
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
-	@validate_arguments
+	@validate_call
 	async def GetAsync(self, filter_: str, lastSync: datetime | None = None) -> list[Task]:
 		_log.info(f'GetAsync: {filter_}, {lastSync}')
 		listResponse = await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(self, listResponse)
 
-	@validate_arguments
+	@validate_call
 	async def AddAsync(self, name: str) -> Task:
 		_log.info(f'AddAsync: {name}')
 		taskResponse = await self.apiAsync.TasksAdd(self.timeline, name)
