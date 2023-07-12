@@ -5,7 +5,7 @@ from hashlib import md5
 from logging import getLogger
 from pprint import pformat
 
-from pydantic import stricturl, validate_arguments, ValidationError
+from pydantic import AnyHttpUrl, validate_call, ValidationError
 
 from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, RTMError, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 
@@ -80,7 +80,7 @@ class AuthGetFrob(UnauthorizedCall):
 		return rsp['frob']
 
 class AuthGetToken(UnauthorizedCall):
-	@validate_arguments
+	@validate_call
 	def In(self, frob: str) -> str:
 		return self.CommonParams('rtm.auth.getToken', frob=frob)
 
@@ -89,7 +89,7 @@ class AuthGetToken(UnauthorizedCall):
 		return rsp['auth']['token']
 
 class AuthCheckToken(UnauthorizedCall):
-	@validate_arguments
+	@validate_call
 	def In(self, auth_token: str):
 		return self.CommonParams('rtm.auth.checkToken', auth_token=auth_token)
 
@@ -109,7 +109,7 @@ class ListsAdd(AuthorizedCall):
 		return _ValidateReturn(SingleListResponse, rsp)
 
 class ListsArchive(AuthorizedCall):
-	@validate_arguments
+	@validate_call
 	def In(self, timeline: str, list_id: str):
 		return self.CommonParams('rtm.lists.archive', timeline=timeline, list_id=list_id)
 
@@ -118,7 +118,7 @@ class ListsArchive(AuthorizedCall):
 		return _ValidateReturn(SingleListResponse, rsp)
 
 class ListsDelete(AuthorizedCall):
-	@validate_arguments
+	@validate_call
 	def In(self, timeline: str, list_id: str):
 		return self.CommonParams('rtm.lists.delete', timeline=timeline, list_id=list_id)
 
@@ -135,7 +135,7 @@ class ListsGetList(AuthorizedCall):
 		return _ValidateReturn(ListsResponse, rsp)
 
 class ListsSetDefaultList(AuthorizedCall):
-	@validate_arguments
+	@validate_call
 	def In(self, timeline: str, list_id: str):
 		return self.CommonParams('rtm.lists.setDefaultList', timeline=timeline, list_id=list_id)
 
@@ -144,7 +144,7 @@ class ListsSetDefaultList(AuthorizedCall):
 		return None
 
 class ListsSetName(AuthorizedCall):
-	@validate_arguments
+	@validate_call
 	def In(self, timeline: str, list_id: str, name: str):
 		return self.CommonParams('rtm.lists.setName', timeline=timeline, list_id=list_id, name=name)
 
@@ -153,7 +153,7 @@ class ListsSetName(AuthorizedCall):
 		return _ValidateReturn(SingleListResponse, rsp)
 
 class ListsUnarchive(AuthorizedCall):
-	@validate_arguments
+	@validate_call
 	def In(self, timeline: str, list_id: str):
 		return self.CommonParams('rtm.lists.unarchive', timeline=timeline, list_id=list_id)
 
@@ -178,8 +178,8 @@ class PushGetTopics(AuthorizedCall):
 		return _ValidateReturn(TopicListResponse, rsp)
 
 class PushSubscribe(AuthorizedCall):
-	@validate_arguments
-	def In(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None):
+	@validate_call
+	def In(self, url: AnyHttpUrl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None):
 		kwargs = _RebuildArgs(lease_seconds=lease_seconds, filter=filter) # TODO validate parameters
 		if 'lease_seconds' in kwargs:
 			kwargs['lease_seconds'] = str(kwargs['lease_seconds'])

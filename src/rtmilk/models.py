@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum, IntEnum
 
-from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator
-from pydantic.types import ConstrainedStr
+from pydantic import AnyHttpUrl, BaseModel, Field, constr, field_validator
+from pydantic.types import StrictStr
 
 from ._utils import EmptyStrToNone
 
@@ -22,15 +22,15 @@ class ErrorData(BaseModel):
 	msg: str
 
 class OkStat(BaseModel):
-	stat: constr(regex='ok')
+	stat: constr(pattern='ok')
 
 class FailStat(BaseModel):
-	stat: constr(regex='fail')
+	stat: constr(pattern='fail')
 	err: ErrorData
 
 class EchoResponse(OkStat):
 	__test__ = False # avoid pytest warning
-	method: constr(regex='rtm.test.echo')
+	method: constr(pattern='rtm.test.echo')
 
 class RTMList(BaseModel):
 	id: int
@@ -42,7 +42,8 @@ class RTMList(BaseModel):
 	smart: bool
 
 	@classmethod
-	@validator('smart')
+	@field_validator('smart')
+	@classmethod
 	def NotASmartList(cls, value: bool) -> bool:
 		if value is not False:
 			raise ValueError('Must be False for non-smart lists')
@@ -52,7 +53,8 @@ class RTMSmartList(RTMList):
 	filter: str
 
 	@classmethod
-	@validator('smart')
+	@field_validator('smart')
+	@classmethod
 	def IsASmartList(cls, value: bool) -> bool:
 		if value is not True:
 			raise ValueError('Must be True for smart lists')
@@ -210,7 +212,7 @@ class TopicListResponse(OkStat):
 class SubscriptionData:
 	id: str
 	url: str
-	format: ConstrainedStr('json')
+	format: StrictStr('json')
 	expires: datetime
 	pending: bool
 	topics: list[str]
