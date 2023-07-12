@@ -14,15 +14,15 @@ from rtmilk._sansio import TasksGetList
 def test_validation(api, timeline):
 	with raises(ValidationError):
 		_ = api.TasksAdd(timeline=timeline, name=None)
-	taskResponse = api.TasksAdd(timeline=timeline, name=randint(0, 10000)) # doesn't throw a validation error because the int gets converted to a str
-	api.TasksDelete(timeline=timeline, list_id=taskResponse.list.id, taskseries_id=taskResponse.list.taskseries[0].id, task_id=taskResponse.list.taskseries[0].task[0].id)
+	with raises(ValidationError):
+		_ = api.TasksAdd(timeline=timeline, name=randint(0, 10000)) # pydantic 2 doesn't coerce a number to a string
 
 @mark.asyncio
 async def test_validation_async(apiAsync, timeline):
 	with raises(ValidationError):
 		_ = await apiAsync.TasksAdd(timeline=timeline, name=None)
-	taskResponse = await apiAsync.TasksAdd(timeline=timeline, name=randint(0, 10000)) # doesn't throw a validation error because the int gets converted to a str
-	await apiAsync.TasksDelete(timeline=timeline, list_id=taskResponse.list.id, taskseries_id=taskResponse.list.taskseries[0].id, task_id=taskResponse.list.taskseries[0].task[0].id)
+	with raises(ValidationError):
+		_ = await apiAsync.TasksAdd(timeline=timeline, name=randint(0, 10000)) # pydantic 2 doesn't coerce a number to a string
 
 def test_echo(api):
 	response = api.TestEcho(a='1', b='2')
@@ -270,7 +270,7 @@ def test_subscriptions(api, timeline):
 	topics = api.PushGetTopics()
 	info(topics)
 	with suppress(RTMError):
-		api.PushSubscribe(timeline=timeline, url='http://hook.example', topics='task_created', filter='', push_format='json', lease_seconds='60')
+		api.PushSubscribe(timeline=timeline, url='https://hook.example', topics='task_created', filter='', push_format='json', lease_seconds='60')
 
 def test_url():
 	fake = {'stat': 'ok',

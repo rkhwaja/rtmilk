@@ -22,7 +22,7 @@ def Authorize():
 	input("Press ENTER when you've authorized the app")
 	token = authenticationSession.Done()
 	filename = 'rtm-token.txt'
-	with open(filename, encoding='utf-8') as f:
+	with open(filename, 'w', encoding='utf-8') as f:
 		f.write(token)
 	print(f'Authorization token written to {filename}')
 

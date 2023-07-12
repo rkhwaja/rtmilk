@@ -126,14 +126,14 @@ class StartDateProperty(DateProperty):
 	def __init__(self, task):
 		super().__init__(task, 'start')
 		self.__class__.F = staticmethod(API.TasksSetStartDate)
-		self.__class__.FA = APIAsync.TasksSetStartDate
+		self.__class__.FA = staticmethod(APIAsync.TasksSetStartDate)
 
 class DueDateProperty(DateProperty):
 	"""None means no due date"""
 	def __init__(self, task):
 		super().__init__(task, 'due')
 		self.__class__.F = staticmethod(API.TasksSetDueDate)
-		self.__class__.FA = APIAsync.TasksSetDueDate
+		self.__class__.FA = staticmethod(APIAsync.TasksSetDueDate)
 
 class NameProperty(_Property[str]):
 	def Set(self, value: str):

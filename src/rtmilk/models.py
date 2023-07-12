@@ -3,8 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum, IntEnum
 
-from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator
-from pydantic.types import ConstrainedStr
+from pydantic import BaseModel, Field, constr, field_validator
 
 from ._utils import EmptyStrToNone
 
@@ -22,18 +21,18 @@ class ErrorData(BaseModel):
 	msg: str
 
 class OkStat(BaseModel):
-	stat: constr(regex='ok')
+	stat: constr(pattern='ok')
 
 class FailStat(BaseModel):
-	stat: constr(regex='fail')
+	stat: constr(pattern='fail')
 	err: ErrorData
 
 class EchoResponse(OkStat):
 	__test__ = False # avoid pytest warning
-	method: constr(regex='rtm.test.echo')
+	method: constr(pattern='rtm.test.echo')
 
 class RTMList(BaseModel):
-	id: int
+	id: str
 	name: str
 	deleted: bool
 	locked: bool
@@ -42,7 +41,8 @@ class RTMList(BaseModel):
 	smart: bool
 
 	@classmethod
-	@validator('smart')
+	@field_validator('smart')
+	@classmethod
 	def NotASmartList(cls, value: bool) -> bool:
 		if value is not False:
 			raise ValueError('Must be False for non-smart lists')
@@ -52,7 +52,8 @@ class RTMSmartList(RTMList):
 	filter: str
 
 	@classmethod
-	@validator('smart')
+	@field_validator('smart')
+	@classmethod
 	def IsASmartList(cls, value: bool) -> bool:
 		if value is not True:
 			raise ValueError('Must be True for smart lists')
@@ -101,15 +102,15 @@ class PriorityDirectionEnum(Enum):
 class Task(BaseModel):
 	id: str
 	added: datetime
-	completed: EmptyStrToNone[datetime] | None
-	deleted: EmptyStrToNone[datetime] | None
-	due: EmptyStrToNone[datetime] | None
+	completed: EmptyStrToNone[datetime | None]
+	deleted: EmptyStrToNone[datetime | None]
+	due: EmptyStrToNone[datetime | None]
 	estimate: str
 	has_due_time: bool
 	has_start_time: bool
 	postponed: int
 	priority: PriorityEnum
-	start: EmptyStrToNone[datetime] | None
+	start: EmptyStrToNone[datetime | None]
 
 class Note(BaseModel):
 	id: str
@@ -138,7 +139,7 @@ class TaskSeries(BaseModel):
 	modified: datetime
 	name: str
 	source: str
-	url: EmptyStrToNone[AnyHttpUrl]
+	url: EmptyStrToNone[str | None]
 	location_id: str
 	participants: list[str]
 
@@ -162,12 +163,15 @@ class TaskResponse(OkStat):
 class TasksInListPayload(BaseModel):
 	id: str
 	# can be missing if there are no tasks in the list returned from TasksGetList with just a listid
-	taskseries: list[TaskSeries] | None
+	taskseries: list[TaskSeries] | None = None
+
+# hack to make the module import
+ListOfTasksInListPayload = list[TasksInListPayload]
 
 class TaskListPayload(BaseModel):
 	rev: str
 	# if there are are no tasks in the list, returned from TasksGetList via a filter, this node is missing
-	list: list[TasksInListPayload] | None
+	list: ListOfTasksInListPayload | None = None
 
 class TaskListResponse(OkStat):
 	tasks: TaskListPayload
@@ -207,18 +211,17 @@ class Topic(BaseModel):
 class TopicListResponse(OkStat):
 	topics: Topic
 
-class SubscriptionData:
+class SubscriptionPayload(BaseModel):
 	id: str
 	url: str
-	format: ConstrainedStr('json')
+	format: constr(pattern='json')
 	expires: datetime
 	pending: bool
-	topics: list[str]
+	topics: Topic | list[str]
 
-class SubscriptionPayload(BaseModel, SubscriptionData):
-	pass
+# SubscriptionPayload.model_rebuild()
 
-class SubscriptionResponse(OkStat, SubscriptionData):
+class SubscriptionResponse(OkStat):
 	transaction: Transaction
 	subscription: SubscriptionPayload
 
