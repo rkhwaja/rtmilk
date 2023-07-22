@@ -58,7 +58,7 @@ except RTMError as e:
 from rtmilk.authorization import AuthorizationSession
 
 authenticationSession = AuthorizationSession(API_KEY, SHARED_SECRET, 'delete')
-input(f"Go to {authenticationSession.url} and authorize. Then Press ENTER")
+input(f'Go to {authenticationSession.url} and authorize. Then Press ENTER')
 token = authenticationSession.Done()
 print(f'Authorization token is {token}')
 ```
