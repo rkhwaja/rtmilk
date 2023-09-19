@@ -22,8 +22,9 @@ requests = ">=2.23.0"
 urllib3 = [
 	{ version = ">=1.26", python = ">=3.10,<4" }
 ]
-pydantic = ">=1.8.1"
+pydantic = ">=1.8.1,<2"
 aiohttp = ">=3.8.1"
+ruff = ">=0.0.289"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.1"
@@ -39,7 +40,7 @@ poethepoet = ">=0.16.4"
 [tool.poe.tasks]
 build = "poetry build --no-interaction"
 test = "pytest"
-lint = "pylint src/rtmilk tests --disable=fixme"
+lint = "ruff src tests"
 
 [tool.poe.tasks.test-with-coverage]
 shell = """
@@ -47,39 +48,20 @@ pytest --cov=src || exit 1
 coverage xml
 """
 
-[tool.pylint.master]
-load-plugins = [
-	"pylint_quotes",
-	"pylint.extensions.code_style",
-	"pylint.extensions.confusing_elif",
-	"pylint.extensions.bad_builtin",
-	"pylint.extensions.bad_builtin",
-	"pylint.extensions.mccabe",
-	"pylint.extensions.check_elif",
-	"pylint.extensions.redefined_variable_type",
-	"pylint.extensions.overlapping_exceptions",
-	"pylint.extensions.empty_comment",
-	"pylint.extensions.set_membership",
-	"pylint.extensions.while_used",
-	]
-enable="useless-suppression"
+[tool.ruff]
+line-length = 1000
+ignore = ["A002", "A003", "ANN", "FBT003", "D", "DTZ", "EM", "ERA001", "FBT001", "FIX", "N802", "I", "N803", "N806", "N815", "PLR0913", "PT013", "PTH", "S101", "S311", "T20", "TCH", "TD", "TRY003", "W191"]
+select = ["ALL"]
+target-version = "py39"
 
-[tool.pylint.format]
-indent-string="\t"
-string-quote = "single-avoid-escape"
+[tool.ruff.extend-per-file-ignores]
+"tests/*" = ["ANN201", "D103", "INP001", "PT006"]
+"_properties.py" = ["SLF001"]
+"client.py" = ["SLF001"]
 
-[tool.pylint.messages_control]
-disable = [
-	"duplicate-code",
-	"invalid-name",
-	"line-too-long",
-	"logging-fstring-interpolation",
-	"missing-docstring",
-	"too-few-public-methods",
-	"too-many-arguments",
-	"too-many-public-methods",
-	"protected-access" # temporary until I figure out the privacy
-]
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+multiline-quotes = "single"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

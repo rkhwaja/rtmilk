@@ -1,3 +1,4 @@
+from contextlib import suppress
 from datetime import datetime, timedelta
 from logging import info
 from random import randint
@@ -5,7 +6,7 @@ from uuid import uuid4
 
 from dateutil.tz import gettz
 from pydantic import ValidationError
-from pytest import mark, raises
+from pytest import fail, mark, raises
 
 from rtmilk.models import AuthResponse, EchoResponse, NotePayload, PriorityDirectionEnum, PriorityEnum, RTMError, RTMList, RTMSmartList, Tags, TaskResponse, TaskSeries
 from rtmilk._sansio import TasksGetList
@@ -170,30 +171,6 @@ def test_tags(api, timeline, task):
 
 	api.TasksAddTags(timeline, listId, taskSeriesId, taskId, ['rtmilk-test-tag1'])
 	assert 'rtmilk-test-tag1' in {x.name for x in api.TagsGetList().tags.tag}
-	# allTaskSeries = api.TasksGetList(list_id=listId).tasks.list[0].id
-	# api.TasksDelete(
-	# 	timeline, task.list.id,
-	# 	task.list.taskseries[0].id,
-	# 	task.list.taskseries[0].task[0].id)
-	# assert len(allTaskSeries) == 1, allTaskSeries
-	# assert {'tag1'} == set(allTaskSeries[0]['tags']['tag']), allTaskSeries
-
-	# api.TasksAddTags(timeline, listId, taskSeriesId, taskId, 'tag2,tag3')
-	# assert {'tag1', 'tag2', 'tag3'} <= {x['name'] for x in api.TagsGetList()}
-	# allTaskSeries = api.TasksGetList(list_id=listId)['list'][0]['taskseries']
-	# assert len(allTaskSeries) == 1, allTaskSeries
-	# assert {'tag1', 'tag2', 'tag3'} == set(allTaskSeries[0]['tags']['tag']), allTaskSeries
-
-	# api.TasksRemoveTags(timeline, listId, taskSeriesId, taskId, 'tag1,tag3')
-	# assert {'tag1', 'tag2', 'tag3'} <= {x['name'] for x in api.TagsGetList()}
-	# allTaskSeries = api.TasksGetList(list_id=listId)['list'][0]['taskseries']
-	# assert len(allTaskSeries) == 1, allTaskSeries
-	# assert {'tag2'} == set(allTaskSeries[0]['tags']['tag']), allTaskSeries
-
-	# api.TasksSetTags(timeline, listId, taskSeriesId, taskId, tags='tag3')
-	# allTaskSeries = api.TasksGetList(list_id=listId)['list'][0]['taskseries']
-	# assert len(allTaskSeries) == 1, allTaskSeries
-	# assert {'tag3'} == set(allTaskSeries[0]['tags']['tag']), allTaskSeries
 
 def test_dates(api, timeline, task):
 	listId = task.list.id
@@ -222,7 +199,7 @@ def test_dates(api, timeline, task):
 	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate2)
 	assert updatedTask.list.taskseries[0].task[0].start == startDate2
 
-def test_get_list(api, task): # pylint: disable=unused-argument
+def test_get_list(api, task): # noqa: ARG001
 	allTasks = api.TasksGetList()
 	if allTasks.tasks.list is None:
 		return
@@ -260,7 +237,8 @@ def test_lists_get_list(api):
 	assert 'Work' in listNames, listNames
 
 def test_add_list(api, timeline, newList):
-	assert isinstance(newList.list, RTMList) and not isinstance(newList.list, RTMSmartList)
+	assert isinstance(newList.list, RTMList)
+	assert not isinstance(newList.list, RTMSmartList)
 	assert newList.list.archived is False, newList
 	list_ = api.ListsSetName(timeline, newList.list.id, newList.list.name +' renamed')
 	assert list_.list.name == newList.list.name + ' renamed', list_
@@ -276,14 +254,14 @@ def test_add_smart_list(api, timeline, newSmartList):
 	# Can do this on the website but API *does* fail
 	try:
 		_ = api.ListsSetName(timeline, newSmartList.list.id, newSmartList.list.name + ' renamed')
-		assert False, 'Should have failed to change the name on a smart list'
+		fail('Should have failed to change the name on a smart list')
 	except RTMError:
 		pass
 
 	# Looks like you can't archive a smart list
 	try:
 		_ = api.ListsArchive(timeline, newSmartList.list.id)
-		assert False, 'Should have failed to archive a smart list'
+		fail('Should have failed to archive a smart list')
 	except RTMError:
 		pass
 
@@ -291,10 +269,8 @@ def test_subscriptions(api, timeline):
 	api.PushGetSubscriptions()
 	topics = api.PushGetTopics()
 	info(topics)
-	try:
+	with suppress(RTMError):
 		api.PushSubscribe(timeline=timeline, url='http://hook.example', topics='task_created', filter='', push_format='json', lease_seconds='60')
-	except RTMError:
-		pass
 
 def test_url():
 	fake = {'stat': 'ok',
@@ -325,7 +301,7 @@ def test_url():
 							'id': '123456',
 							'postponed': '0',
 							'priority': 'N',
-							'start': ''}
+							'start': ''},
 							],
 						'url': '7:a'},
 						]}],

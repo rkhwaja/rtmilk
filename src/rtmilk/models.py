@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
 from enum import Enum, IntEnum
-from typing import Optional, Union
 
 from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator # pylint: disable=no-name-in-module
 from pydantic.types import ConstrainedStr # pylint: disable=no-name-in-module
@@ -58,10 +59,10 @@ class RTMSmartList(RTMList):
 		return value
 
 class ListPayload(BaseModel):
-	list: list[Union[RTMSmartList, RTMList]]
+	list: list[RTMSmartList | RTMList]
 
 class SingleListResponse(OkStat):
-	list: Union[RTMSmartList, RTMList]
+	list: RTMSmartList | RTMList
 
 class ListsResponse(OkStat):
 	lists: ListPayload
@@ -100,15 +101,15 @@ class PriorityDirectionEnum(Enum):
 class Task(BaseModel):
 	id: str
 	added: datetime
-	completed: Optional[EmptyStrToNone[datetime]]
-	deleted: Optional[EmptyStrToNone[datetime]]
-	due: Optional[EmptyStrToNone[datetime]]
+	completed: EmptyStrToNone[datetime] | None
+	deleted: EmptyStrToNone[datetime] | None
+	due: EmptyStrToNone[datetime] | None
 	estimate: str
 	has_due_time: bool
 	has_start_time: bool
 	postponed: int
 	priority: PriorityEnum
-	start: Optional[EmptyStrToNone[datetime]]
+	start: EmptyStrToNone[datetime] | None
 
 class NotesResponsePayload(BaseModel):
 	id: str
@@ -143,12 +144,12 @@ class TaskSeries(BaseModel):
 
 	# see test_that_unions_are_necessary_for_notes_list for why the Union is necessary
 	# in the case where this is a list[str], it's always an empty list
-	notes: Union[NotePayload, list[str]]
+	notes: NotePayload | list[str]
 	task: list[Task]
 
 	# see test_that_unions_are_necessary_for_tag_list for why the Union is necessary
 	# in the case where this is a list[str], it's always an empty list
-	tags: Union[Tags, list[str]]
+	tags: Tags | list[str]
 
 class TaskPayload(BaseModel):
 	id: str
@@ -161,12 +162,12 @@ class TaskResponse(OkStat):
 class TasksInListPayload(BaseModel):
 	id: str
 	# can be missing if there are no tasks in the list returned from TasksGetList with just a listid
-	taskseries: Optional[list[TaskSeries]]
+	taskseries: list[TaskSeries] | None
 
 class TaskListPayload(BaseModel):
 	rev: str
 	# if there are are no tasks in the list, returned from TasksGetList via a filter, this node is missing
-	list: Optional[list[TasksInListPayload]]
+	list: list[TasksInListPayload] | None
 
 class TaskListResponse(OkStat):
 	tasks: TaskListPayload
@@ -225,4 +226,4 @@ class SubscriptionList(BaseModel):
 	subscription: list[SubscriptionPayload]
 
 class SubscriptionListResponse(OkStat):
-	subscriptions: Union[SubscriptionList, list[SubscriptionPayload]]
+	subscriptions: SubscriptionList | list[SubscriptionPayload]

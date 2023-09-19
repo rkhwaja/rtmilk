@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 from datetime import date, datetime
 from hashlib import md5
 from logging import getLogger
 from pprint import pformat
-from typing import Optional, Union
 
 from pydantic import stricturl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
 
@@ -40,7 +41,7 @@ def _ValidateReturn(type_, rsp):
 def ApiSig(sharedSecret, params):
 	sortedItems = sorted(params.items(), key=lambda x: x[0])
 	concatenatedParams = ''.join((key + value for key, value in sortedItems))
-	return md5((sharedSecret + concatenatedParams).encode()).hexdigest()
+	return md5((sharedSecret + concatenatedParams).encode()).hexdigest() # noqa: S324
 
 # the return parsing is the same for authorized and unauthorized calls
 # the signing of parameters is different for authorized and unauthorized calls
@@ -99,7 +100,7 @@ class AuthCheckToken(UnauthorizedCall):
 AuthorizedCall = Call
 
 class ListsAdd(AuthorizedCall):
-	def In(self, timeline: str, name: str, filter: Optional[str] = None): # pylint: disable=redefined-builtin
+	def In(self, timeline: str, name: str, filter: str | None = None): # pylint: disable=redefined-builtin
 		kwargs = _RebuildArgs(filter=filter) # TODO validate parameter
 		return self.CommonParams('rtm.lists.add', timeline=timeline, name=name, **kwargs)
 
@@ -178,7 +179,7 @@ class PushGetTopics(AuthorizedCall):
 
 class PushSubscribe(AuthorizedCall):
 	@validate_arguments
-	def In(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: Optional[int] = None, filter: Optional[str] = None): # pylint: disable=redefined-builtin
+	def In(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None): # pylint: disable=redefined-builtin
 		kwargs = _RebuildArgs(lease_seconds=lease_seconds, filter=filter) # TODO validate parameters
 		if 'lease_seconds' in kwargs:
 			kwargs['lease_seconds'] = str(kwargs['lease_seconds'])
@@ -221,7 +222,7 @@ class TagsGetList(AuthorizedCall):
 		return _ValidateReturn(TagListResponse, rsp)
 
 class TasksAdd(AuthorizedCall):
-	def In(self, timeline: str, name: str, list_id: Optional[str] = None, parse: Optional[bool] = None, parent_task_id: Optional[str] = None, external_id: Optional[str] = None):
+	def In(self, timeline: str, name: str, list_id: str | None = None, parse: bool | None = None, parent_task_id: str | None = None, external_id: str | None = None):
 		kwargs = _RebuildArgs(list_id=list_id, parse=parse, parent_task_id=parent_task_id, external_id=external_id)
 		return self.CommonParams('rtm.tasks.add', timeline=timeline, name=name, **kwargs)
 
@@ -255,11 +256,10 @@ class TasksDelete(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksGetList(AuthorizedCall):
-	def In(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[datetime] = None): # pylint: disable=redefined-builtin
+	def In(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None): # pylint: disable=redefined-builtin
 		kwargs = _RebuildArgs(list_id=list_id, filter=filter, last_sync=last_sync)
-		if 'last_sync' in kwargs:
-			if isinstance(kwargs['last_sync'], (datetime)):
-				kwargs['last_sync'] = _RtmDatetime(kwargs['last_sync'])
+		if 'last_sync' in kwargs and isinstance(kwargs['last_sync'], (datetime)):
+			kwargs['last_sync'] = _RtmDatetime(kwargs['last_sync'])
 		return self.CommonParams('rtm.tasks.getList', **kwargs)
 
 	@classmethod
@@ -293,7 +293,7 @@ class TasksRemoveTags(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksSetDueDate(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, due: Union[date, datetime, str, None]=None, has_due_time: Optional[bool] = None, parse: Optional[bool] = None):
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, due: date | datetime | str | None = None, has_due_time: bool | None = None, parse: bool | None = None):
 		kwargs = _RebuildArgs(due=due, has_due_time=has_due_time, parse=parse)
 		if 'has_due_time' in kwargs:
 			kwargs['has_due_time'] = '1' if kwargs['has_due_time'] else '0'
@@ -319,7 +319,7 @@ class TasksSetName(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksSetPriority(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, priority: Optional[PriorityEnum	] = None):
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, priority: PriorityEnum | None = None):
 		kwargs = _RebuildArgs(priority=priority)
 		if 'priority' in kwargs: # translate to the string that RTM needs
 			kwargs['priority'] = kwargs['priority'].value
@@ -330,7 +330,7 @@ class TasksSetPriority(AuthorizedCall):
 		return _ValidateReturn(TaskPayload, rsp['list'])
 
 class TasksSetStartDate(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, start: Union[date, datetime, str, None] = None, has_start_time: Optional[bool] = None, parse: Optional[bool] = None):
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, start: date | datetime | str | None = None, has_start_time: bool | None = None, parse: bool | None = None):
 		kwargs = _RebuildArgs(start=start, has_start_time=has_start_time, parse=parse)
 		if 'has_start_time' in kwargs:
 			kwargs['has_start_time'] = '1' if kwargs['has_start_time'] else '0'
@@ -348,7 +348,7 @@ class TasksSetStartDate(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksSetTags(AuthorizedCall):
-	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[list[str]] = None):
+	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str] | None = None):
 		kwargs = _RebuildArgs(tags=tags)
 		if 'tags' in kwargs:
 			kwargs['tags'] = ','.join(kwargs['tags'])

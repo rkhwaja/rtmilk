@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from pydantic.fields import ModelField # pylint: disable=no-name-in-module
 
@@ -12,7 +14,7 @@ class EmptyStrToNone(Generic[PydanticField]):
 		yield cls.validate
 
 	@classmethod
-	def validate(cls, v: PydanticField, field: ModelField) -> Optional[PydanticField]:
+	def validate(cls, v: PydanticField, field: ModelField) -> PydanticField | None:
 		if v == '':
 			return None
 

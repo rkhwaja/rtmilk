@@ -4,7 +4,7 @@ from hashlib import md5
 def _ApiSig(sharedSecret, params):
 	sortedItems = sorted(params.items(), key=lambda x: x[0])
 	concatenatedParams = ''.join((key + value for key, value in sortedItems))
-	return md5((sharedSecret + concatenatedParams).encode()).hexdigest()
+	return md5((sharedSecret + concatenatedParams).encode()).hexdigest() # noqa: S324
 
 @dataclass
 class Secrets:

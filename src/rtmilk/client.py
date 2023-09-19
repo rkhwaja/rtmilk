@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from logging import getLogger
-from typing import Optional
 
 from pydantic import validate_arguments
 
@@ -27,8 +26,8 @@ class Task: # pylint: disable=too-many-instance-attributes
 		self.dueDate = DueDateProperty(self)
 		self.complete = CompleteProperty(self)
 		self.notes = NotesProperty(self)
-		self.createTime: Optional[datetime] = None
-		self.modifiedTime: Optional[datetime] = None
+		self.createTime: datetime | None = None
+		self.modifiedTime: datetime | None = None
 
 	def __repr__(self):
 		return f'Task({self.name.value})'
@@ -76,8 +75,7 @@ def _CreateListOfTasks(client, listResponse):
 	for list_ in listResponse.tasks.list:
 		if not hasattr(list_, 'taskseries') or list_.taskseries is None:
 			continue
-		for taskSeries in list_.taskseries:
-			tasks.append(_CreateFromTaskSeries(client, listId=list_.id, taskSeries=taskSeries))
+		tasks.extend([_CreateFromTaskSeries(client, listId=list_.id, taskSeries=ts) for ts in list_.taskseries])
 	return tasks
 
 class Client:
@@ -110,7 +108,7 @@ class Client:
 		self.timeline = await self.apiAsync.TimelinesCreate().timeline
 
 	@validate_arguments
-	def Get(self, filter_: str, lastSync: Optional[datetime] = None) -> list[Task]:
+	def Get(self, filter_: str, lastSync: datetime | None = None) -> list[Task]:
 		_log.info(f'Get: {filter_}, {lastSync}')
 		listResponse = self.api.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(self, listResponse)
@@ -122,7 +120,7 @@ class Client:
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
 	@validate_arguments
-	async def GetAsync(self, filter_: str, lastSync: Optional[datetime] = None) -> list[Task]:
+	async def GetAsync(self, filter_: str, lastSync: datetime | None = None) -> list[Task]:
 		_log.info(f'GetAsync: {filter_}, {lastSync}')
 		listResponse = await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync)
 		return _CreateListOfTasks(self, listResponse)
