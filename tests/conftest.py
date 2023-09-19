@@ -31,11 +31,11 @@ def apiAsync():
 	apiKey, sharedSecret, token = _GetConfig()
 	return APIAsync(apiKey, sharedSecret, token)
 
-@fixture
+@fixture()
 def timeline(api): # pylint: disable=redefined-outer-name
 	return api.TimelinesCreate().timeline
 
-@fixture
+@fixture()
 def task(api, timeline): # pylint: disable=redefined-outer-name
 	task = api.TasksAdd(timeline, f'new task {uuid4()}') # pylint: disable=redefined-outer-name
 	yield task
@@ -44,14 +44,14 @@ def task(api, timeline): # pylint: disable=redefined-outer-name
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
 
-@fixture
+@fixture()
 def newList(api, timeline): # pylint: disable=redefined-outer-name
 	list_ = api.ListsAdd(timeline, f'list {uuid4()}')
 	yield list_
 	list_ = api.ListsDelete(timeline, list_.list.id)
 	assert list_.list.deleted is True, list_
 
-@fixture
+@fixture()
 def newSmartList(api, timeline): # pylint: disable=redefined-outer-name
 	list_ = api.ListsAdd(timeline, f'list {uuid4()}', filter='tag:tag1')
 	yield list_
@@ -92,19 +92,19 @@ class TaskCreatorAPI:
 				task.list.taskseries[0].task[0].id)
 		self.tasks.clear()
 
-@fixture
+@fixture()
 def taskCreatorAPI(api, timeline): # pylint: disable=redefined-outer-name
 	creator = TaskCreatorAPI(api, timeline)
 	yield creator
 	creator.Cleanup()
 
-@fixture
+@fixture()
 def taskCreator(client): # pylint: disable=redefined-outer-name
 	creator = TaskCreator(client)
 	yield creator
 	creator.Cleanup()
 
-@fixture
+@fixture()
 def client():
 	apiKey, sharedSecret, token = _GetConfig()
 	return Client.Create(apiKey, sharedSecret, token)

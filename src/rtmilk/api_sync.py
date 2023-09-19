@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 from datetime import date, datetime
 from logging import getLogger
 from pprint import pformat
-from typing import Optional, Union
 
 from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
 from requests import get
@@ -16,11 +17,11 @@ _log = getLogger(__name__)
 
 def _CallSync(params):
 	try:
-		json = get(REST_URL, params=params).json() # pylint: disable=missing-timeout
+		json = get(REST_URL, params=params).json() # noqa: S113
 		_log.debug(f'JSON response:\n{pformat(json)}')
 		return json['rsp']
 	except (RequestException, ValueError) as e:
-		raise RTMError() from e
+		raise RTMError from e
 
 class UnauthorizedAPI(UnauthorizedAPIBase):
 	"""Synchronous wrappers for API calls that don't need authorization"""
@@ -61,7 +62,7 @@ class API(UnauthorizedAPI):
 		return self._authSecrets
 
 	@validate_arguments
-	def ListsAdd(self, timeline: str, name: str, filter: Optional[str] = None) -> SingleListResponse: # pylint: disable=redefined-builtin
+	def ListsAdd(self, timeline: str, name: str, filter: str | None = None) -> SingleListResponse: # pylint: disable=redefined-builtin
 		return ListsAdd.Out(**_CallSync(ListsAdd(self._authSecrets).In(timeline=timeline, name=name, filter=filter)))
 
 	@validate_arguments
@@ -94,7 +95,7 @@ class API(UnauthorizedAPI):
 		return PushGetTopics.Out(**_CallSync(PushGetTopics(self._authSecrets).In()))
 
 	@validate_arguments
-	def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: Optional[int] = None, filter: Optional[str] = None) -> SubscriptionResponse: # pylint: disable=redefined-builtin
+	def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse: # pylint: disable=redefined-builtin
 		return PushSubscribe.Out(**_CallSync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, lease_seconds=lease_seconds, filter=filter)))
 
 	@validate_arguments
@@ -111,7 +112,7 @@ class API(UnauthorizedAPI):
 		return TagsGetList.Out(**_CallSync(TagsGetList(self._authSecrets).In()))
 
 	@validate_arguments
-	def TasksAdd(self, timeline: str, name: str, list_id: Optional[str] = None, parse: Optional[bool] = None, parent_task_id: Optional[str] = None, external_id: Optional[str] = None) -> TaskResponse:
+	def TasksAdd(self, timeline: str, name: str, list_id: str | None = None, parse: bool | None = None, parent_task_id: str | None = None, external_id: str | None = None) -> TaskResponse:
 		return TasksAdd.Out(**_CallSync(TasksAdd(self._authSecrets).In(timeline=timeline, name=name, list_id=list_id, parse=parse, parent_task_id=parent_task_id, external_id=external_id)))
 
 	@validate_arguments
@@ -131,7 +132,7 @@ class API(UnauthorizedAPI):
 		return TasksDelete.Out(**_CallSync(TasksDelete(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)))
 
 	@validate_arguments
-	def TasksGetList(self, list_id: Optional[str] = None, filter: Optional[str] = None, last_sync: Optional[datetime] = None) -> TaskListResponse: # pylint: disable=redefined-builtin
+	def TasksGetList(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None) -> TaskListResponse: # pylint: disable=redefined-builtin
 		return TasksGetList.Out(**_CallSync(TasksGetList(self._authSecrets).In(list_id=list_id, filter=filter, last_sync=last_sync)))
 
 	@validate_arguments
@@ -147,7 +148,7 @@ class API(UnauthorizedAPI):
 		return TasksRemoveTags.Out(**_CallSync(TasksRemoveTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))
 
 	@validate_arguments
-	def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, due: Union[date, datetime, str, None] = None, has_due_time: Optional[bool] = None, parse: Optional[bool] = None) -> TaskResponse:
+	def TasksSetDueDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, due: date | datetime | str | None = None, has_due_time: bool | None = None, parse: bool | None = None) -> TaskResponse:
 		return TasksSetDueDate.Out(**_CallSync(TasksSetDueDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, due=due, has_due_time=has_due_time, parse=parse)))
 
 	@validate_arguments
@@ -155,13 +156,13 @@ class API(UnauthorizedAPI):
 		return TasksSetName.Out(**_CallSync(TasksSetName(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, name=name)))
 
 	@validate_arguments
-	def TasksSetPriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, priority: Optional[PriorityEnum] = None) -> TaskPayload:
+	def TasksSetPriority(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, priority: PriorityEnum | None = None) -> TaskPayload:
 		return TasksSetPriority.Out(**_CallSync(TasksSetPriority(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, priority=priority)))
 
 	@validate_arguments
-	def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, start: Union[date, datetime, str, None] = None, has_start_time: Optional[bool] = None, parse: Optional[bool] = None) -> TaskResponse:
+	def TasksSetStartDate(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, start: date | datetime | str | None = None, has_start_time: bool | None = None, parse: bool | None = None) -> TaskResponse:
 		return TasksSetStartDate.Out(**_CallSync(TasksSetStartDate(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, start=start, has_start_time=has_start_time, parse=parse)))
 
 	@validate_arguments
-	def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: Optional[list[str]] = None) -> TaskResponse:
+	def TasksSetTags(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str] | None = None) -> TaskResponse:
 		return TasksSetTags.Out(**_CallSync(TasksSetTags(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)))

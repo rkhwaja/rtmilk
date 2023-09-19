@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import date, datetime
 from logging import getLogger
 from typing import Generic, Optional, TypeVar, Union
@@ -9,7 +11,7 @@ _log = getLogger(__name__)
 _T = TypeVar('_T')
 
 class _Property(Generic[_T]):
-	_value: Optional[_T]
+	_value: _T | None
 
 	def __init__(self, task):
 		self._task = task
@@ -113,18 +115,18 @@ class DateProperty(_Property[Optional[Union[date, datetime]]]):
 			'timeline': self._task._client.timeline,
 			'list_id': self._task._listId,
 			'taskseries_id': self._task._taskSeriesId,
-			'task_id': self._task._taskId
+			'task_id': self._task._taskId,
 		}
 		if value is not None:
 			parameters[self._dateType] = value
 			parameters[f'has_{self._dateType}_time'] = isinstance(value, datetime)
 		return parameters
 
-	def Set(self, value: Optional[Union[date, datetime]]):
+	def Set(self, value: date | datetime | None):
 		parameters = self._Parameters(value)
 		(self.__class__.F)(self._task._client.api, **parameters) # pylint: disable=no-member
 
-	async def SetAsync(self, value: Optional[Union[date, datetime]]):
+	async def SetAsync(self, value: date | datetime | None):
 		parameters = self._Parameters(value)
 		await (self.__class__.FA)(self._task._client.apiAsync, **parameters) # pylint: disable=no-member
 

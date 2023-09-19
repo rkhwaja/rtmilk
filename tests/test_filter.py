@@ -14,10 +14,11 @@ def testFilterSearch(client, taskCreator):
 	task2 = taskCreator.Add(f'task2 {uuid4()}')
 
 	tasks = client.Get(NameIs(name1).Text())
-	assert len(tasks) == 1 and tasks[0].name.value == name1
+	assert len(tasks) == 1
+	assert tasks[0].name.value == name1
 
 	today = date.today()
 	task2.dueDate.Set(today)
 
 	tasks = client.Get(Or(NameIs(name1), Due(today)).Text())
-	assert len(tasks) == 2
+	assert len(tasks) == 2 # noqa: PLR2004

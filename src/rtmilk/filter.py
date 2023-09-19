@@ -1,7 +1,7 @@
-from abc import ABC
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Union
 
 from .models import PriorityEnum
 
@@ -17,7 +17,7 @@ def _DateText(value):
 		return datetime.strftime(value, '%m/%d/%Y')
 	return f'"{value}"'
 
-class ConditionABC(ABC):
+class ConditionABC:
 	def Text(self) -> str:
 		pass
 
@@ -44,7 +44,7 @@ class Priority:
 			PriorityEnum.NoPriority: 'none',
 			PriorityEnum.Priority1: '1',
 			PriorityEnum.Priority2: '2',
-			PriorityEnum.Priority3: '3'
+			PriorityEnum.Priority3: '3',
 		}[self.value]
 		return f'priority:{text}'
 
@@ -148,21 +148,21 @@ class HasAttachments:
 
 @dataclass
 class Due:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'due:{_DateText(self.value)}'
 
 @dataclass
 class DueBefore:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'dueBefore:{_DateText(self.value)}'
 
 @dataclass
 class DueAfter:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'dueAfter:{_DateText(self.value)}'
@@ -176,21 +176,21 @@ class DueWithin:
 
 @dataclass
 class Start:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'start:{_DateText(self.value)}'
 
 @dataclass
 class StartBefore:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'startBefore:{_DateText(self.value)}'
 
 @dataclass
 class StartAfter:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'startAfter:{_DateText(self.value)}'
@@ -239,21 +239,21 @@ class IsSubtask:
 
 @dataclass
 class Completed:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'completed:{_DateText(self.value)}'
 
 @dataclass
 class CompletedBefore:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'completedBefore:{_DateText(self.value)}'
 
 @dataclass
 class CompletedAfter:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'completedAfter:{_DateText(self.value)}'
@@ -267,21 +267,21 @@ class CompletedWithin:
 
 @dataclass
 class Added:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'added:{_DateText(self.value)}'
 
 @dataclass
 class AddedBefore:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'addedBefore:{_DateText(self.value)}'
 
 @dataclass
 class AddedAfter:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'addedAfter:{_DateText(self.value)}'
@@ -295,21 +295,21 @@ class AddedWithin:
 
 @dataclass
 class Updated:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'updated:{_DateText(self.value)}'
 
 @dataclass
 class UpdatedBefore:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'updatedBefore:{_DateText(self.value)}'
 
 @dataclass
 class UpdatedAfter:
-	value: Union[str, date]
+	value: str | date
 
 	def Text(self):
 		return f'updatedAfter:{_DateText(self.value)}'
