@@ -4,7 +4,7 @@ from datetime import date, datetime
 from logging import getLogger
 from pprint import pformat
 
-from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
+from pydantic import stricturl, validate_arguments
 from requests import get
 from requests.exceptions import RequestException
 
@@ -62,7 +62,7 @@ class API(UnauthorizedAPI):
 		return self._authSecrets
 
 	@validate_arguments
-	def ListsAdd(self, timeline: str, name: str, filter: str | None = None) -> SingleListResponse: # pylint: disable=redefined-builtin
+	def ListsAdd(self, timeline: str, name: str, filter: str | None = None) -> SingleListResponse:
 		return ListsAdd.Out(**_CallSync(ListsAdd(self._authSecrets).In(timeline=timeline, name=name, filter=filter)))
 
 	@validate_arguments
@@ -95,7 +95,7 @@ class API(UnauthorizedAPI):
 		return PushGetTopics.Out(**_CallSync(PushGetTopics(self._authSecrets).In()))
 
 	@validate_arguments
-	def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse: # pylint: disable=redefined-builtin
+	def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse:
 		return PushSubscribe.Out(**_CallSync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, lease_seconds=lease_seconds, filter=filter)))
 
 	@validate_arguments
@@ -132,7 +132,7 @@ class API(UnauthorizedAPI):
 		return TasksDelete.Out(**_CallSync(TasksDelete(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)))
 
 	@validate_arguments
-	def TasksGetList(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None) -> TaskListResponse: # pylint: disable=redefined-builtin
+	def TasksGetList(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None) -> TaskListResponse:
 		return TasksGetList.Out(**_CallSync(TasksGetList(self._authSecrets).In(list_id=list_id, filter=filter, last_sync=last_sync)))
 
 	@validate_arguments

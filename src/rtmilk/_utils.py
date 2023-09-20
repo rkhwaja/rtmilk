@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Generic, TypeVar
 
-from pydantic.fields import ModelField # pylint: disable=no-name-in-module
+from pydantic.fields import ModelField
 
 PydanticField = TypeVar('PydanticField')
 

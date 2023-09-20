@@ -32,12 +32,12 @@ def apiAsync():
 	return APIAsync(apiKey, sharedSecret, token)
 
 @fixture()
-def timeline(api): # pylint: disable=redefined-outer-name
+def timeline(api):
 	return api.TimelinesCreate().timeline
 
 @fixture()
-def task(api, timeline): # pylint: disable=redefined-outer-name
-	task = api.TasksAdd(timeline, f'new task {uuid4()}') # pylint: disable=redefined-outer-name
+def task(api, timeline):
+	task = api.TasksAdd(timeline, f'new task {uuid4()}')
 	yield task
 	api.TasksDelete(
 		timeline, task.list.id,
@@ -45,14 +45,14 @@ def task(api, timeline): # pylint: disable=redefined-outer-name
 		task.list.taskseries[0].task[0].id)
 
 @fixture()
-def newList(api, timeline): # pylint: disable=redefined-outer-name
+def newList(api, timeline):
 	list_ = api.ListsAdd(timeline, f'list {uuid4()}')
 	yield list_
 	list_ = api.ListsDelete(timeline, list_.list.id)
 	assert list_.list.deleted is True, list_
 
 @fixture()
-def newSmartList(api, timeline): # pylint: disable=redefined-outer-name
+def newSmartList(api, timeline):
 	list_ = api.ListsAdd(timeline, f'list {uuid4()}', filter='tag:tag1')
 	yield list_
 	list_ = api.ListsDelete(timeline, list_.list.id)
@@ -69,23 +69,23 @@ class TaskCreator:
 		return task_
 
 	def Cleanup(self):
-		for task in self.tasks: # pylint: disable=redefined-outer-name
+		for task in self.tasks:
 			task.Delete()
 		self.tasks.clear()
 
 class TaskCreatorAPI:
-	def __init__(self, api, timeline): # pylint: disable=redefined-outer-name
+	def __init__(self, api, timeline):
 		self.api = api
 		self.timeline = timeline
 		self.tasks = []
 
 	def Add(self, name):
-		task = self.api.TasksAdd(self.timeline, name) # pylint: disable=redefined-outer-name
+		task = self.api.TasksAdd(self.timeline, name)
 		self.tasks.append(task)
 		return task
 
 	def Cleanup(self):
-		for task in self.tasks: # pylint: disable=redefined-outer-name
+		for task in self.tasks:
 			self.api.TasksDelete(
 				self.timeline, task.list.id,
 				task.list.taskseries[0].id,
@@ -93,13 +93,13 @@ class TaskCreatorAPI:
 		self.tasks.clear()
 
 @fixture()
-def taskCreatorAPI(api, timeline): # pylint: disable=redefined-outer-name
+def taskCreatorAPI(api, timeline):
 	creator = TaskCreatorAPI(api, timeline)
 	yield creator
 	creator.Cleanup()
 
 @fixture()
-def taskCreator(client): # pylint: disable=redefined-outer-name
+def taskCreator(client):
 	creator = TaskCreator(client)
 	yield creator
 	creator.Cleanup()

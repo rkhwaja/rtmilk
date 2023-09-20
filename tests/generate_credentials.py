@@ -16,7 +16,7 @@ def Authorize():
 	authenticationSession = AuthorizationSession(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], 'delete')
 	print(f'Go to {authenticationSession.url} and authorize')
 	with suppress(ImportError):
-		from pyperclip import copy # pylint: disable=import-outside-toplevel
+		from pyperclip import copy
 		copy(authenticationSession.url)
 		print('URL copied to clipboard')
 	input("Press ENTER when you've authorized the app")

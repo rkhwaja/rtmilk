@@ -5,7 +5,7 @@ from hashlib import md5
 from logging import getLogger
 from pprint import pformat
 
-from pydantic import stricturl, validate_arguments, ValidationError # pylint: disable=no-name-in-module
+from pydantic import stricturl, validate_arguments, ValidationError
 
 from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, RTMError, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 
@@ -100,7 +100,7 @@ class AuthCheckToken(UnauthorizedCall):
 AuthorizedCall = Call
 
 class ListsAdd(AuthorizedCall):
-	def In(self, timeline: str, name: str, filter: str | None = None): # pylint: disable=redefined-builtin
+	def In(self, timeline: str, name: str, filter: str | None = None):
 		kwargs = _RebuildArgs(filter=filter) # TODO validate parameter
 		return self.CommonParams('rtm.lists.add', timeline=timeline, name=name, **kwargs)
 
@@ -179,7 +179,7 @@ class PushGetTopics(AuthorizedCall):
 
 class PushSubscribe(AuthorizedCall):
 	@validate_arguments
-	def In(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None): # pylint: disable=redefined-builtin
+	def In(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None):
 		kwargs = _RebuildArgs(lease_seconds=lease_seconds, filter=filter) # TODO validate parameters
 		if 'lease_seconds' in kwargs:
 			kwargs['lease_seconds'] = str(kwargs['lease_seconds'])
@@ -256,7 +256,7 @@ class TasksDelete(AuthorizedCall):
 		return _ValidateReturn(TaskResponse, rsp)
 
 class TasksGetList(AuthorizedCall):
-	def In(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None): # pylint: disable=redefined-builtin
+	def In(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None):
 		kwargs = _RebuildArgs(list_id=list_id, filter=filter, last_sync=last_sync)
 		if 'last_sync' in kwargs and isinstance(kwargs['last_sync'], (datetime)):
 			kwargs['last_sync'] = _RtmDatetime(kwargs['last_sync'])
