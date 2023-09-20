@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum, IntEnum
 
-from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator # pylint: disable=no-name-in-module
-from pydantic.types import ConstrainedStr # pylint: disable=no-name-in-module
+from pydantic import AnyHttpUrl, BaseModel, Field, constr, validator
+from pydantic.types import ConstrainedStr
 
 from ._utils import EmptyStrToNone
 

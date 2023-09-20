@@ -124,11 +124,11 @@ class DateProperty(_Property[Optional[Union[date, datetime]]]):
 
 	def Set(self, value: date | datetime | None):
 		parameters = self._Parameters(value)
-		(self.__class__.F)(self._task._client.api, **parameters) # pylint: disable=no-member
+		(self.__class__.F)(self._task._client.api, **parameters)
 
 	async def SetAsync(self, value: date | datetime | None):
 		parameters = self._Parameters(value)
-		await (self.__class__.FA)(self._task._client.apiAsync, **parameters) # pylint: disable=no-member
+		await (self.__class__.FA)(self._task._client.apiAsync, **parameters)
 
 class StartDateProperty(DateProperty):
 	"""None means no start date"""

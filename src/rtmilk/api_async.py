@@ -5,7 +5,7 @@ from json import loads
 from logging import getLogger
 
 from aiohttp import ClientResponseError, ClientSession
-from pydantic import stricturl, validate_arguments # pylint: disable=no-name-in-module
+from pydantic import stricturl, validate_arguments
 
 from .api_base import RTMError, UnauthorizedAPIBase
 from .models import AuthResponse, EchoResponse, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
@@ -52,7 +52,7 @@ class APIAsync(UnauthorizedAPIAsync):
 		return self._authSecrets
 
 	@validate_arguments
-	async def ListsAdd(self, timeline: str, name: str, filter: str | None = None) -> SingleListResponse: # pylint: disable=redefined-builtin
+	async def ListsAdd(self, timeline: str, name: str, filter: str | None = None) -> SingleListResponse:
 		return ListsAdd.Out(** await _CallAsync(ListsAdd(self._authSecrets).In(timeline=timeline, name=name, filter=filter)))
 
 	@validate_arguments
@@ -85,7 +85,7 @@ class APIAsync(UnauthorizedAPIAsync):
 		return PushGetTopics.Out(** await _CallAsync(PushGetTopics(self._authSecrets).In()))
 
 	@validate_arguments
-	async def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse: # pylint: disable=redefined-builtin
+	async def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse:
 		return PushSubscribe.Out(** await _CallAsync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, lease_seconds=lease_seconds, filter=filter)))
 
 	@validate_arguments
@@ -122,7 +122,7 @@ class APIAsync(UnauthorizedAPIAsync):
 		return TasksDelete.Out(** await _CallAsync(TasksDelete(self._authSecrets).In(timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id)))
 
 	@validate_arguments
-	async def TasksGetList(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None) -> TaskListResponse: # pylint: disable=redefined-builtin
+	async def TasksGetList(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None) -> TaskListResponse:
 		return TasksGetList.Out(** await _CallAsync(TasksGetList(self._authSecrets).In(list_id=list_id, filter=filter, last_sync=last_sync)))
 
 	@validate_arguments

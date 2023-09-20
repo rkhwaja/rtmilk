@@ -11,7 +11,7 @@ from ._properties import CompleteProperty, DueDateProperty, NameProperty, NotesP
 
 _log = getLogger(__name__)
 
-class Task: # pylint: disable=too-many-instance-attributes
+class Task:
 	"""Represents an RTM task"""
 
 	def __init__(self, client, listId, taskSeriesId, taskId):
