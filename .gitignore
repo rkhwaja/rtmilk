@@ -5,3 +5,4 @@ poetry.lock
 .env
 .pytest_cache
 .vscode
+.venv
