@@ -111,7 +111,7 @@ class Task(BaseModel):
 	priority: PriorityEnum
 	start: EmptyStrToNone[datetime] | None
 
-class NotesResponsePayload(BaseModel):
+class Note(BaseModel):
 	id: str
 	created: datetime
 	modified: datetime
@@ -124,10 +124,10 @@ class Transaction(BaseModel):
 
 class NotesResponse(OkStat):
 	transaction: Transaction
-	note: NotesResponsePayload
+	note: Note
 
 class NotePayload(BaseModel):
-	note: list[NotesResponsePayload]
+	note: list[Note]
 
 class Tags(BaseModel):
 	tag: list[str]

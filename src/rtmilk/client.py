@@ -62,7 +62,7 @@ def _CreateFromTaskSeries(client, listId, taskSeries):
 	result.startDate._LoadValue(task0.start.date() if task0.start is not None else None) # None means no change
 	result.dueDate._LoadValue(task0.due.date() if task0.due is not None else None) # None means no change
 	result.complete._LoadValue(task0.completed is not None)
-	result.notes._LoadValue(taskSeries.notes)
+	result.notes._LoadValue([] if isinstance(taskSeries.notes, list) else taskSeries.notes.note)
 	result.createTime = taskSeries.created
 	result.modifiedTime = taskSeries.modified
 

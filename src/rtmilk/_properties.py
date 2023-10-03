@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from logging import getLogger
-from typing import Generic, Optional, TypeVar, Union
+from typing import Generic, TypeVar
 
 from .api_sync import API
 from .api_async import APIAsync
+from .models import Note
 
 _log = getLogger(__name__)
 _T = TypeVar('_T')
@@ -27,17 +28,7 @@ class _Property(Generic[_T]):
 	def value(self) -> _T:
 		return self._value
 
-class NotesProperty:
-	def __init__(self, task):
-		self._task = task
-		self._value = None
-
-	def _LoadValue(self, value: list[str]):
-		self._value = value
-
-	@property
-	def value(self) -> _T:
-		return self._value
+class NotesProperty(_Property[list[Note]]):
 
 	def Add(self, title: str, text: str):
 		self._task._client.api.TasksNotesAdd(
@@ -105,7 +96,7 @@ class CompleteProperty(_Property[bool]):
 				taskseries_id=self._task._taskSeriesId,
 				task_id=self._task._taskId)
 
-class DateProperty(_Property[Optional[Union[date, datetime]]]):
+class DateProperty(_Property[date | datetime | None]):
 	def __init__(self, task, dateType):
 		super().__init__(task)
 		self._dateType = dateType
