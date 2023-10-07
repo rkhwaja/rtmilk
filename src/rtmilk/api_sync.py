@@ -4,7 +4,7 @@ from datetime import date, datetime
 from logging import getLogger
 from pprint import pformat
 
-from pydantic import AnyHttpUrl, validate_call
+from pydantic import validate_call
 from requests import get
 from requests.exceptions import RequestException
 
@@ -12,6 +12,7 @@ from .api_base import RTMError, UnauthorizedAPIBase
 from .models import AuthResponse, EchoResponse, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from ._sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TasksUncomplete, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from ._secrets import SecretsWithAuthorization
+from ._utils import HttpsUrl
 
 _log = getLogger(__name__)
 
@@ -95,7 +96,7 @@ class API(UnauthorizedAPI):
 		return PushGetTopics.Out(**_CallSync(PushGetTopics(self._authSecrets).In()))
 
 	@validate_call
-	def PushSubscribe(self, url: AnyHttpUrl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse:
+	def PushSubscribe(self, url: HttpsUrl, topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse:
 		return PushSubscribe.Out(**_CallSync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, lease_seconds=lease_seconds, filter=filter)))
 
 	@validate_call

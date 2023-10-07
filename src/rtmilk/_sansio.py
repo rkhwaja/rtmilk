@@ -5,9 +5,10 @@ from hashlib import md5
 from logging import getLogger
 from pprint import pformat
 
-from pydantic import AnyHttpUrl, validate_call, ValidationError
+from pydantic import validate_call, ValidationError
 
 from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, RTMError, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
+from ._utils import HttpsUrl
 
 REST_URL = 'https://api.rememberthemilk.com/services/rest/'
 
@@ -179,7 +180,7 @@ class PushGetTopics(AuthorizedCall):
 
 class PushSubscribe(AuthorizedCall):
 	@validate_call
-	def In(self, url: AnyHttpUrl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None):
+	def In(self, url: HttpsUrl, topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None):
 		kwargs = _RebuildArgs(lease_seconds=lease_seconds, filter=filter) # TODO validate parameters
 		if 'lease_seconds' in kwargs:
 			kwargs['lease_seconds'] = str(kwargs['lease_seconds'])

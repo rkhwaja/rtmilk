@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Generic, TypeVar
+from typing import Annotated, Generic, TypeVar
 
-from pydantic.fields import ModelField
+from pydantic import Field
+from pydantic.networks import Url, UrlConstraints
 
 PydanticField = TypeVar('PydanticField')
 
@@ -14,7 +15,7 @@ class EmptyStrToNone(Generic[PydanticField]):
 		yield cls.validate
 
 	@classmethod
-	def validate(cls, v: PydanticField, field: ModelField) -> PydanticField | None:
+	def validate(cls, v: PydanticField, field: Field) -> PydanticField | None:
 		if v == '':
 			return None
 
@@ -22,3 +23,8 @@ class EmptyStrToNone(Generic[PydanticField]):
 			return datetime.strptime(v, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
 
 		return v
+
+# HttpsUrl = Annotated[Url, allowed_schemes=['https']]
+HttpsUrl = Annotated[
+    Url, UrlConstraints(allowed_schemes=["http", "https"])
+]

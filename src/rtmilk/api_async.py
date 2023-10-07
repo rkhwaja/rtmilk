@@ -5,12 +5,13 @@ from json import loads
 from logging import getLogger
 
 from aiohttp import ClientResponseError, ClientSession
-from pydantic import stricturl, validate_call
+from pydantic import validate_call
 
 from .api_base import RTMError, UnauthorizedAPIBase
 from .models import AuthResponse, EchoResponse, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from ._sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TasksUncomplete, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from ._secrets import SecretsWithAuthorization
+from ._utils import HttpsUrl
 
 _log = getLogger(__name__)
 
@@ -85,7 +86,7 @@ class APIAsync(UnauthorizedAPIAsync):
 		return PushGetTopics.Out(** await _CallAsync(PushGetTopics(self._authSecrets).In()))
 
 	@validate_call
-	async def PushSubscribe(self, url: stricturl(allowed_schemes='https'), topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse:
+	async def PushSubscribe(self, url: HttpsUrl, topics: str, push_format: str, timeline: str, lease_seconds: int | None = None, filter: str | None = None) -> SubscriptionResponse:
 		return PushSubscribe.Out(** await _CallAsync(PushSubscribe(self._authSecrets).In(url=url, topics=topics, push_format=push_format, timeline=timeline, lease_seconds=lease_seconds, filter=filter)))
 
 	@validate_call
