@@ -1,4 +1,5 @@
 from os import environ
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 from pytest import fixture
@@ -108,3 +109,7 @@ def taskCreator(client):
 def client():
 	apiKey, sharedSecret, token = _GetConfig()
 	return Client.Create(apiKey, sharedSecret, token)
+
+@fixture()
+def mockClient():
+	return MagicMock()
