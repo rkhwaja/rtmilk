@@ -99,6 +99,7 @@ async def testClientAsync(client):
 	# Update some properties
 	await newTask.startDate.SetAsync(dueDate)
 	await newTask.dueDate.SetAsync(None)
+	await newTask.complete.SetAsync(True)
 
 	tasksWithTitle = await client.GetAsync(f'name:"{name}"')
 	assert len(tasksWithTitle) == 1, f'Should be only 1 task with name: "{name}"\n{tasksWithTitle}'
@@ -107,5 +108,6 @@ async def testClientAsync(client):
 
 	assert newTaskToo.startDate.value == dueDate, 'Start date should have been updated'
 	assert newTaskToo.dueDate.value is None, 'Due date should have been updated'
+	assert newTaskToo.complete.value is True
 
 	await newTaskToo.DeleteAsync()
