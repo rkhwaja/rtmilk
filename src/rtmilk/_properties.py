@@ -84,13 +84,13 @@ class CompleteProperty(_Property[bool]):
 
 	async def SetAsync(self, value: bool):
 		if value is True:
-			await self._task._client.api.TasksComplete(
+			await self._task._client.apiAsync.TasksComplete(
 				timeline=self._task._client.timeline,
 				list_id=self._task._listId,
 				taskseries_id=self._task._taskSeriesId,
 				task_id=self._task._taskId)
 		else:
-			await self._task._client.api.TasksUncomplete(
+			await self._task._client.apiAsync.TasksUncomplete(
 				timeline=self._task._client.timeline,
 				list_id=self._task._listId,
 				taskseries_id=self._task._taskSeriesId,
@@ -144,7 +144,7 @@ class NameProperty(_Property[str]):
 								name=value)
 
 	async def SetAsync(self, value: str):
-		await self._task._client.api.TasksSetName(timeline=self._task._client.timeline,
+		await self._task._client.apiAsync.TasksSetName(timeline=self._task._client.timeline,
 								list_id=self._task._listId,
 								taskseries_id=self._task._taskSeriesId,
 								task_id=self._task._taskId,
