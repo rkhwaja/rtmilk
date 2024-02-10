@@ -9,7 +9,7 @@ from rtmilk.models import RTMError
 @dataclass
 class TaskData:
 	name: str
-	tags: set[str] = field(default_factory=lambda :{})
+	tags: set[str] = field(default_factory=dict)
 	startDate: date | datetime = None
 	dueDate: date | datetime = None
 	notes: str = ''
