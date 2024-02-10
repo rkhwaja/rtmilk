@@ -35,7 +35,7 @@ python-dotenv = ">=0.17.1"
 pytest-cov = ">=3"
 pytest-asyncio = ">=0.16.0"
 poethepoet = ">=0.16.4"
-ruff = ">=0.0.289"
+ruff = ">=0.2.1"
 
 [tool.poe.tasks]
 build = "poetry build --no-interaction"
@@ -50,16 +50,16 @@ coverage xml
 
 [tool.ruff]
 line-length = 1000
-ignore = ["A002", "A003", "ANN", "COM812", "D", "DTZ", "EM", "ERA001", "FBT001", "FBT003", "FIX", "G004", "N802", "I", "N803", "N806", "N815", "PLR0913", "PT013", "PTH", "S101", "S311", "T20", "TCH", "TD", "TRY003", "W191"]
-select = ["ALL"]
+lint.ignore = ["A002", "A003", "ANN", "COM812", "D", "DTZ", "EM", "ERA001", "FBT001", "FBT003", "FIX", "G004", "N802", "I", "N803", "N806", "N815", "PLR0913", "PT013", "PTH", "S101", "S311", "T20", "TCH", "TD", "TRY003", "W191"]
+lint.select = ["ALL"]
 target-version = "py39"
 
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "tests/*" = ["ANN201", "D103", "INP001", "PT006"]
 "_properties.py" = ["SLF001"]
 "client.py" = ["SLF001"]
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 inline-quotes = "single"
 multiline-quotes = "single"
 
