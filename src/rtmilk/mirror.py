@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import copy
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
@@ -19,7 +20,7 @@ class TaskData:
 	def FromTask(cls, task):
 		return TaskData(
 			name=task.name.value,
-			tags=task.tags.value,
+			tags=copy(task.tags.value),
 			startDate=task.startDate.value,
 			dueDate=task.dueDate.value,
 			complete=task.complete.value
