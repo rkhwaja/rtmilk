@@ -55,7 +55,7 @@ class API(UnauthorizedAPI):
 	Translate API errors into exceptions
 	"""
 
-	def __init__(self, apiKey, sharedSecret, token):
+	def __init__(self, apiKey: str, sharedSecret: str, token: str):
 		super().__init__(apiKey, sharedSecret)
 		self._authSecrets = SecretsWithAuthorization(apiKey, sharedSecret, token)
 
