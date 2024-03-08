@@ -35,12 +35,12 @@ python-dotenv = ">=0.17.1"
 pytest-cov = ">=3"
 pytest-asyncio = ">=0.16.0"
 poethepoet = ">=0.16.4"
-ruff = ">=0.2.1"
+ruff = ">=0.3.1"
 
 [tool.poe.tasks]
 build = "poetry build --no-interaction"
 test = "pytest"
-lint = "ruff src tests"
+lint = "ruff check src tests"
 
 [tool.poe.tasks.test-with-coverage]
 shell = """
