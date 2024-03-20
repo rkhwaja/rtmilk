@@ -3,9 +3,12 @@ from __future__ import annotations
 from copy import copy
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from logging import getLogger
 
 from listdiff import DiffUnsortedLists
 from rtmilk.models import RTMError
+
+_log = getLogger(__name__)
 
 @dataclass
 class TaskData:
@@ -59,6 +62,7 @@ async def _MirrorTaskAsync(task, taskData):
 def Mirror(client, existingTasks, requiredTaskData):
 	"""Assumes that there have been no changes since existingTasks were read from the remote
 	Won't update a value which was already correct, according to existingTasks"""
+	_log.info(f'Mirror: {existingTasks}, {requiredTaskData}')
 	toDelete, matches, toAdd = DiffUnsortedLists(iter(existingTasks), iter(requiredTaskData), lambda x: x.name.value, lambda x: x.name)
 
 	for task in toDelete:
@@ -83,6 +87,7 @@ def Mirror(client, existingTasks, requiredTaskData):
 async def MirrorAsync(client, existingTasks, requiredTaskData):
 	"""Assumes that there have been no changes since existingTasks were read from the remote
 	Won't update a value which was already correct, according to existingTasks"""
+	_log.info(f'Mirror: {existingTasks}, {requiredTaskData}')
 	toDelete, matches, toAdd = DiffUnsortedLists(iter(existingTasks), iter(requiredTaskData), lambda x: x.name.value, lambda x: x.name)
 
 	for task in toDelete:
