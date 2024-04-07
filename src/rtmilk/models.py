@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum, IntEnum
+from typing import Annotated
 
-from pydantic import BaseModel, Field, constr, field_validator
+from pydantic import BaseModel, Field, field_validator
+from pydantic.types import StringConstraints
 
 from ._utils import EmptyStrToNone
 
@@ -21,15 +23,15 @@ class ErrorData(BaseModel):
 	msg: str
 
 class OkStat(BaseModel):
-	stat: constr(pattern='ok')
+	stat: Annotated[str, StringConstraints(pattern='ok')]
 
 class FailStat(BaseModel):
-	stat: constr(pattern='fail')
+	stat: Annotated[str, StringConstraints(pattern='fail')]
 	err: ErrorData
 
 class EchoResponse(OkStat):
 	__test__ = False # avoid pytest warning
-	method: constr(pattern='rtm.test.echo')
+	method: Annotated[str, StringConstraints(pattern='rtm.test.echo')]
 
 class RTMList(BaseModel):
 	id: str
@@ -214,7 +216,7 @@ class TopicListResponse(OkStat):
 class SubscriptionPayload(BaseModel):
 	id: str
 	url: str
-	format: constr(pattern='json')
+	format: Annotated[str, StringConstraints(pattern='json')]
 	expires: datetime
 	pending: bool
 	topics: Topic | list[str]
