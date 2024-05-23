@@ -29,6 +29,11 @@ class FailStat(BaseModel):
 	stat: Annotated[str, StringConstraints(pattern='fail')]
 	err: ErrorData
 
+def _RaiseIfError(result):
+	if isinstance(result, FailStat):
+		raise RTMError(result.err.code, result.err.msg)
+	return result
+
 class EchoResponse(OkStat):
 	__test__ = False # avoid pytest warning
 	method: Annotated[str, StringConstraints(pattern='rtm.test.echo')]

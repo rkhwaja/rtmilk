@@ -29,28 +29,26 @@ except RTMError as e:
 # Usage of API functions directly
 ```python
 from rtmilk.api_sync import API
-from rtmmilk.models import RTMError
+from rtmmilk.models import FailStat
 
 api = API(API_KEY, SHARED_SECRET, TOKEN)
 
 timeline = api.TimelinesCreate().timeline
-try:
-    api.TasksAdd(timeline, 'task name')
-except RTMError as e:
-    print(e)
+result = api.TasksAdd(timeline, 'task name')
+if isinstance(result, FailStat):
+    print(f'Error: {result}')
 ```
 
 ```python
 from rtmilk.api_async import APIAsync
-from rtmmilk.models import RTMError
+from rtmmilk.models import FailStat
 
 apiAsync = APIAsync(API_KEY, SHARED_SECRET, TOKEN)
 
 timeline = await apiAsync.TimelinesCreate().timeline
-try:
-    await apiAsync.TasksAdd(timeline, 'task name')
-except RTMError as e:
-    print(e)
+result = await apiAsync.TasksAdd(timeline, 'task name')
+if isinstance(result, FailStat):
+    print(f'Error: {result}')
 ```
 
 # Authorization

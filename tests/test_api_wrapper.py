@@ -1,4 +1,3 @@
-from contextlib import suppress
 from datetime import datetime, timedelta
 from logging import info
 from random import randint
@@ -6,9 +5,9 @@ from uuid import uuid4
 
 from dateutil.tz import gettz
 from pydantic import ValidationError
-from pytest import fail, mark, raises
+from pytest import mark, raises
 
-from rtmilk.models import AuthResponse, EchoResponse, NotePayload, PriorityDirectionEnum, PriorityEnum, RTMError, RTMList, RTMSmartList, Tags, TaskResponse, TaskSeries
+from rtmilk.models import AuthResponse, EchoResponse, FailStat, NotePayload, PriorityDirectionEnum, PriorityEnum, RTMList, RTMSmartList, Tags, TaskResponse, TaskSeries
 from rtmilk._sansio import TasksGetList
 
 def test_validation(api, timeline):
@@ -159,10 +158,8 @@ def test_add_and_delete_complex_task(api, timeline):
 	api.TasksDelete(timeline, task.list.id, task.list.taskseries[0].id, task.list.taskseries[0].task[0].id)
 
 def test_delete_non_existing_task(api, timeline):
-	with raises(RTMError):
-		_ = api.TasksDelete(
-			timeline, '42',
-			'43', '')
+	result = api.TasksDelete(timeline, '42', '43', '')
+	assert isinstance(result, FailStat)
 
 def test_tags(api, timeline, task):
 	listId = task.list.id
@@ -198,6 +195,23 @@ def test_dates(api, timeline, task):
 
 	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate2)
 	assert updatedTask.list.taskseries[0].task[0].start == startDate2
+
+def test_set_wrong_start_due_dates(api, timeline, task):
+	listId = task.list.id
+	taskSeriesId = task.list.taskseries[0].id
+	taskId = task.list.taskseries[0].task[0].id
+
+	settings = api.SettingsGetList()
+	userTimezone = gettz(settings.settings.timezone)
+
+	dueDate = datetime(2021, 6, 1, 0, 0, 0, tzinfo=userTimezone)
+	startDate = datetime(2021, 7, 1, 0, 0, 0, tzinfo=userTimezone)
+
+	updatedTask = api.TasksSetDueDate(timeline, listId, taskSeriesId, taskId, due=dueDate)
+	assert updatedTask.list.taskseries[0].task[0].due == dueDate
+
+	updatedTask = api.TasksSetStartDate(timeline, listId, taskSeriesId, taskId, start=startDate)
+	assert isinstance(updatedTask, FailStat)
 
 def test_get_list(api, task): # noqa: ARG001
 	allTasks = api.TasksGetList()
@@ -252,25 +266,18 @@ def test_add_smart_list(api, timeline, newSmartList):
 	assert newSmartList.list.archived is False, newSmartList
 
 	# Can do this on the website but API *does* fail
-	try:
-		_ = api.ListsSetName(timeline, newSmartList.list.id, newSmartList.list.name + ' renamed')
-		fail('Should have failed to change the name on a smart list')
-	except RTMError:
-		pass
+	result = api.ListsSetName(timeline, newSmartList.list.id, newSmartList.list.name + ' renamed')
+	assert isinstance(result, FailStat), 'Should have failed to change the name on a smart list'
 
 	# Looks like you can't archive a smart list
-	try:
-		_ = api.ListsArchive(timeline, newSmartList.list.id)
-		fail('Should have failed to archive a smart list')
-	except RTMError:
-		pass
+	result = api.ListsArchive(timeline, newSmartList.list.id)
+	assert isinstance(result, FailStat), 'Should have failed to archive a smart list'
 
 def test_subscriptions(api, timeline):
 	api.PushGetSubscriptions()
 	topics = api.PushGetTopics()
 	info(topics)
-	with suppress(RTMError):
-		api.PushSubscribe(timeline=timeline, url='https://hook.example', topics='task_created', filter='', push_format='json', lease_seconds='60')
+	api.PushSubscribe(timeline=timeline, url='https://hook.example', topics='task_created', filter='', push_format='json', lease_seconds='60')
 
 def test_url():
 	fake = {'stat': 'ok',
