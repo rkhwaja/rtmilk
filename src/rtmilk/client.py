@@ -7,6 +7,7 @@ from pydantic import validate_call
 
 from .api_async import APIAsync
 from .api_sync import API
+from .models import _RaiseIfError
 from ._properties import CompleteProperty, DueDateProperty, NameProperty, NotesProperty, StartDateProperty, TagsProperty
 
 _log = getLogger(__name__)
@@ -35,18 +36,18 @@ class Task:
 	@validate_call
 	def Delete(self):
 		_log.info(f'{self}.Delete')
-		self._client.api.TasksDelete(timeline=self._client.timeline,
+		_RaiseIfError(self._client.api.TasksDelete(timeline=self._client.timeline,
 								list_id=self._listId,
 								taskseries_id=self._taskSeriesId,
-								task_id=self._taskId)
+								task_id=self._taskId))
 
 	@validate_call
 	async def DeleteAsync(self):
 		_log.info(f'{self}.DeleteAsync')
-		await self._client.apiAsync.TasksDelete(timeline=self._client.timeline,
+		_RaiseIfError(await self._client.apiAsync.TasksDelete(timeline=self._client.timeline,
 								list_id=self._listId,
 								taskseries_id=self._taskSeriesId,
-								task_id=self._taskId)
+								task_id=self._taskId))
 
 # Serialize python datetime object to string for use by filters
 def FilterDate(date_):
@@ -104,31 +105,31 @@ class Client:
 		return 'Client()'
 
 	def _CreateTimeline(self):
-		self.timeline = self.api.TimelinesCreate().timeline
+		self.timeline = _RaiseIfError(self.api.TimelinesCreate().timeline)
 
 	async def _CreateTimelineAsync(self):
-		self.timeline = await self.apiAsync.TimelinesCreate().timeline
+		self.timeline = _RaiseIfError(await self.apiAsync.TimelinesCreate().timeline)
 
 	@validate_call
 	def Get(self, filter_: str, lastSync: datetime | None = None) -> list[Task]:
 		_log.info(f'Get: {filter_}, {lastSync}')
-		listResponse = self.api.TasksGetList(filter=filter_, last_sync=lastSync)
+		listResponse = _RaiseIfError(self.api.TasksGetList(filter=filter_, last_sync=lastSync))
 		return _CreateListOfTasks(self, listResponse)
 
 	@validate_call
 	def Add(self, name: str) -> Task:
 		_log.info(f'Add: {name}')
-		taskResponse = self.api.TasksAdd(self.timeline, name)
+		taskResponse = _RaiseIfError(self.api.TasksAdd(self.timeline, name))
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
 	@validate_call
 	async def GetAsync(self, filter_: str, lastSync: datetime | None = None) -> list[Task]:
 		_log.info(f'GetAsync: {filter_}, {lastSync}')
-		listResponse = await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync)
+		listResponse = _RaiseIfError(await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync))
 		return _CreateListOfTasks(self, listResponse)
 
 	@validate_call
 	async def AddAsync(self, name: str) -> Task:
 		_log.info(f'AddAsync: {name}')
-		taskResponse = await self.apiAsync.TasksAdd(self.timeline, name)
+		taskResponse = _RaiseIfError(await self.apiAsync.TasksAdd(self.timeline, name))
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])

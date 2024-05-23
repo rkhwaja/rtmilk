@@ -31,13 +31,15 @@ def _RebuildArgs(**kwargs):
 	return result
 
 def _ValidateReturn(type_, rsp):
+	_log.debug(f'Parsing {type_}:\n{pformat(rsp)}')
 	try:
-		_log.debug(f'Parsing {type_}:\n{pformat(rsp)}')
 		return type_(**rsp)
 	except ValidationError as e:
 		_log.error(f'Failed to validate against {type_}:\n{pformat(rsp)}\n{e}')
-		failStat = FailStat(**rsp)
-		raise RTMError(failStat.err.code, failStat.err.msg) from e
+	try:
+		return FailStat(**rsp)
+	except ValidationError as e:
+		raise RTMError from e
 
 def ApiSig(sharedSecret, params):
 	sortedItems = sorted(params.items(), key=lambda x: x[0])
