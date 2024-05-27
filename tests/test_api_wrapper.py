@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from logging import info
 from random import randint
 from uuid import uuid4
@@ -222,7 +222,7 @@ def test_get_list(api, task): # noqa: ARG001
 		info(f'List ID: {list_.id}')
 
 def test_last_sync(api, taskCreatorAPI):
-	start = datetime.utcnow()
+	start = datetime.now(UTC)
 	noChange = api.TasksGetList(last_sync=start)
 	assert noChange.tasks.list is None, 'No tasks added at the start'
 	task1 = taskCreatorAPI.Add(f'task 1 {uuid4()}')

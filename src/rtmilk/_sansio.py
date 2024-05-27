@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, UTC
 from hashlib import md5
 from logging import getLogger
 from pprint import pformat
@@ -261,8 +261,14 @@ class TasksDelete(AuthorizedCall):
 class TasksGetList(AuthorizedCall):
 	def In(self, list_id: str | None = None, filter: str | None = None, last_sync: datetime | None = None):
 		kwargs = _RebuildArgs(list_id=list_id, filter=filter, last_sync=last_sync)
-		if 'last_sync' in kwargs and isinstance(kwargs['last_sync'], (datetime)):
-			kwargs['last_sync'] = _RtmDatetime(kwargs['last_sync'])
+		if 'last_sync' in kwargs:
+			if not isinstance(kwargs['last_sync'], (datetime)):
+				raise TypeError('last_sync should be a datetime')
+			lastSyncDt = kwargs['last_sync']
+			if lastSyncDt.tzinfo is not None:
+				# switch to naive datetime in UTC
+				lastSyncDt = lastSyncDt.astimezone(UTC).replace(tzinfo=None)
+			kwargs['last_sync'] = _RtmDatetime(lastSyncDt)
 		return self.CommonParams('rtm.tasks.getList', **kwargs)
 
 	@classmethod
