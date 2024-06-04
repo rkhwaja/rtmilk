@@ -6,7 +6,7 @@ from datetime import date, datetime
 from logging import getLogger
 
 from listdiff import DiffUnsortedLists
-from rtmilk.models import RTMError
+from rtmilk.models import APIError
 
 _log = getLogger(__name__)
 
@@ -43,7 +43,7 @@ def _MirrorTask(task, taskData):
 		# Move the due date first because you're more likely to be moving both dates to be later
 		_MirrorProperty(task.dueDate, taskData.dueDate)
 		_MirrorProperty(task.startDate, taskData.startDate)
-	except RTMError:
+	except APIError:
 		_MirrorProperty(task.startDate, taskData.startDate)
 		_MirrorProperty(task.dueDate, taskData.dueDate)
 	if taskData.complete is not None:
@@ -55,7 +55,7 @@ async def _MirrorTaskAsync(task, taskData):
 		# Move the due date first because you're more likely to be moving both dates to be later
 		await _MirrorPropertyAsync(task.dueDate, taskData.dueDate)
 		await _MirrorPropertyAsync(task.startDate, taskData.startDate)
-	except RTMError:
+	except APIError:
 		await _MirrorPropertyAsync(task.startDate, taskData.startDate)
 		await _MirrorPropertyAsync(task.dueDate, taskData.dueDate)
 	if taskData.complete is not None:

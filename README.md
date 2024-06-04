@@ -7,7 +7,7 @@ Python wrapper for "Remember the Milk" [API](https://www.rememberthemilk.com/ser
 # Usage of client
 ```python
 from rtmilk.client import Client
-from rtmmilk.models import RTMError
+from rtmmilk.models import APIError
 
 # These are the equivalent objects, created differently
 client = Client.Create(API_KEY, SHARED_SECRET, TOKEN)
@@ -22,7 +22,7 @@ try:
     await task.tags.SetAsync({'tag1', 'tag2'})
     tasks = client2.Get('name:"name 1"')
     assert tasks[0].tags.value == {'tag1', 'tag2'}
-except RTMError as e:
+except APIError as e:
     print(e)
 ```
 
