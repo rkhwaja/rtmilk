@@ -226,8 +226,6 @@ class SubscriptionPayload(BaseModel):
 	pending: bool
 	topics: Topic | list[str]
 
-# SubscriptionPayload.model_rebuild()
-
 class SubscriptionResponse(OkStat):
 	transaction: Transaction
 	subscription: SubscriptionPayload
