@@ -45,15 +45,12 @@ class UnauthorizedAPI(UnauthorizedAPIBase):
 # replace self._secrets with the authorized version
 # allow to call unauthorized secrets with the same object
 class API(UnauthorizedAPI):
-	"""
-	Low-level API wrapper
+	"""Low-level synchronous API wrapper
 	Handles the authorization/authentication token and API signature
 	There is (almost) a 1-1 relationship between API calls and public member functions
 	Parameter names are the same as the API
 	The inputs are python types
-	The outputs are parsed into pydantic types, including errors
-	Translate API errors into exceptions
-	"""
+	The outputs are parsed into pydantic types, including errors"""
 
 	def __init__(self, apiKey: str, sharedSecret: str, token: str):
 		super().__init__(apiKey, sharedSecret)
