@@ -9,14 +9,18 @@ from pydantic.types import StringConstraints
 
 from ._utils import EmptyStrToNone
 
-class RTMError(Exception):
+class BaseError(Exception):
+	"""Base class for all errors"""
+
+class APIError(BaseError):
+	"""Error documented in RTM API"""
 	def __init__(self, code, message):
 		super().__init__(self)
 		self.code = code
 		self.message = message
 
 	def __repr__(self):
-		return f'RTMError({self.code=}, {self.message=})'
+		return f'APIError({self.code=}, {self.message=})'
 
 class ErrorData(BaseModel):
 	code: int
@@ -31,7 +35,7 @@ class FailStat(BaseModel):
 
 def _RaiseIfError(result):
 	if isinstance(result, FailStat):
-		raise RTMError(result.err.code, result.err.msg)
+		raise APIError(result.err.code, result.err.msg)
 	return result
 
 class EchoResponse(OkStat):

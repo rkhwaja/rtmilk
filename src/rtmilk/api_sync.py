@@ -8,8 +8,8 @@ from pydantic import validate_call
 from requests import get
 from requests.exceptions import RequestException
 
-from .api_base import RTMError, UnauthorizedAPIBase
-from .models import AuthResponse, EchoResponse, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
+from .api_base import UnauthorizedAPIBase
+from .models import AuthResponse, BaseError, EchoResponse, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from ._sansio import AuthCheckToken, AuthGetFrob, AuthGetToken, ListsAdd, ListsArchive, ListsDelete, ListsGetList, ListsSetDefaultList, ListsSetName, ListsUnarchive, PushGetSubscriptions, PushGetTopics, PushSubscribe, PushUnsubscribe, TagsGetList, TasksAdd, TasksAddTags, TasksComplete, TasksDelete, TasksGetList, TasksMovePriority, TasksNotesAdd, TasksRemoveTags, TasksSetDueDate, TasksSetName, TasksSetPriority, TasksSetStartDate, TasksSetTags, TasksUncomplete, TestEcho, TimelinesCreate, SettingsGetList, REST_URL
 from ._secrets import SecretsWithAuthorization
 from ._utils import HttpsUrl
@@ -23,7 +23,7 @@ def _CallSync(params):
 		_log.debug(f'JSON response:\n{pformat(json)}')
 		return json['rsp']
 	except (RequestException, ValueError) as e:
-		raise RTMError from e
+		raise BaseError from e
 
 class UnauthorizedAPI(UnauthorizedAPIBase):
 	"""Synchronous wrappers for API calls that don't need authorization"""
