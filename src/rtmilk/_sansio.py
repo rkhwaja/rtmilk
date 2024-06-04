@@ -7,7 +7,7 @@ from pprint import pformat
 
 from pydantic import validate_call, ValidationError
 
-from .models import AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, RTMError, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
+from .models import APIError, AuthResponse, EchoResponse, FailStat, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
 from ._utils import HttpsUrl
 
 REST_URL = 'https://api.rememberthemilk.com/services/rest/'
@@ -35,7 +35,7 @@ def _ValidateReturn(type_, rsp):
 	try:
 		return FailStat(**rsp)
 	except ValidationError as e:
-		raise RTMError from e
+		raise APIError from e
 
 def ApiSig(sharedSecret, params):
 	sortedItems = sorted(params.items(), key=lambda x: x[0])
