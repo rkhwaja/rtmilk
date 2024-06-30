@@ -79,30 +79,28 @@ def _CreateListOfTasks(client, listResponse):
 		tasks.extend([_CreateFromTaskSeries(client, listId=list_.id, taskSeries=ts) for ts in list_.taskseries])
 	return tasks
 
-class Client:
+def CreateClient(clientId: str, clientSecret: str, token: str) -> _Client:
+	"""Create RTM client object synchronously"""
+	client = _Client(clientId, clientSecret, token)
+	client._CreateTimeline()
+	return client
+
+async def CreateClientAsync(clientId: str, clientSecret: str, token: str) -> _Client:
+	"""Create RTM client object asynchronously"""
+	client = _Client(clientId, clientSecret, token)
+	await client._CreateTimelineAsync()
+	return client
+
+class _Client:
 	"""Wraps the timeline and adds convenience functions to add and query tasks"""
 
-	@classmethod
-	def Create(cls, clientId: str, clientSecret: str, token: str) -> Client:
-		client = Client(clientId, clientSecret, token)
-		client._CreateTimeline()
-		return client
-
-	@classmethod
-	async def CreateAsync(cls, clientId: str, clientSecret: str, token: str) -> Client:
-		client = Client(clientId, clientSecret, token)
-		await client._CreateTimelineAsync()
-		return client
-
-	# TODO - pass timeline in constructor to at least prevent people who accidentally call this from making an invalid object?
-	# else change Client to _Client and make the factory functions free
 	def __init__(self, clientId: str, clientSecret: str, token: str):
 		self.api = API(clientId, clientSecret, token)
 		self.apiAsync = APIAsync(clientId, clientSecret, token)
 		self.timeline = None
 
 	def __repr__(self):
-		return 'Client()'
+		return '_Client()'
 
 	def _CreateTimeline(self):
 		self.timeline = _RaiseIfError(self.api.TimelinesCreate().timeline)
