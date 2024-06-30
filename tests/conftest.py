@@ -6,7 +6,7 @@ from pytest import fixture
 
 from rtmilk.api_sync import API
 from rtmilk.api_async import APIAsync
-from rtmilk.client import Client
+from rtmilk.client import CreateClient
 
 try:
 	from dotenv import load_dotenv
@@ -108,7 +108,7 @@ def taskCreator(client):
 @fixture
 def client():
 	apiKey, sharedSecret, token = _GetConfig()
-	return Client.Create(apiKey, sharedSecret, token)
+	return CreateClient(apiKey, sharedSecret, token)
 
 @fixture
 def mockClient():
