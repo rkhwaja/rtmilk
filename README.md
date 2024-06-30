@@ -6,12 +6,12 @@ Python wrapper for "Remember the Milk" [API](https://www.rememberthemilk.com/ser
 
 # Usage of client
 ```python
-from rtmilk.client import Client
+from rtmilk.client import CreateClient, CreateClientAsync
 from rtmmilk.models import APIError
 
 # These are the equivalent objects, created differently
-client = Client.Create(API_KEY, SHARED_SECRET, TOKEN)
-client2 = await Client.CreateAsync(API_KEY, SHARED_SECRET, TOKEN)
+client = CreateClient(API_KEY, SHARED_SECRET, TOKEN)
+client2 = await CreateClientAsync(API_KEY, SHARED_SECRET, TOKEN)
 
 try:
     task = client.Add(name='name 1')
