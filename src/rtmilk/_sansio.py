@@ -24,11 +24,7 @@ def _RtmDatetime(datetime_):
 
 def _RebuildArgs(**kwargs):
 	"""Filter out the args that were set to None - they were optional"""
-	result = {}
-	for key, value in kwargs.items():
-		if value is not None:
-			result[key] = value
-	return result
+	return {key: value for key, value in kwargs.items() if value is not None}
 
 def _ValidateReturn(type_, rsp):
 	_log.debug(f'Parsing {type_}:\n{pformat(rsp)}')
