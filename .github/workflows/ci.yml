@@ -42,5 +42,7 @@ jobs:
         if python --version | grep -q 'Python 3.12' ; then
           poe test-with-coverage
         fi
-    - name: Coverage
-      uses: codecov/codecov-action@v2.1.0
+    - name: Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
