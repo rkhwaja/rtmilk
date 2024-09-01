@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "rtmilk"
 version = "2.1.0"
-description = "RTM API wrapper"
+description = "Remember The Milk API wrapper"
 authors = ["Rehan Khwaja <rehan@khwaja.name>"]
 license = "MIT"
 homepage = "https://github.com/rkhwaja/rtmilk"
-keywords = ["RememberTheMilk"]
+keywords = ["RememberTheMilk", "Remember", "Milk"]
 readme = "README.md"
 classifiers = [
 	"License :: OSI Approved :: MIT License",
