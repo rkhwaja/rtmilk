@@ -1,7 +1,7 @@
 rtm-token.txt
 __pycache__/
 dist/
-poetry.lock
+uv.lock
 .env
 .pytest_cache
 .vscode
