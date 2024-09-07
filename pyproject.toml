@@ -33,7 +33,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.poe.tasks]
-build = "poetry build --no-interaction"
+build = "uv build"
 test = "pytest"
 lint = "ruff check src tests"
 
