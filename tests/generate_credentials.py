@@ -3,7 +3,7 @@
 from contextlib import suppress
 from os import environ
 
-from rtmilk.authorization import AuthorizationSession
+from rtmilk import AuthorizationSession
 
 try:
 	from dotenv import load_dotenv

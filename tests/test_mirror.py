@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from rtmilk.mirror import Mirror, TaskData
+from rtmilk import Mirror, TaskData
 
 def testMirror(mockClient):
 	Mirror(mockClient, [], [TaskData('name')])

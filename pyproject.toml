@@ -51,6 +51,7 @@ lint.select = ["ALL"]
 target-version = "py39"
 
 [tool.ruff.lint.extend-per-file-ignores]
+"__init__.py" = ["F403"]
 "tests/*" = ["ANN201", "D103", "INP001", "PT006"]
 "_properties.py" = ["SLF001"]
 "client.py" = ["SLF001"]
