@@ -4,9 +4,7 @@ from uuid import uuid4
 
 from pytest import fixture
 
-from rtmilk.api_sync import API
-from rtmilk.api_async import APIAsync
-from rtmilk.client import CreateClient
+from rtmilk import API, APIAsync, CreateClient
 
 try:
 	from dotenv import load_dotenv

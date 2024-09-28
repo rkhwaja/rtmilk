@@ -6,8 +6,7 @@ Python wrapper for "Remember the Milk" [API](https://www.rememberthemilk.com/ser
 
 # Usage of client
 ```python
-from rtmilk.client import CreateClient, CreateClientAsync
-from rtmmilk.models import APIError
+from rtmilk import APIError, CreateClient, CreateClientAsync
 
 # These are the equivalent objects, created differently
 client = CreateClient(API_KEY, SHARED_SECRET, TOKEN)
@@ -28,8 +27,7 @@ except APIError as e:
 
 # Usage of API functions directly
 ```python
-from rtmilk.api_sync import API
-from rtmmilk.models import FailStat
+from rtmilk import API, FailStat
 
 api = API(API_KEY, SHARED_SECRET, TOKEN)
 
@@ -40,8 +38,7 @@ if isinstance(result, FailStat):
 ```
 
 ```python
-from rtmilk.api_async import APIAsync
-from rtmmilk.models import FailStat
+from rtmilk import APIAsync, FailStat
 
 apiAsync = APIAsync(API_KEY, SHARED_SECRET, TOKEN)
 
@@ -53,7 +50,7 @@ if isinstance(result, FailStat):
 
 # Authorization
 ```python
-from rtmilk.authorization import AuthorizationSession
+from rtmilk import AuthorizationSession
 
 authenticationSession = AuthorizationSession(API_KEY, SHARED_SECRET, 'delete')
 input(f'Go to {authenticationSession.url} and authorize. Then Press ENTER')
