@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
@@ -57,6 +57,18 @@ def testClientSync(client):
 
 	assert newTaskToo.startDate.value == dueDate, 'Start date should have been updated'
 	assert newTaskToo.dueDate.value is None, 'Due date should have been updated'
+
+	# Update dates to datetimes
+	startDateTime = datetime.combine(dueDate, time(12, 42, 0), timezone.utc) # RTM discards the seconds
+	newTask.startDate.Set(startDateTime)
+	dueDateTime = datetime.combine(dueDate, time(13, 43, 0), timezone.utc) # RTM discards the seconds
+	newTask.dueDate.Set(dueDateTime)
+
+	tasksWithTitle = client.Get(f'name:"{name}"')
+	newTaskToo = tasksWithTitle[0]
+	assert len(tasksWithTitle) == 1, f'Should be only 1 task with name: "{name}"\n{tasksWithTitle}'
+	assert newTaskToo.startDate.value == startDateTime, 'Start date should have been updated with the time'
+	assert newTaskToo.dueDate.value == dueDateTime, 'Due date should have been updated with the time'
 
 	newTaskToo.Delete()
 
