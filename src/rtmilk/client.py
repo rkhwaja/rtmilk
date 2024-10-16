@@ -53,6 +53,13 @@ class Task:
 def FilterDate(date_):
 	return datetime.strftime(date_, '%m/%d/%Y')
 
+def _LoadDate(rtmDate, hasTime):
+	if rtmDate is None:
+		return None
+	if hasTime:
+		return rtmDate
+	return rtmDate.date()
+
 def _CreateFromTaskSeries(client, listId, taskSeries):
 	_log.info(f'{taskSeries=}')
 	task0 = taskSeries.task[0]
@@ -60,8 +67,8 @@ def _CreateFromTaskSeries(client, listId, taskSeries):
 
 	result.name._LoadValue(taskSeries.name)
 	result.tags._LoadValue(set(taskSeries.tags.tag) if hasattr(taskSeries.tags, 'tag') else set(taskSeries.tags))
-	result.startDate._LoadValue(task0.start.date() if task0.start is not None else None) # None means no change
-	result.dueDate._LoadValue(task0.due.date() if task0.due is not None else None) # None means no change
+	result.startDate._LoadValue(_LoadDate(task0.start, task0.has_start_time))
+	result.dueDate._LoadValue(_LoadDate(task0.due, task0.has_due_time))
 	result.complete._LoadValue(task0.completed is not None)
 	result.notes._LoadValue([] if isinstance(taskSeries.notes, list) else taskSeries.notes.note)
 	result.createTime = taskSeries.created

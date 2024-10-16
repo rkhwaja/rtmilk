@@ -303,7 +303,9 @@ class TasksSetDueDate(AuthorizedCall):
 		if 'has_due_time' in kwargs:
 			kwargs['has_due_time'] = '1' if kwargs['has_due_time'] else '0'
 		if 'due' in kwargs:
-			if isinstance(kwargs['due'], (date, datetime)):
+			if isinstance(kwargs['due'], datetime):
+				kwargs['due'] = _RtmDatetime(kwargs['due'])
+			elif isinstance(kwargs['due'], date):
 				kwargs['due'] = _RtmDate(kwargs['due'])
 			else:
 				assert isinstance(kwargs['due'], str)
@@ -340,7 +342,9 @@ class TasksSetStartDate(AuthorizedCall):
 		if 'has_start_time' in kwargs:
 			kwargs['has_start_time'] = '1' if kwargs['has_start_time'] else '0'
 		if 'start' in kwargs:
-			if isinstance(kwargs['start'], (date, datetime)):
+			if isinstance(kwargs['start'], datetime):
+				kwargs['start'] = _RtmDatetime(kwargs['start'])
+			elif isinstance(kwargs['start'], date):
 				kwargs['start'] = _RtmDate(kwargs['start'])
 			else:
 				assert isinstance(kwargs['start'], str)
