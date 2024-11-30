@@ -1,6 +1,6 @@
 [project]
 name = "rtmilk"
-version = "3.0.1"
+version = "3.0.2"
 description = "Remember The Milk API wrapper"
 maintainers = [
 	{ name = "Rehan Khwaja", email = "rehan@khwaja.name" }
@@ -21,7 +21,7 @@ requires-python = ">=3.9"
 dependencies = [
     "requests>=2.23.0",
     "urllib3>=1.26; python_version>='3.10'",
-    "pydantic>=2.4.2",
+    "pydantic>=2.8",
     "aiohttp>=3.9",
     "listdiff>=1.0.2",
 ]

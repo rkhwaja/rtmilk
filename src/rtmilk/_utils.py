@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Annotated, TypeVar
 
 from pydantic import BeforeValidator
-from pydantic.networks import Url, UrlConstraints
+from pydantic.networks import HttpUrl, UrlConstraints
 
 def EmptyStringToNone(value):
 	if value == '':
@@ -18,5 +18,5 @@ EmptyStrToNone = Annotated[
 ]
 
 HttpsUrl = Annotated[
-    Url, UrlConstraints(allowed_schemes=['https'])
+    HttpUrl, UrlConstraints(allowed_schemes=['https'])
 ]
