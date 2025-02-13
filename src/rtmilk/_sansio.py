@@ -223,6 +223,8 @@ class TagsGetList(AuthorizedCall):
 class TasksAdd(AuthorizedCall):
 	def In(self, timeline: str, name: str, list_id: str | None = None, parse: bool | None = None, parent_task_id: str | None = None, external_id: str | None = None):
 		kwargs = _RebuildArgs(list_id=list_id, parse=parse, parent_task_id=parent_task_id, external_id=external_id)
+		if 'parse' in kwargs:
+			kwargs['parse'] = '1' if kwargs['parse'] else '0'
 		return self.CommonParams('rtm.tasks.add', timeline=timeline, name=name, **kwargs)
 
 	@classmethod
