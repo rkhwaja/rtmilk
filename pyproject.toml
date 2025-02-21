@@ -64,8 +64,8 @@ multiline-quotes = "single"
 pythonpath = ["src"]
 asyncio_default_fixture_loop_scope = "function"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=7.1",
     "pyperclip>=1.8.0",
     "python-dateutil>=2.8.1",
