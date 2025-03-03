@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime, UTC
+from datetime import date, datetime, timezone
 from hashlib import md5
 from logging import getLogger
 from pprint import pformat
@@ -265,7 +265,7 @@ class TasksGetList(AuthorizedCall):
 			lastSyncDt = kwargs['last_sync']
 			if lastSyncDt.tzinfo is not None:
 				# switch to naive datetime in UTC
-				lastSyncDt = lastSyncDt.astimezone(UTC).replace(tzinfo=None)
+				lastSyncDt = lastSyncDt.astimezone(timezone.utc).replace(tzinfo=None)
 			kwargs['last_sync'] = _RtmDatetime(lastSyncDt)
 		return self.CommonParams('rtm.tasks.getList', **kwargs)
 
