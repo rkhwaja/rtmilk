@@ -1,6 +1,6 @@
 [project]
 name = "rtmilk"
-version = "3.0.2"
+version = "3.0.3"
 description = "Remember The Milk API wrapper"
 maintainers = [
 	{ name = "Rehan Khwaja", email = "rehan@khwaja.name" }
