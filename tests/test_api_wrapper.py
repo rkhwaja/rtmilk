@@ -97,6 +97,15 @@ def test_add_and_delete_basic_task(api, timeline):
 		task.list.taskseries[0].id,
 		task.list.taskseries[0].task[0].id)
 
+def test_smart_add_task(api, timeline):
+	task = api.TasksAdd(timeline, 'Pick up the milk tomorrow', parse=1)
+	assert task.list.taskseries[0].name == 'Pick up the milk'
+	assert task.list.taskseries[0].task[0].due is not None
+	api.TasksDelete(
+		timeline, task.list.id,
+		task.list.taskseries[0].id,
+		task.list.taskseries[0].task[0].id)
+
 @mark.asyncio
 async def test_async_add_and_delete_basic_task(apiAsync, timeline):
 	task = await apiAsync.TasksAdd(timeline, f'test_async_add_and_delete_basic_task {uuid4()}')
