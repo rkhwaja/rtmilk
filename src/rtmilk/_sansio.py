@@ -305,12 +305,15 @@ class TasksSetDueDate(AuthorizedCall):
 		if 'has_due_time' in kwargs:
 			kwargs['has_due_time'] = '1' if kwargs['has_due_time'] else '0'
 		if 'due' in kwargs:
-			if isinstance(kwargs['due'], datetime):
-				kwargs['due'] = _RtmDatetime(kwargs['due'])
-			elif isinstance(kwargs['due'], date):
-				kwargs['due'] = _RtmDate(kwargs['due'])
-			else:
-				assert isinstance(kwargs['due'], str)
+			match kwargs['due']:
+				case datetime():
+					kwargs['due'] = _RtmDatetime(kwargs['due'])
+				case date():
+					kwargs['due'] = _RtmDate(kwargs['due'])
+				case str():
+					pass
+				case _:
+					raise RuntimeError('due should be a date, datetime or a str')
 		if 'parse' in kwargs:
 			kwargs['parse'] = '1' if kwargs['parse'] else '0'
 		return self.CommonParams('rtm.tasks.setDueDate', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
@@ -344,12 +347,15 @@ class TasksSetStartDate(AuthorizedCall):
 		if 'has_start_time' in kwargs:
 			kwargs['has_start_time'] = '1' if kwargs['has_start_time'] else '0'
 		if 'start' in kwargs:
-			if isinstance(kwargs['start'], datetime):
-				kwargs['start'] = _RtmDatetime(kwargs['start'])
-			elif isinstance(kwargs['start'], date):
-				kwargs['start'] = _RtmDate(kwargs['start'])
-			else:
-				assert isinstance(kwargs['start'], str)
+			match kwargs['start']:
+				case datetime():
+					kwargs['start'] = _RtmDatetime(kwargs['start'])
+				case date():
+					kwargs['start'] = _RtmDate(kwargs['start'])
+				case str():
+					pass
+				case _:
+					raise RuntimeError('start should be a date, datetime or a str')
 		if 'parse' in kwargs:
 			kwargs['parse'] = '1' if kwargs['parse'] is True else '0'
 		return self.CommonParams('rtm.tasks.setStartDate', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, **kwargs)
