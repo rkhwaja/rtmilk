@@ -46,14 +46,47 @@ coverage xml
 
 [tool.ruff]
 line-length = 1000
-lint.ignore = ["A002", "A003", "ANN", "COM812", "D", "DTZ", "EM", "ERA001", "FBT001", "FBT003", "FIX", "G004", "N802", "I", "N803", "N806", "N815", "PLR0913", "PT013", "PTH", "S101", "S311", "T20", "TCH", "TD", "TRY003", "W191"]
+lint.ignore = [
+    "A002",     # Disallows argument names which shadow builtins
+    "ANN",      # Missing annotations
+    "COM812",   # Missing trailing comma
+    "D",        # Missing docstrings
+    "DTZ",      # datetime timezone rules
+    "EM",       # Rules about strings in exception constructors
+    "ERA001",   # Commented out code
+    "FBT",      # Disallows bool positional arguments
+    "FIX",      # Disallows TODO-type comments
+    "G004",     # Disallows f-strings in logging
+    "N802",     # Function naming rules
+    "I",        # Import formatting
+    "N803",     # Argument naming rule
+    "N806",     # Variable naming rule
+    "N815",     # Variable naming rule
+    "PLR0913",  # Too many arguments
+    "PT013",    # Only allows one way of importing pytest
+    "PTH",      # Forces use of pathlib
+    "S101",     # Disallows asserts
+    "TCH",      # Requires type-checking blocks
+    "TD",       # Requires special formatting of TODO-type comments
+    "TRY003",   # Disallows long messages in exceptions
+    "W191",     # Disallows tab spacing
+    ]
 lint.select = ["ALL"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "__init__.py" = ["F403"]
-"tests/*" = ["ANN201", "D103", "INP001", "PT006"]
-"_properties.py" = ["SLF001"]
-"client.py" = ["SLF001"]
+"tests/*" = [
+    "INP001",   # Disallows implicit namespace
+    "LOG015",   # Disallows use of root logger
+    "S311",     # Disallows use of randint
+    "T20",      # Disallows print
+    ]
+"_properties.py" = [
+    "SLF001",   # Disallows private member access
+    ]
+"client.py" = [
+    "SLF001",   # Disallows private member access
+    ]
 
 [tool.ruff.lint.flake8-quotes]
 inline-quotes = "single"
@@ -72,5 +105,5 @@ dev = [
     "pytest-cov>=3",
     "pytest-asyncio>=0.24.0",
     "poethepoet>=0.16.4",
-    "ruff>=0.6.3",
+    "ruff>=0.11.10",
 ]
