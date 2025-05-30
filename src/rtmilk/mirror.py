@@ -14,8 +14,8 @@ _log = getLogger(__name__)
 class TaskData:
 	name: str
 	tags: set[str] = field(default_factory=dict)
-	startDate: date | datetime = None
-	dueDate: date | datetime = None
+	startDate: date | datetime | None = None
+	dueDate: date | datetime | None = None
 	notes: str = ''
 	complete: bool | None = False # optional here means that either is acceptable i.e. don't change an existing task's complete value
 

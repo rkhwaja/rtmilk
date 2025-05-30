@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
 
@@ -17,26 +18,27 @@ def _DateText(value):
 		return datetime.strftime(value, '%m/%d/%Y')
 	return f'"{value}"'
 
-class ConditionABC:
+class ConditionABC(ABC):
+	@abstractmethod
 	def Text(self) -> str:
 		pass
 
 @dataclass
-class ListIs:
+class ListIs(ConditionABC):
 	name: str
 
 	def Text(self):
 		return f'list:"{self.name}"'
 
 @dataclass
-class ListContains:
+class ListContains(ConditionABC):
 	substr: str
 
 	def Text(self):
 		return f'listContains:"{self.substr}"'
 
 @dataclass
-class Priority:
+class Priority(ConditionABC):
 	value: PriorityEnum
 
 	def Text(self):
@@ -49,336 +51,336 @@ class Priority:
 		return f'priority:{text}'
 
 @dataclass
-class Status:
+class Status(ConditionABC):
 	complete: bool
 
 	def Text(self):
 		return 'status:' + ('completed' if self.complete else 'incomplete')
 
 @dataclass
-class TagIs:
+class TagIs(ConditionABC):
 	name: str
 
 	def Text(self):
 		return f'tag:{self.name}'
 
 @dataclass
-class TagContains:
+class TagContains(ConditionABC):
 	substr: str
 
 	def Text(self):
 		return f'tagContains:{self.substr}'
 
 @dataclass
-class IsTagged:
+class IsTagged(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'isTagged:{_BoolText(self.value)}'
 
 @dataclass
-class LocationIs:
+class LocationIs(ConditionABC):
 	name: str
 
 	def Text(self):
 		return f'location:{self.name}'
 
 @dataclass
-class LocationContains:
+class LocationContains(ConditionABC):
 	location: str
 
 	def Text(self):
 		return f'locationContains:"{self.location}"'
 
 @dataclass
-class LocatedWithin:
+class LocatedWithin(ConditionABC):
 	location: str
 
 	def Text(self):
 		return f'locatedWithin:"{self.location}"'
 
 @dataclass
-class IsLocated:
+class IsLocated(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'isLocated:{_BoolText(self.value)}'
 
 @dataclass
-class IsRepeating:
+class IsRepeating(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'isRepeating:{_BoolText(self.value)}'
 
 @dataclass
-class NameIs:
+class NameIs(ConditionABC):
 	name: str
 
 	def Text(self):
 		return f'name:"{self.name}"'
 
 @dataclass
-class NoteContains:
+class NoteContains(ConditionABC):
 	substr: str
 
 	def Text(self):
 		return f'noteContains:"{self.substr}"'
 
 @dataclass
-class HasNotes:
+class HasNotes(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'hasNotes:"{_BoolText(self.value)}"'
 
 @dataclass
-class FilenameContains:
+class FilenameContains(ConditionABC):
 	substr: str
 
 	def Text(self):
 		return f'filename:"{self.substr}"'
 
 @dataclass
-class HasAttachments:
+class HasAttachments(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'hasAttachments:{_BoolText(self.value)}'
 
 @dataclass
-class Due:
+class Due(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'due:{_DateText(self.value)}'
 
 @dataclass
-class DueBefore:
+class DueBefore(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'dueBefore:{_DateText(self.value)}'
 
 @dataclass
-class DueAfter:
+class DueAfter(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'dueAfter:{_DateText(self.value)}'
 
 @dataclass
-class DueWithin:
+class DueWithin(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'dueWithin:{self.value}'
 
 @dataclass
-class Start:
+class Start(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'start:{_DateText(self.value)}'
 
 @dataclass
-class StartBefore:
+class StartBefore(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'startBefore:{_DateText(self.value)}'
 
 @dataclass
-class StartAfter:
+class StartAfter(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'startAfter:{_DateText(self.value)}'
 
 @dataclass
-class StartWithin:
+class StartWithin(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'startWithin:{self.value}'
 
 @dataclass
-class TimeEstimate:
+class TimeEstimate(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'timeEstimate: "{self.value}"'
 
 @dataclass
-class HasTimeEstimate:
+class HasTimeEstimate(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'hasTimeEstimate:{_BoolText(self.value)}'
 
 @dataclass
-class HasURL:
+class HasURL(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'hasURL:{_BoolText(self.value)}'
 
 @dataclass
-class HasSubtasks:
+class HasSubtasks(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'hasSubtasks:{_BoolText(self.value)}'
 
 @dataclass
-class IsSubtask:
+class IsSubtask(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'isSubtask:{_BoolText(self.value)}'
 
 @dataclass
-class Completed:
+class Completed(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'completed:{_DateText(self.value)}'
 
 @dataclass
-class CompletedBefore:
+class CompletedBefore(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'completedBefore:{_DateText(self.value)}'
 
 @dataclass
-class CompletedAfter:
+class CompletedAfter(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'completedAfter:{_DateText(self.value)}'
 
 @dataclass
-class CompletedWithin:
+class CompletedWithin(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'completedWithin:{self.value}'
 
 @dataclass
-class Added:
+class Added(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'added:{_DateText(self.value)}'
 
 @dataclass
-class AddedBefore:
+class AddedBefore(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'addedBefore:{_DateText(self.value)}'
 
 @dataclass
-class AddedAfter:
+class AddedAfter(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'addedAfter:{_DateText(self.value)}'
 
 @dataclass
-class AddedWithin:
+class AddedWithin(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'addedWithin:{self.value}'
 
 @dataclass
-class Updated:
+class Updated(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'updated:{_DateText(self.value)}'
 
 @dataclass
-class UpdatedBefore:
+class UpdatedBefore(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'updatedBefore:{_DateText(self.value)}'
 
 @dataclass
-class UpdatedAfter:
+class UpdatedAfter(ConditionABC):
 	value: str | date
 
 	def Text(self):
 		return f'updatedAfter:{_DateText(self.value)}'
 
 @dataclass
-class UpdatedWithin:
+class UpdatedWithin(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'updatedWithin:{self.value}'
 
 @dataclass
-class Postponed:
+class Postponed(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'postponed:"{self.value}"'
 
 @dataclass
-class IsShared:
+class IsShared(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'isShared:{_BoolText(self.value)}'
 
 @dataclass
-class SharedWith:
+class SharedWith(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'sharedWith:{self.value}'
 
 @dataclass
-class GivenTo:
+class GivenTo(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'givenTo:{self.value}'
 
 @dataclass
-class GivenBy:
+class GivenBy(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'givenBy:{self.value}'
 
 @dataclass
-class IsGiven:
+class IsGiven(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'isGiven:{_BoolText(self.value)}'
 
 @dataclass
-class Source:
+class Source(ConditionABC):
 	value: str
 
 	def Text(self):
 		return f'source:{self.value}'
 
 @dataclass
-class IncludeArchived:
+class IncludeArchived(ConditionABC):
 	value: bool
 
 	def Text(self):
 		return f'includeArchived:{_BoolText(self.value)}'
 
 @dataclass
-class And:
+class And(ConditionABC):
 	lhs: ConditionABC
 	rhs: ConditionABC
 
@@ -386,7 +388,7 @@ class And:
 		return f'({self.lhs.Text()}) AND ({self.rhs.Text()})'
 
 @dataclass
-class Or:
+class Or(ConditionABC):
 	lhs: ConditionABC
 	rhs: ConditionABC
 
@@ -394,7 +396,7 @@ class Or:
 		return f'({self.lhs.Text()}) OR ({self.rhs.Text()})'
 
 @dataclass
-class Not:
+class Not(ConditionABC):
 	condition: ConditionABC
 
 	def Text(self):
