@@ -33,7 +33,7 @@ def _ValidateReturn(type_, rsp):
 	except ValidationError as e:
 		_log.error(f'Failed to validate against {type_}:\n{pformat(rsp)}\n{e}')
 	try:
-		return FailStat(**rsp)
+		return FailStat(**rsp) # ty: ignore[missing-argument]
 	except ValidationError as e:
 		raise APIError from e
 
@@ -68,7 +68,7 @@ class TestEcho(UnauthorizedCall):
 
 	@classmethod
 	def Out(cls, **rsp):
-		return EchoResponse(**rsp)
+		return EchoResponse(**rsp) # ty: ignore[missing-argument]
 
 class AuthGetFrob(UnauthorizedCall):
 	def In(self):
@@ -94,7 +94,7 @@ class AuthCheckToken(UnauthorizedCall):
 
 	@classmethod
 	def Out(cls, **rsp):
-		return AuthResponse(**rsp)
+		return AuthResponse(**rsp) # ty: ignore[missing-argument]
 
 AuthorizedCall = Call
 
@@ -292,8 +292,8 @@ class TasksNotesAdd(AuthorizedCall):
 
 class TasksRemoveTags(AuthorizedCall):
 	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, tags: list[str]):
-		tags = ','.join(tags)
-		return self.CommonParams('rtm.tasks.removeTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tags)
+		tagsAsString = ','.join(tags)
+		return self.CommonParams('rtm.tasks.removeTags', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, tags=tagsAsString)
 
 	@classmethod
 	def Out(cls, **rsp):
