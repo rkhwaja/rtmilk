@@ -128,7 +128,7 @@ class Note(BaseModel):
 	created: datetime
 	modified: datetime
 	title: str
-	body: str = Field(None, alias='$t')
+	body: str | None = Field(None, alias='$t')
 
 class Transaction(BaseModel):
 	id: str
