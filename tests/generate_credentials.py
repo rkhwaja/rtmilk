@@ -3,6 +3,8 @@
 from contextlib import suppress
 from os import environ
 
+from pyperclip import copy
+
 from rtmilk import AuthorizationSession
 
 try:
@@ -16,7 +18,6 @@ def Authorize():
 	authenticationSession = AuthorizationSession(environ['RTM_API_KEY'], environ['RTM_SHARED_SECRET'], 'delete')
 	print(f'Go to {authenticationSession.url} and authorize')
 	with suppress(ImportError):
-		from pyperclip import copy
 		copy(authenticationSession.url)
 		print('URL copied to clipboard')
 	input("Press ENTER when you've authorized the app")
