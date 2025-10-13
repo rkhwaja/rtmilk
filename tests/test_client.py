@@ -4,6 +4,8 @@ from uuid import uuid4
 from pydantic import ValidationError
 from pytest import mark, raises
 
+from rtmilk import APIError
+
 def testClientDeleteWithNoDates(client):
 	_ = client.Get('')
 	taskAdded = client.Add(f'{uuid4()}')
@@ -69,6 +71,11 @@ def testClientSync(client):
 	assert len(tasksWithTitle) == 1, f'Should be only 1 task with name: "{name}"\n{tasksWithTitle}'
 	assert newTaskToo.startDate.value == startDateTime, 'Start date should have been updated with the time'
 	assert newTaskToo.dueDate.value == dueDateTime, 'Due date should have been updated with the time'
+
+	# try:
+	subtask = client.Add('subtask', newTaskToo)
+	# except APIError as e:
+	# 	assert e.code == 4040
 
 	newTaskToo.Delete()
 

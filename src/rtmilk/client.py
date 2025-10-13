@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from logging import getLogger
 
-from pydantic import validate_call
+from pydantic import BaseModel, validate_call
 
 from .api_async import APIAsync
 from .api_sync import API
@@ -12,14 +12,22 @@ from ._properties import CompleteProperty, DueDateProperty, NameProperty, NotesP
 
 _log = getLogger(__name__)
 
-class Task:
+class Task(BaseModel):
 	"""Represents an RTM task"""
+	name: NameProperty
+	tags: TagsProperty
+	startDate: StartDateProperty
+	dueDate: DueDateProperty
+	complete: CompleteProperty
+	notes: NotesProperty
+	createTime: datetime | None = None
+	modifiedTime: datetime | None = None
 
 	def __init__(self, client, listId, taskSeriesId, taskId):
 		self._client = client
 		self._listId = listId
 		self._taskSeriesId = taskSeriesId
-		self._taskId = taskId
+		self._taskId: str = taskId
 
 		self.name = NameProperty(self)
 		self.tags = TagsProperty(self)
@@ -27,8 +35,6 @@ class Task:
 		self.dueDate = DueDateProperty(self)
 		self.complete = CompleteProperty(self)
 		self.notes = NotesProperty(self)
-		self.createTime: datetime | None = None
-		self.modifiedTime: datetime | None = None
 
 	def __repr__(self):
 		return f'Task({self.name.value})'
@@ -122,9 +128,9 @@ class _Client:
 		return _CreateListOfTasks(self, listResponse)
 
 	@validate_call
-	def Add(self, name: str) -> Task:
+	def Add(self, name: str, parent: Task | None = None) -> Task:
 		_log.info(f'Add: {name}')
-		taskResponse = _RaiseIfError(self.api.TasksAdd(self.timeline, name)) # ty: ignore[invalid-argument-type]
+		taskResponse = _RaiseIfError(self.api.TasksAdd(self.timeline, name, parent_task_id=parent._taskId if parent is not None else None)) # ty: ignore[invalid-argument-type]
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
 	@validate_call
@@ -133,8 +139,8 @@ class _Client:
 		listResponse = _RaiseIfError(await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync))
 		return _CreateListOfTasks(self, listResponse)
 
-	@validate_call
-	async def AddAsync(self, name: str) -> Task:
+	# @validate_call
+	async def AddAsync(self, name: str, parent: Task | None = None) -> Task:
 		_log.info(f'AddAsync: {name}')
-		taskResponse = _RaiseIfError(await self.apiAsync.TasksAdd(self.timeline, name)) # ty: ignore[invalid-argument-type]
+		taskResponse = _RaiseIfError(await self.apiAsync.TasksAdd(self.timeline, name, parent_task_id=parent._taskId if parent is not None else None)) # ty: ignore[invalid-argument-type]
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
