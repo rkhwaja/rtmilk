@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from logging import getLogger
 
 from pydantic import validate_call
@@ -8,25 +8,25 @@ from pydantic import validate_call
 from .api_async import APIAsync
 from .api_sync import API
 from .models import _RaiseIfError
-from ._properties import CompleteProperty, DueDateProperty, NameProperty, NotesProperty, StartDateProperty, TagsProperty
+from ._properties import CompleteProperty, DateProperty, DueDateProperty, NameProperty, NotesProperty, StartDateProperty, TagsProperty
 
 _log = getLogger(__name__)
 
 class Task:
 	"""Represents an RTM task"""
 
-	def __init__(self, client, listId, taskSeriesId, taskId):
+	def __init__(self, client: _Client, listId: str, taskSeriesId: str, taskId: str):
 		self._client = client
 		self._listId = listId
 		self._taskSeriesId = taskSeriesId
 		self._taskId = taskId
 
-		self.name = NameProperty(self)
-		self.tags = TagsProperty(self)
-		self.startDate = StartDateProperty(self)
-		self.dueDate = DueDateProperty(self)
-		self.complete = CompleteProperty(self)
-		self.notes = NotesProperty(self)
+		self.name: NameProperty = NameProperty(self)
+		self.tags: TagsProperty = TagsProperty(self)
+		self.startDate: DateProperty = StartDateProperty(self)
+		self.dueDate: DateProperty = DueDateProperty(self)
+		self.complete: CompleteProperty = CompleteProperty(self)
+		self.notes: NotesProperty = NotesProperty(self)
 		self.createTime: datetime | None = None
 		self.modifiedTime: datetime | None = None
 
@@ -34,23 +34,23 @@ class Task:
 		return f'Task({self.name.value})'
 
 	@validate_call
-	def Delete(self):
+	def Delete(self) -> None:
 		_log.info(f'{self}.Delete')
-		_RaiseIfError(self._client.api.TasksDelete(timeline=self._client.timeline,
+		_RaiseIfError(self._client.api.TasksDelete(timeline=self._client.timeline, # ty: ignore[invalid-argument-type]
 								list_id=self._listId,
 								taskseries_id=self._taskSeriesId,
 								task_id=self._taskId))
 
 	@validate_call
-	async def DeleteAsync(self):
+	async def DeleteAsync(self) -> None:
 		_log.info(f'{self}.DeleteAsync')
-		_RaiseIfError(await self._client.apiAsync.TasksDelete(timeline=self._client.timeline,
+		_RaiseIfError(await self._client.apiAsync.TasksDelete(timeline=self._client.timeline, # ty: ignore[invalid-argument-type]
 								list_id=self._listId,
 								taskseries_id=self._taskSeriesId,
 								task_id=self._taskId))
 
 # Serialize python datetime object to string for use by filters
-def FilterDate(date_):
+def FilterDate(date_: date) -> str:
 	return datetime.strftime(date_, '%m/%d/%Y')
 
 def _LoadDate(rtmDate, hasTime):

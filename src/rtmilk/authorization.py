@@ -7,7 +7,7 @@ _AUTHORIZATION_URL = 'https://www.rememberthemilk.com/services/auth/'
 class AuthorizationSession:
 	"""Helper for authorizing an app against the RTM API"""
 
-	def __init__(self, apiKey, sharedSecret, perms):
+	def __init__(self, apiKey: str, sharedSecret: str, perms: str):
 		self._api = UnauthorizedAPI(apiKey, sharedSecret)
 		self._frob = _RaiseIfError(self._api.AuthGetFrob())
 		params = {'api_key': apiKey, 'perms': perms, 'frob': self._frob}
