@@ -54,6 +54,7 @@ lint.ignore = [
     "COM812",   # Missing trailing comma
     "D",        # Missing docstrings
     "DTZ",      # datetime timezone rules
+    "E501",     # Line too long
     "EM",       # Rules about strings in exception constructors
     "ERA001",   # Commented out code
     "FBT",      # Disallows bool positional arguments

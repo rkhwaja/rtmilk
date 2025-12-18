@@ -6,6 +6,7 @@ from datetime import date, datetime
 from logging import getLogger
 
 from listdiff import DiffUnsortedLists
+from rtmilk.client import _Client, Task
 from rtmilk.models import APIError
 
 _log = getLogger(__name__)
@@ -17,10 +18,12 @@ class TaskData:
 	startDate: date | datetime | None = None
 	dueDate: date | datetime | None = None
 	notes: str = ''
-	complete: bool | None = False # optional here means that either is acceptable i.e. don't change an existing task's complete value
+	# optional here means that either is acceptable i.e. don't change an existing task's complete value
+	# if this task is to be added, None means set the new task's value to the default of False
+	complete: bool | None = False
 
 	@classmethod
-	def FromTask(cls, task):
+	def FromTask(cls, task: Task):
 		return TaskData(
 			name=task.name.value,
 			tags=copy(task.tags.value),
@@ -61,7 +64,7 @@ async def _MirrorTaskAsync(task, taskData):
 	if taskData.complete is not None:
 		await _MirrorPropertyAsync(task.complete, taskData.complete)
 
-def Mirror(client, existingTasks, requiredTaskData):
+def Mirror(client: _Client, existingTasks: list[Task], requiredTaskData: list[TaskData]):
 	"""Assumes that there have been no changes since existingTasks were read from the remote
 	Won't update a value which was already correct, according to existingTasks"""
 	_log.info(f'Mirror: {existingTasks}, {requiredTaskData}')
@@ -78,7 +81,7 @@ def Mirror(client, existingTasks, requiredTaskData):
 			newTask.startDate.Set(taskData.startDate)
 		if taskData.dueDate is not None:
 			newTask.dueDate.Set(taskData.dueDate)
-		if taskData.complete is not False:
+		if taskData.complete is not None:
 			newTask.complete.Set(taskData.complete)
 		if taskData.notes != '':
 			newTask.notes.Add('', taskData.notes)
@@ -86,7 +89,7 @@ def Mirror(client, existingTasks, requiredTaskData):
 	for task, taskData in matches:
 		_MirrorTask(task, taskData)
 
-async def MirrorAsync(client, existingTasks, requiredTaskData):
+async def MirrorAsync(client: _Client, existingTasks: list[Task], requiredTaskData: list[TaskData]):
 	"""Assumes that there have been no changes since existingTasks were read from the remote
 	Won't update a value which was already correct, according to existingTasks"""
 	_log.info(f'Mirror: {existingTasks}, {requiredTaskData}')
@@ -103,7 +106,7 @@ async def MirrorAsync(client, existingTasks, requiredTaskData):
 			await newTask.startDate.SetAsync(taskData.startDate)
 		if taskData.dueDate is not None:
 			await newTask.dueDate.SetAsync(taskData.dueDate)
-		if taskData.complete is not False:
+		if taskData.complete is not None:
 			await newTask.complete.SetAsync(taskData.complete)
 		if taskData.notes != '':
 			await newTask.notes.AddAsync('', taskData.notes)
