@@ -26,7 +26,7 @@ class _Property(Generic[_T]):
 
 	@property
 	def value(self) -> _T:
-		return self._value
+		return self._value # ty: ignore[invalid-return-type]
 
 class NotesProperty(_Property[list[Note]]):
 
@@ -115,25 +115,25 @@ class DateProperty(_Property[date | datetime | None]):
 
 	def Set(self, value: date | datetime | None):
 		parameters = self._Parameters(value)
-		(self.__class__.F)(self._task._client.api, **parameters)
+		(self.__class__.F)(self._task._client.api, **parameters) # ty: ignore[unresolved-attribute]
 
 	async def SetAsync(self, value: date | datetime | None):
 		parameters = self._Parameters(value)
-		await (self.__class__.FA)(self._task._client.apiAsync, **parameters)
+		await (self.__class__.FA)(self._task._client.apiAsync, **parameters) # ty: ignore[unresolved-attribute]
 
 class StartDateProperty(DateProperty):
 	"""None means no start date"""
 	def __init__(self, task):
 		super().__init__(task, 'start')
-		self.__class__.F = staticmethod(API.TasksSetStartDate)
-		self.__class__.FA = staticmethod(APIAsync.TasksSetStartDate)
+		self.__class__.F = staticmethod(API.TasksSetStartDate) # ty: ignore[unresolved-attribute]
+		self.__class__.FA = staticmethod(APIAsync.TasksSetStartDate) # ty: ignore[unresolved-attribute]
 
 class DueDateProperty(DateProperty):
 	"""None means no due date"""
 	def __init__(self, task):
 		super().__init__(task, 'due')
-		self.__class__.F = staticmethod(API.TasksSetDueDate)
-		self.__class__.FA = staticmethod(APIAsync.TasksSetDueDate)
+		self.__class__.F = staticmethod(API.TasksSetDueDate) # ty: ignore[unresolved-attribute]
+		self.__class__.FA = staticmethod(APIAsync.TasksSetDueDate) # ty: ignore[unresolved-attribute]
 
 class NameProperty(_Property[str]):
 	def Set(self, value: str):

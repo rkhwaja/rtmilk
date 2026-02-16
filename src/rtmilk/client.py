@@ -113,7 +113,7 @@ class _Client:
 		self.timeline = _RaiseIfError(self.api.TimelinesCreate().timeline)
 
 	async def _CreateTimelineAsync(self):
-		self.timeline = _RaiseIfError(await self.apiAsync.TimelinesCreate().timeline)
+		self.timeline = _RaiseIfError((await self.apiAsync.TimelinesCreate()).timeline)
 
 	@validate_call
 	def Get(self, filter_: str, lastSync: datetime | None = None) -> list[Task]:
@@ -124,7 +124,7 @@ class _Client:
 	@validate_call
 	def Add(self, name: str) -> Task:
 		_log.info(f'Add: {name}')
-		taskResponse = _RaiseIfError(self.api.TasksAdd(self.timeline, name))
+		taskResponse = _RaiseIfError(self.api.TasksAdd(self.timeline, name)) # ty: ignore[invalid-argument-type]
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
 	@validate_call
@@ -136,5 +136,5 @@ class _Client:
 	@validate_call
 	async def AddAsync(self, name: str) -> Task:
 		_log.info(f'AddAsync: {name}')
-		taskResponse = _RaiseIfError(await self.apiAsync.TasksAdd(self.timeline, name))
+		taskResponse = _RaiseIfError(await self.apiAsync.TasksAdd(self.timeline, name)) # ty: ignore[invalid-argument-type]
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])

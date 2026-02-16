@@ -33,7 +33,7 @@ def _ValidateReturn(type_, rsp):
 	except ValidationError as e:
 		_log.error(f'Failed to validate against {type_}:\n{pformat(rsp)}\n{e}')
 	try:
-		return FailStat(**rsp) # ty: ignore[missing-argument]
+		return FailStat(**rsp)
 	except ValidationError as e:
 		raise APIError from e
 
@@ -68,7 +68,7 @@ class TestEcho(UnauthorizedCall):
 
 	@classmethod
 	def Out(cls, **rsp):
-		return EchoResponse(**rsp) # ty: ignore[missing-argument]
+		return EchoResponse(**rsp)
 
 class AuthGetFrob(UnauthorizedCall):
 	def In(self):
@@ -94,7 +94,7 @@ class AuthCheckToken(UnauthorizedCall):
 
 	@classmethod
 	def Out(cls, **rsp):
-		return AuthResponse(**rsp) # ty: ignore[missing-argument]
+		return AuthResponse(**rsp)
 
 AuthorizedCall = Call
 
