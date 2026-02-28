@@ -1,6 +1,6 @@
 [project]
 name = "rtmilk"
-version = "3.0.5"
+version = "3.0.6"
 description = "Remember The Milk API wrapper"
 maintainers = [
 	{ name = "Rehan Khwaja", email = "rehan@khwaja.name" }
@@ -94,13 +94,13 @@ lint.select = ["ALL"]
 inline-quotes = "single"
 multiline-quotes = "single"
 
-[tool.pytest.ini_options]
+[tool.pytest]
 pythonpath = ["src"]
 asyncio_default_fixture_loop_scope = "function"
 
 [dependency-groups]
 dev = [
-    "pytest>=7.1",
+    "pytest>=9.0.2",
     "pyperclip>=1.8.0",
     "python-dateutil>=2.8.1",
     "python-dotenv>=0.17.1",
