@@ -275,8 +275,7 @@ class TasksGetList(AuthorizedCall):
 
 class TasksMovePriority(AuthorizedCall):
 	def In(self, timeline: str, list_id: str, taskseries_id: str, task_id: str, direction: PriorityDirectionEnum):
-		direction = direction.value
-		return self.CommonParams('rtm.tasks.movePriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, direction=direction)
+		return self.CommonParams('rtm.tasks.movePriority', timeline=timeline, list_id=list_id, taskseries_id=taskseries_id, task_id=task_id, direction=direction.value)
 
 	@classmethod
 	def Out(cls, **rsp):
