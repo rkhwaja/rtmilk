@@ -5,8 +5,8 @@ from logging import getLogger
 from pprint import pformat
 
 from pydantic import validate_call
-from requests import get
-from requests.exceptions import RequestException
+from niquests import get
+from niquests.exceptions import RequestException
 
 from .api_base import UnauthorizedAPIBase
 from .models import AuthResponse, BaseError, EchoResponse, ListsResponse, NotesResponse, PriorityDirectionEnum, PriorityEnum, SettingsResponse, SingleListResponse, SubscriptionListResponse, SubscriptionResponse, TagListResponse, TaskListResponse, TaskPayload, TaskResponse, TimelineResponse, TopicListResponse
@@ -19,7 +19,7 @@ _log = getLogger(__name__)
 
 def _CallSync(params):
 	try:
-		response = get(REST_URL, params=params) # noqa: S113
+		response = get(REST_URL, params=params)
 		json = response.json()
 		_log.debug(f'JSON response:\n{pformat(json)}')
 		return json['rsp']
