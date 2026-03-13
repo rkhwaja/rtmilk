@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from json import loads
 from logging import getLogger
 
-from aiohttp import ClientResponseError, ClientSession
+from niquests import AsyncSession, JSONDecodeError, RequestException
 from pydantic import validate_call
 
 from .api_base import UnauthorizedAPIBase
@@ -18,10 +17,10 @@ _log = getLogger(__name__)
 
 async def _CallAsync(params):
 	try:
-		async with ClientSession() as session, session.get(REST_URL, params=params) as resp:
-			text = await resp.text()
-			return loads(text)['rsp']
-	except (ClientResponseError, ValueError) as e:
+		async with AsyncSession() as session:
+			resp = await session.get(REST_URL, params=params)
+			return resp.json()['rsp']
+	except (RequestException, JSONDecodeError) as e:
 		raise BaseError from e
 
 class UnauthorizedAPIAsync(UnauthorizedAPIBase):
