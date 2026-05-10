@@ -20,7 +20,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "pydantic>=2.8",
+    "pydantic>=2.12",
     "listdiff>=1.0.2",
     "niquests>=3.17.0",
 ]
@@ -33,6 +33,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.poe.tasks]
+audit = "pysentry-rs ."
 build = "uv build"
 test = "pytest"
 lint = "ruff check src tests"
@@ -65,7 +66,7 @@ lint.ignore = [
     "PLR0913",  # Too many arguments
     "PT013",    # Only allows one way of importing pytest
     "PTH",      # Forces use of pathlib
-    "TC",      # Requires type-checking blocks
+    "TC",       # Requires type-checking blocks
     "TD",       # Requires special formatting of TODO-type comments
     "TRY003",   # Disallows long messages in exceptions
     "W191",     # Disallows tab spacing
@@ -98,13 +99,14 @@ asyncio_default_fixture_loop_scope = "function"
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.2",
+    "pytest>=9.0.3",
     "pyperclip>=1.8.0",
     "python-dateutil>=2.8.1",
-    "python-dotenv>=0.17.1",
+    "python-dotenv>=1.2.2",
     "pytest-cov>=3",
     "pytest-asyncio>=0.24.0",
     "poethepoet>=0.16.4",
     "ruff>=0.15.6",
     "ty>=0.0.22",
+    "pysentry-rs>=0.4.5",
 ]
