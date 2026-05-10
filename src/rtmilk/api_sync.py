@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from logging import getLogger
-from pprint import pformat
 
 from pydantic import validate_call
 from niquests import get
@@ -21,7 +20,6 @@ def _CallSync(params):
 	try:
 		response = get(REST_URL, params=params)
 		json = response.json()
-		_log.debug(f'JSON response:\n{pformat(json)}')
 		return json['rsp']
 	except (RequestException, ValueError) as e:
 		raise BaseError from e
