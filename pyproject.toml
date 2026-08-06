@@ -51,6 +51,7 @@ lint.ignore = [
     "A002",     # Disallows argument names which shadow builtins
     "ANN",      # Missing annotations
     "COM812",   # Missing trailing comma
+	"CPY001",   # requires copyright notices
     "D",        # Missing docstrings
     "DTZ",      # datetime timezone rules
     "EM",       # Rules about strings in exception constructors
@@ -64,6 +65,7 @@ lint.ignore = [
     "N806",     # Variable naming rule
     "N815",     # Variable naming rule
     "PLR0913",  # Too many arguments
+    "PLR0917",  # Too many positional arguments
     "PT013",    # Only allows one way of importing pytest
     "PTH",      # Forces use of pathlib
     "TC",       # Requires type-checking blocks
