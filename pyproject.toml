@@ -17,6 +17,7 @@ classifiers = [
 	"Programming Language :: Python :: 3.12",
 	"Programming Language :: Python :: 3.13",
 	"Programming Language :: Python :: 3.14",
+	"Programming Language :: Python :: 3.15",
 ]
 requires-python = ">=3.10"
 dependencies = [
@@ -51,6 +52,7 @@ lint.ignore = [
     "A002",     # Disallows argument names which shadow builtins
     "ANN",      # Missing annotations
     "COM812",   # Missing trailing comma
+	"CPY001",   # requires copyright notices
     "D",        # Missing docstrings
     "DTZ",      # datetime timezone rules
     "EM",       # Rules about strings in exception constructors
@@ -64,6 +66,7 @@ lint.ignore = [
     "N806",     # Variable naming rule
     "N815",     # Variable naming rule
     "PLR0913",  # Too many arguments
+    "PLR0917",  # Too many positional arguments
     "PT013",    # Only allows one way of importing pytest
     "PTH",      # Forces use of pathlib
     "TC",       # Requires type-checking blocks
@@ -106,7 +109,7 @@ dev = [
     "pytest-cov>=3",
     "pytest-asyncio>=0.24.0",
     "poethepoet>=0.16.4",
-    "ruff>=0.15.6",
+    "ruff>=0.16.1",
     "ty>=0.0.22",
     "pysentry-rs>=0.4.5",
 ]
