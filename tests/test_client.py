@@ -2,7 +2,9 @@ from datetime import date, datetime, time, timedelta, timezone
 from uuid import uuid4
 
 from pydantic import ValidationError
-from pytest import mark, raises
+from pytest import fail, mark, raises
+
+from rtmilk import APIError
 
 def testClientDeleteWithNoDates(client):
 	_ = client.Get('')
@@ -123,3 +125,31 @@ async def testClientAsync(client):
 	assert newTaskToo.complete.value is True
 
 	await newTaskToo.DeleteAsync()
+
+def test_Webhooks(client):
+	DUMMY_URL = f'https://hook.example/{uuid4()}/' # RTM adds the "/" to the end
+	originalSubscriptions = client.Subscriptions()
+	assert isinstance(originalSubscriptions, list)
+
+	newSubscription = client.Subscribe(DUMMY_URL, ('task_completed',), 'json', 60, '')
+	assert newSubscription.url == DUMMY_URL
+
+	includingNewSubscription = client.Subscriptions()
+	assert any(sub.url == DUMMY_URL for sub in includingNewSubscription), 'We should see the new sub in the list'
+
+	try:
+		client.Subscribe(DUMMY_URL, ('task_completed',), 'json', 60, '')
+		fail('An error should have been thrown because we tried to add a url which is already there')
+	except APIError:
+		pass
+
+	# verify that unsubscribe works
+	for subscription in includingNewSubscription:
+		if subscription.url == DUMMY_URL:
+			client.Unsubscribe(subscription.id)
+			break
+	else:
+		fail('There should have been our subscription in the list')
+
+	withTestSubscriptionGone = client.Subscriptions()
+	assert any(sub.url == DUMMY_URL for sub in withTestSubscriptionGone) is False, 'We should see the new sub gone from the list'

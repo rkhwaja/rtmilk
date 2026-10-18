@@ -192,7 +192,7 @@ class PushUnsubscribe(AuthorizedCall):
 		return self.CommonParams('rtm.push.unsubscribe', timeline=timeline, subscription_id=subscription_id)
 
 	@classmethod
-	def Out(cls):
+	def Out(cls, **rsp):  # noqa: ARG003
 		return None
 
 class TimelinesCreate(AuthorizedCall):

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from logging import getLogger
 
@@ -9,6 +10,7 @@ from .api_async import APIAsync
 from .api_sync import API
 from .models import _RaiseIfError
 from ._properties import CompleteProperty, DueDateProperty, NameProperty, NotesProperty, StartDateProperty, TagsProperty
+from ._utils import HttpsUrl
 
 _log = getLogger(__name__)
 
@@ -48,6 +50,19 @@ class Task:
 								list_id=self._listId,
 								taskseries_id=self._taskSeriesId,
 								task_id=self._taskId))
+
+@dataclass
+class Subscription:
+	id: str
+	url: str
+	format: str
+	expires: datetime | None
+	pending: bool
+	topics: list[str]
+	filter: str
+
+def _CreateSubscriptionFromResponse(apiResponse):
+	return Subscription(apiResponse.id, apiResponse.url, apiResponse.format, apiResponse.expires, apiResponse.pending, apiResponse.topics.topic, apiResponse.filter)
 
 # Serialize python datetime object to string for use by filters
 def FilterDate(date_):
@@ -128,6 +143,22 @@ class _Client:
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
 
 	@validate_call
+	def Subscribe(self, url: HttpsUrl, topics: list[str], push_format: str, lease_seconds: int | None = None, filter: str | None = None) -> Subscription:
+		response = _RaiseIfError(self.api.PushSubscribe(url=url, topics=','.join(topics), push_format=push_format, timeline=self.timeline, lease_seconds=lease_seconds, filter=filter))
+		return _CreateSubscriptionFromResponse(response.subscription)
+
+	@validate_call
+	def Unsubscribe(self, id: str) -> None:
+		_RaiseIfError(self.api.PushUnsubscribe(timeline=self.timeline, subscription_id=id))
+
+	@validate_call
+	def Subscriptions(self) -> list[Subscription]:
+		response = self.api.PushGetSubscriptions()
+		if isinstance(response.subscriptions, list):
+			return []
+		return [_CreateSubscriptionFromResponse(subResponse) for subResponse in response.subscriptions.subscription]
+
+	@validate_call
 	async def GetAsync(self, filter_: str, lastSync: datetime | None = None) -> list[Task]:
 		_log.info(f'GetAsync: {filter_}, {lastSync}')
 		listResponse = _RaiseIfError(await self.apiAsync.TasksGetList(filter=filter_, last_sync=lastSync))
@@ -138,3 +169,19 @@ class _Client:
 		_log.info(f'AddAsync: {name}')
 		taskResponse = _RaiseIfError(await self.apiAsync.TasksAdd(self.timeline, name)) # ty: ignore[invalid-argument-type]
 		return _CreateFromTaskSeries(self, listId=taskResponse.list.id, taskSeries=taskResponse.list.taskseries[0])
+
+	@validate_call
+	async def SubscribeAsync(self, url: HttpsUrl, topics: list[str], push_format: str, lease_seconds: int | None = None, filter: str | None = None) -> Subscription:
+		response = _RaiseIfError(await self.apiAsync.PushSubscribe(url=url, topics=','.join(topics), push_format=push_format, timeline=self.timeline, lease_seconds=lease_seconds, filter=filter))
+		return _CreateSubscriptionFromResponse(response.subscription)
+
+	@validate_call
+	async def UnsubscribeAsync(self, id: str) -> None:
+		_RaiseIfError(await self.apiAsync.PushUnsubscribe(timeline=self.timeline, subscription_id=id))
+
+	@validate_call
+	async def SubscriptionsAsync(self) -> list[Subscription]:
+		response = await self.apiAsync.PushGetSubscriptions()
+		if isinstance(response.subscriptions, list):
+			return []
+		return [_CreateSubscriptionFromResponse(subResponse) for subResponse in response.subscriptions.subscription]
