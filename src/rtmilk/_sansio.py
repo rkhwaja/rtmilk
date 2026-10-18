@@ -34,7 +34,7 @@ def _ValidateReturn(type_, rsp):
 	try:
 		return FailStat(**rsp)
 	except ValidationError as e:
-		raise APIError from e
+		raise APIError(None, 'Fail information not returned by API') from e
 
 def ApiSig(sharedSecret, params):
 	sortedItems = sorted(params.items(), key=lambda x: x[0])

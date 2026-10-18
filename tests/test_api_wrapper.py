@@ -7,7 +7,7 @@ from dateutil.tz import gettz
 from pydantic import ValidationError
 from pytest import mark, raises
 
-from rtmilk import AuthResponse, EchoResponse, FailStat, NotePayload, PriorityDirectionEnum, PriorityEnum, RTMList, RTMSmartList, Tags, TaskResponse, TaskSeries
+from rtmilk import AuthResponse, EchoResponse, FailStat, NotePayload, PriorityDirectionEnum, PriorityEnum, RTMList, RTMSmartList, SubscriptionList, Tags, TaskResponse, TaskSeries
 from rtmilk._sansio import TasksGetList
 
 def test_validation(api, timeline):
@@ -283,10 +283,18 @@ def test_add_smart_list(api, timeline, newSmartList):
 	assert isinstance(result, FailStat), 'Should have failed to archive a smart list'
 
 def test_subscriptions(api, timeline):
-	api.PushGetSubscriptions()
+	responseOriginal = api.PushGetSubscriptions()
+	listOriginal = responseOriginal.subscriptions.subscription if isinstance(responseOriginal.subscriptions, SubscriptionList) else responseOriginal.subscriptions
+
 	topics = api.PushGetTopics()
-	info(topics)
-	api.PushSubscribe(timeline=timeline, url='https://hook.example', topics='task_created', filter='', push_format='json', lease_seconds='60')
+	assert len(topics.topics.topic) == 6, f'The list is fixed: {topics.topics.topic}'  # noqa: PLR2004
+
+	api.PushSubscribe(timeline=timeline, url='https://hook.example', topics='task_created', filter='', push_format='json', lease_seconds=60)
+
+	responseCurrent = api.PushGetSubscriptions()
+	listCurrent = responseCurrent.subscriptions.subscription if isinstance(responseCurrent.subscriptions,SubscriptionList) else responseCurrent.subscriptions
+
+	assert len(listCurrent) - len(listOriginal) in {0, 1}, f'{listOriginal} -> {listCurrent}'
 
 def test_url():
 	fake = {'stat': 'ok',
