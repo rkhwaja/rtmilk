@@ -226,9 +226,10 @@ class SubscriptionPayload(BaseModel):
 	id: str
 	url: str
 	format: Annotated[str, StringConstraints(pattern='json')]
-	expires: datetime
+	expires: EmptyStrToNone[datetime | None]
 	pending: bool
 	topics: Topic | list[str]
+	filter: str | None
 
 class SubscriptionResponse(OkStat):
 	transaction: Transaction
@@ -238,4 +239,5 @@ class SubscriptionList(BaseModel):
 	subscription: list[SubscriptionPayload]
 
 class SubscriptionListResponse(OkStat):
+	# If the count is 0, we get list, otherwise we get SubscriptionList
 	subscriptions: SubscriptionList | list[SubscriptionPayload]
