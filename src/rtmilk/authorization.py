@@ -1,3 +1,6 @@
+from hmac import new, compare_digest
+from hashlib import sha256
+
 from .api_sync import UnauthorizedAPI
 from .models import _RaiseIfError
 from ._sansio import ApiSig
@@ -16,3 +19,9 @@ class AuthorizationSession:
 
 	def Done(self):
 		return _RaiseIfError(self._api.AuthGetToken(self._frob))
+
+def ValidateWebhookEvent(clientSecret, xHookSignature, eventId):
+	timestamp, signature = xHookSignature.split('.')
+	expectedSignature = new(clientSecret.encode('utf-8'), timestamp.encode('utf-8') + b'.' + eventId.encode('utf-8'), sha256).hexdigest()
+	if compare_digest(expectedSignature, signature) is False:
+		raise RuntimeError('Bad signature')

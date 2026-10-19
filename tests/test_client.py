@@ -4,7 +4,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 from pytest import fail, mark, raises
 
-from rtmilk import APIError
+from rtmilk import APIError, ValidateWebhookEvent
 
 def testClientDeleteWithNoDates(client):
 	_ = client.Get('')
@@ -153,3 +153,9 @@ def test_Webhooks(client):
 
 	withTestSubscriptionGone = client.Subscriptions()
 	assert any(sub.url == DUMMY_URL for sub in withTestSubscriptionGone) is False, 'We should see the new sub gone from the list'
+
+def test_WebhookEventValidation():
+	# this is the example from the documentation
+	ValidateWebhookEvent('BANANAS', '2509214145.d480e0d30206a376441d6aa555533eae4283ee1afc1753891abc141c2bf1d7fc', 'c6ac89b9-ad76-3d19-9043-64b35e9b1259')
+	with raises(RuntimeError):
+		ValidateWebhookEvent('BANANAS', '2509214145.d480e0d30206a376441d6aa555533eae4283ee1afc1753891abc141c2bf1d7fd', 'c6ac89b9-ad76-3d19-9043-64b35e9b1259')
