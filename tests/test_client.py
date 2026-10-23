@@ -139,6 +139,8 @@ def test_Webhooks(client):
 
 	try:
 		client.Subscribe(DUMMY_URL, ('task_completed',), 'json', 60, '')
+		# do it a second time in case the first one expired
+		client.Subscribe(DUMMY_URL, ('task_completed',), 'json', 60, '')
 		fail('An error should have been thrown because we tried to add a url which is already there')
 	except APIError:
 		pass
