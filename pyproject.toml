@@ -21,7 +21,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "pydantic>=2.12",
+    "pydantic>=2.14.0",
     "listdiff>=1.0.2",
     "niquests>=3.17.0",
 ]
@@ -111,5 +111,5 @@ dev = [
     "poethepoet>=0.16.4",
     "ruff>=0.16.1",
     "ty>=0.0.22",
-    "pysentry-rs>=0.4.5",
+    "pysentry-rs>=0.5.0",
 ]
